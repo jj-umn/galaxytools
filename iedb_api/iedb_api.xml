@@ -1,0 +1,235 @@
+<tool id="iedb_api" name="IEDB" version="0.1.0">
+    <description>MHC Binding prediction</description>
+    <requirements>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+    <command interpreter="python"><![CDATA[
+        #import re
+        iedb_api.py --prediction=$prediction.tool --method=$prediction.method 
+        #if $sequence.seqsrc == 'fasta':
+          -i $sequence.seq_fasta
+        #else if $sequence.seqsrc == 'tabular':
+          -i $sequence.seq_tsv
+          -c #echo int(str($sequence.pep_col)) - 1
+          #if $sequence.id_col:
+            -C #echo  int(str($sequence.id_col)) - 1
+          #end if
+        #else:
+          #for $seq in str($sequence.seq_text).strip().split():
+            -s $seq.strip()
+          #end for
+        #end if
+        #if $alleles.allelesrc == 'history':
+          #for $line in open(str($alleles.allele_file)):
+            #set $fields = $line.strip().split(',') 
+            #set $allele = $fields[0].strip()
+            #if len($allele) > 0:
+              #if len($fields) > 1: 
+                #for $alen in $fields[1:]:
+                  -a $allele -l $alen
+                #end for
+              #else:
+                #for $alen in str($lengths).split(','):
+                  -a $allele -l $alen
+                #end for
+              #end if
+            #end if
+          #end for
+        #else:
+          #for $word in str($alleles.allele_text).strip().split():
+            #set $fields = $word.strip().split(',') 
+            #set $allele = $fields[0].strip()
+            #if len($allele) > 0:
+              #if len($fields) > 1: 
+                #for $alen in $fields[1:]:
+                  -a $allele -l $alen
+                #end for
+              #else:
+                #for $alen in str($lengths).split(','):
+                  -a $allele -l $alen
+                #end for
+              #end if
+            #end if
+          #end for
+        #end if
+        -o $output
+    ]]></command>
+    <inputs>
+        <conditional name="sequence">
+           <param name="seqsrc" type="select" label="Peptide sequences">
+               <option value="fasta">Fasta file</option>
+               <option value="tabular">From tabular</option>
+               <option value="entry"></option>
+           </param>
+           <when value="fasta">
+               <param name="seq_fasta" type="data" format="fasta" label="Peptide Sequence Fasta"/>
+           </when>
+           <when value="tabular">
+               <param name="seq_tsv" type="data" format="tabular" label="Peptide Sequence Tabular"/>
+               <param name="pep_col" label="Select column with peptides" type="data_column" numerical="false" data_ref="seq_tsv" />
+               <param name="id_col" label="Select column with name" type="data_column" numerical="false" data_ref="seq_tsv" optional="true"/>
+           </when>
+           <when value="entry">
+               <param name="seq_text" type="text" size="80" label="Peptide Sequence"/>
+           </when>
+        </conditional>
+        <conditional name="alleles">
+           <param name="allelesrc" type="select" label="Alleles">
+               <option value="history">From history</option>
+               <option value="entry">Entered</option>
+           </param>
+           <when value="history">
+               <param name="allele_file" type="data" format="txt" label="Alleles file"/>
+               <help>The dataset should have on allele per line. The allele may be followed by an optional comma-separated list of pepttide lengths, e.g.: HLA-A*02:01,8,9</help>
+           </when>
+           <when value="entry">
+               <param name="allele_text" type="text" size="80" label="Alleles">
+                   <help>Enter alleles separated by white space: HLA-A*03:01  HLA-B*07:02  (The peptide lengths may follow each allele: HLA-A*03:01,8,9,10  HLA-B*07:02,9</help>
+                   <validator type="regex" message="IDs separted by commas">^(HLA-([A-C]|D[PQR][AB]1)\*[0-9][[0-9]:[0-9][0-9](,(8|9|10|11|12|13|14|15))*)(\s+HLA-([A-C]|D[PQR][AB]1)\*[0-9][[0-9]:[0-9][0-9](,(8|9|10|11|12|13|14|15))*)*$</validator>
+               </param>
+           </when>
+        </conditional>
+        <param name="lengths" type="select" multiple="true" label="peptide lengths for prediction">
+            <help>Used for any alleles which don't include specified lengths</help>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+        </param>
+        <conditional name="prediction">
+           <param name="tool" type="select" label="Prediction">
+               <option value="mhci">MHC-I Binding</option>
+               <option value="mhcii">MHC-II Binding</option>
+               <option value="processing">MHC-I Processing</option>
+               <option value="mhcnp">MHC-NP T-Cell Epitope</option>
+               <option value="bcell">Antibody Epitope Prediction</option>
+           </param>
+           <when value="mhci">
+               <param name="method" type="select" label="prediction method">
+                   <option value="recommended" selected="true">recommended</option>
+                   <option value="consensus">consensus</option>
+                   <option value="netmhcpan">netmhcpan</option>
+                   <option value="ann">ann</option>
+                   <option value="smmpmbec">smmpmbec</option>
+                   <option value="smm">smm</option>
+                   <option value="comblib_sidney2008">comblib_sidney2008</option>
+                   <option value="netmhccons">netmhccons</option>
+                   <option value="pickpocket">pickpocket</option>
+               </param>
+           </when>
+           <when value="mhcii">
+               <param name="method" type="select" label="prediction method">
+                   <option value="recommended" selected="true">recommended</option>
+                   <option value="consensus3">consensus3</option>
+                   <option value="NetMHCIIpan">NetMHCIIpan</option>
+                   <option value="nn_align">nn_align</option>
+                   <option value="smm_align">smm_align</option>
+                   <option value="comblib">comblib</option>
+                   <option value="tepitope">tepitope</option>
+               </param>
+           </when>
+           <when value="processing">
+               <param name="method" type="select" label="prediction method">
+                   <option value="recommended" selected="true">recommended</option>
+                   <option value="consensus">consensus</option>
+                   <option value="netmhcpan">netmhcpan</option>
+                   <option value="ann">ann</option>
+                   <option value="smmpmbec">smmpmbec</option>
+                   <option value="smm">smm</option>
+                   <option value="comblib_sidney2008">comblib_sidney2008</option>
+               </param>
+           </when>
+           <when value="mhcnp">
+               <param name="method" type="select" label="prediction method">
+                   <option value="mhcnp" selected="true">mhcnp</option>
+               </param>
+           </when>
+           <when value="bcell">
+               <param name="method" type="select" label="prediction method">
+                   <option value="Bepipred" selected="true">Bepipred</option>
+                   <option value="Chou-Fasman">Chou-Fasman</option>
+                   <option value="Emini">Emini</option>
+                   <option value="Karplus-Schulz">Karplus-Schulz</option>
+                   <option value="Kolaskar-Tongaonkar">Kolaskar-Tongaonkar</option>
+                   <option value="Parker">Parker</option>
+               </param>
+               <param name="window_size" type="integer" value="" optional="true" min="1" label="window_size" help="window_size should be less than the sequence length, and less than 8 for Karplus-Schulz method"/>
+           </when>
+        </conditional>
+    </inputs>
+    <outputs>
+        <data name="output" format="tabular"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="seqsrc" value="entry"/>
+            <param name="seq_text" value="SLYNTVATLYCVHQRIDV"/>
+            <param name="allelesrc" value="entry"/>
+            <param name="allele_text" value="HLA-A*01:01,9"/>
+            <param name="tool" value="mhci"/>
+            <param name="method" value="recommended"/>
+            <output name="output">
+                <assert_contents>
+                    <has_text text="LYNTVATLY" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="seqsrc" value="fasta"/>
+            <param name="seq_fasta" ftype="fasta" value="seqs.fa"/>
+            <param name="allelesrc" value="history"/>
+            <param name="allele_file" ftype="txt" value="alleles.txt"/>
+            <param name="tool" value="mhci"/>
+            <param name="method" value="recommended"/>
+            <output name="output">
+                <assert_contents>
+                    <has_text text="peptide1" />
+                    <has_text text="AHKVPRRLLK" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="seqsrc" value="tabular"/>
+            <param name="seq_tsv" ftype="tabular" value="seqs.tsv"/>
+            <param name="pep_col" value="3"/>
+            <param name="id_col" value="1"/>
+            <param name="allelesrc" value="history"/>
+            <param name="allele_file" ftype="txt" value="alleles.txt"/>
+            <param name="tool" value="mhci"/>
+            <param name="method" value="recommended"/>
+            <output name="output">
+                <assert_contents>
+                    <has_text text="peptide1" />
+                    <has_text text="AHKVPRRLLK" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+The IEDB is a free resource, funded by a contract from the National Institute of Allergy and Infectious Diseases. It offers easy searching of experimental data characterizing antibody and T cell epitopes studied in humans, non-human primates, and other animal species. 
+
+This tool retrieves epitope information about input peptide sequences by using the RESTful web services provided by IEDB.  
+The webservices are described at:  http://tools.immuneepitope.org/main/tools-api/
+
+**INPUTS**
+
+  peptide sequences from a fasta file or a column in a tabular file
+
+  HLA alleles either entered as text or on per line in a text file
+
+
+**OUTPUTS**
+  
+  A tabular file containing the results returned from the IEDB web service
+
+    ]]></help>
+    <citations>
+       <citation type="doi">10.1093/nar/gku938</citation>
+    </citations>
+</tool>
