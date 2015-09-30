@@ -1,0 +1,330 @@
+<tool id="netmhc" name="netMHC" version="0.1.0">
+    <description>MHC Binding prediction</description>
+    <requirements>
+        <requirement type="package" version="3.4">netMHC</requirement>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+    <configfiles>
+        <configfile name="format_out"><![CDATA[
+#!/usr/bin/env python
+import sys
+import re
+if len(sys.argv) != 3:
+  print >> sys.stderr, "python script.py  netMHC_output_tsv output_file"
+  exit(4); 
+hpat = '^\s*(pos)\s+(peptide)\s+(logscore)\s+(affinity.nM.)\s+(Bind Level)\s+(Protein Name)\s+(Allele)\s*$'
+epat = '^\s*(\d+)\s+([A-Z]+)\s+([0-9.]+)\s+(\d+)\s+(.B)*\s+(\S.*\S)\s+(\S+)$'
+cnt = 0
+try:
+  wh = open(sys.argv[2],'w') 
+  fh = open(sys.argv[1],'r')
+  for i,line in enumerate(fh):
+    line = line.rstrip()
+    if not line:
+      continue
+    ##  print >> sys.stderr, line
+    m = re.match(epat,line)
+    if m:
+      ## print >> sys.stderr, str(m.groups())
+      wh.write("%s\n" % '\t'.join([x if x else '' for x in m.groups()]))
+      cnt += 1
+    elif cnt == 0:
+      m = re.match(hpat,line)
+      if m:
+         ## print >> sys.stderr, str(m.groups())
+         wh.write("#%s\n" % '\t'.join(m.groups()))
+         cnt += 1
+  wh.close()
+  fh.close()
+except Exception, e:
+  print sys.stderr, "error: %s" % e
+  exit(3)
+]]>
+        </configfile>
+        <configfile name="format_tsv"><![CDATA[
+#!/usr/bin/env python
+import sys
+import re
+if len(sys.argv) != 4:
+  print >> sys.stderr, "python script.py fasta_file netMHC_output output_file"
+  exit(4); 
+hpat = '^(Protein)(?:\t([^\t]+))+$'
+epat = '^(Entry_(\d+))(.*)$'
+ids = ['']
+try:
+  fh = open(sys.argv[1],'r')
+  for i,line in enumerate(fh):
+    if line and line.startswith('>'):
+      ids.append(line.strip()[1:])
+  fh.close()
+  wh = open(sys.argv[3],'w') 
+  fh = open(sys.argv[2],'r')
+  for i,line in enumerate(fh):
+    m = re.match(epat,line)
+    if m:
+      wh.write(re.sub(m.groups()[0],ids[int(m.groups()[1])],line))
+    else:
+      m = re.match(hpat,line)
+      if m:
+         wh.write("#%s" % line)
+  wh.close()
+  fh.close()
+except Exception, e:
+  print sys.stderr, "error: %s" % e
+  exit(3)
+]]>
+        </configfile>
+    </configfiles>
+    <command><![CDATA[
+#set $valid_alleles = [
+'BoLA-D18.4',
+'BoLA-HD6',
+'BoLA-JSP.1',
+'BoLA-T2C',
+'BoLA-T2a',
+'BoLA-T2b',
+'H-2-Db',
+'H-2-Dd',
+'H-2-Kb',
+'H-2-Kd',
+'H-2-Kk',
+'H-2-Ld',
+'HLA-A01:01',
+'HLA-A02:01',
+'HLA-A02:02',
+'HLA-A02:03',
+'HLA-A02:06',
+'HLA-A02:11',
+'HLA-A02:12',
+'HLA-A02:16',
+'HLA-A02:17',
+'HLA-A02:19',
+'HLA-A02:50',
+'HLA-A03:01',
+'HLA-A11:01',
+'HLA-A23:01',
+'HLA-A24:02',
+'HLA-A24:03',
+'HLA-A25:01',
+'HLA-A26:01',
+'HLA-A26:02',
+'HLA-A26:03',
+'HLA-A29:02',
+'HLA-A30:01',
+'HLA-A30:02',
+'HLA-A31:01',
+'HLA-A32:01',
+'HLA-A32:07',
+'HLA-A32:15',
+'HLA-A33:01',
+'HLA-A66:01',
+'HLA-A68:01',
+'HLA-A68:02',
+'HLA-A68:23',
+'HLA-A69:01',
+'HLA-A80:01',
+'HLA-B07:02',
+'HLA-B08:01',
+'HLA-B08:02',
+'HLA-B08:03',
+'HLA-B14:02',
+'HLA-B15:01',
+'HLA-B15:02',
+'HLA-B15:03',
+'HLA-B15:09',
+'HLA-B15:17',
+'HLA-B18:01',
+'HLA-B27:05',
+'HLA-B27:20',
+'HLA-B35:01',
+'HLA-B35:03',
+'HLA-B38:01',
+'HLA-B39:01',
+'HLA-B40:01',
+'HLA-B40:02',
+'HLA-B40:13',
+'HLA-B42:01',
+'HLA-B44:02',
+'HLA-B44:03',
+'HLA-B45:01',
+'HLA-B46:01',
+'HLA-B48:01',
+'HLA-B51:01',
+'HLA-B53:01',
+'HLA-B54:01',
+'HLA-B57:01',
+'HLA-B58:01',
+'HLA-B73:01',
+'HLA-B83:01',
+'HLA-C03:03',
+'HLA-C04:01',
+'HLA-C05:01',
+'HLA-C06:02',
+'HLA-C07:01',
+'HLA-C07:02',
+'HLA-C08:02',
+'HLA-C12:03',
+'HLA-C14:02',
+'HLA-C15:02',
+'HLA-E01:01',
+'Mamu-A01',
+'Mamu-A02',
+'Mamu-A07',
+'Mamu-A11',
+'Mamu-A20102',
+'Mamu-A2201',
+'Mamu-A2601',
+'Mamu-A70103',
+'Mamu-B01',
+'Mamu-B03',
+'Mamu-B08',
+'Mamu-B1001',
+'Mamu-B17',
+'Mamu-B3901',
+'Mamu-B52',
+'Mamu-B6601',
+'Mamu-B8301',
+'Mamu-B8701',
+'Patr-A0101',
+'Patr-A0301',
+'Patr-A0401',
+'Patr-A0701',
+'Patr-A0901',
+'Patr-B0101',
+'Patr-B1301',
+'Patr-B2401',
+'SLA-10401',
+'SLA-20401',
+'SLA-30401'
+]
+        ### python netMHC.py -a 'HLA-A02:01,HLA-A03:01,HLA-B07:02,HLA-B18:01' -p frameshift.pep
+        python \$NMHOME/netMHC.py 
+        -l $pep_len
+        $sort
+        ## Alleles
+        #set $allelelist = []
+        #set $unknown_alleles = []
+        #if $alleles.allelesrc == 'history':
+          #for $line in open(str($alleles.allele_file)):
+            #set $fields = $line.strip().split(',') 
+            #set $allele = $fields[0].strip()
+            #if $allele in $valid_alleles:
+              $allelelist.append($allele)
+            #else
+              $unknown_alleles.append($allele)
+            #end if
+          #end for
+        #else:
+          #for $word in str($alleles.allele_text).strip().split():
+            #set $fields = $word.strip().split(',') 
+            #set $allele = $fields[0].strip()
+            #if $allele in $valid_alleles:
+              $allelelist.append($allele)
+            #else
+              $unknown_alleles.append($allele)
+            #end if
+          #end for
+        #end if
+        -a #echo ','.join($allelelist)
+        -x results.tsv
+        ## Sequence file
+        $seq_fasta
+        > results.out 
+        && python $format_out results.out $output
+        && python $format_tsv $seq_fasta results.tsv $scores
+        && echo "peptide length: $pep_len"  
+        && echo "alleles: $allelelist"  
+        && echo "unknown: $unknown_alleles"  
+    ]]></command>
+    <inputs>
+        <param name="seq_fasta" type="data" format="fasta" label="Peptide Sequence Fasta"/>
+        <conditional name="alleles">
+           <param name="allelesrc" type="select" label="Alleles">
+               <option value="history">From history</option>
+               <option value="entry">Entered</option>
+           </param>
+           <when value="history">
+               <param name="allele_file" type="data" format="txt" label="Alleles file"/>
+               <help>The dataset should have on allele per line. The allele may be followed by an optional comma-separated list of pepttide lengths, e.g.: HLA-A*02:01,8,9</help>
+           </when>
+           <when value="entry">
+               <param name="allele_text" type="text" size="80" label="Alleles">
+                   <help>Enter alleles separated by commas: HLA-A03:01,HLA-B07:02</help>
+                   <validator type="regex" message="IDs separted by commas">^(\S+)(,\S+)*$</validator>
+               </param>
+           </when>
+        </conditional>
+        <param name="pep_len" type="integer" value="9" min="8" max="14" label="Length of subpeptides to predict"/>
+        <param name="sort" type="boolean" truevalue="--sort" falsevalue="" checked="false" label="Sort output on descending affinity"/>
+    </inputs>
+    <outputs>
+       <data name="output" format="tabular" label="${tool.name} on ${on_string} summary"/>
+       <data name="scores" format="tabular" label="${tool.name} on ${on_string} allele scores"/>
+    </outputs>
+    <help><![CDATA[
+**NetMHC**
+
+http://www.cbs.dtu.dk/services/NetMHC/
+
+NetMHC 3.4 predicts binding of peptides to a number of different HLA alleles using artificial neural networks (ANNs). 
+
+ANNs have been trained for 78 different Human MHC (HLA) alleles representing all 12 HLA A and B Supertypes as defined by Lund et al. (2004). Furthermore 41 animal (Monkey, Cattle, Pig, and Mouse) allele predictions are available.
+
+Prediction values are given in nM IC50 values.
+
+Predictions of lengths 8-14:       Predictions can be made for lengths between 8 and 14 for all alleles using an novel approximation algorithm using ANNs trained on 9mer peptides. Probably because of the limited amount of available 10mer data this method has a better predictive value than ANNs trained on 10mer data.
+Predictions of peptides longer than 11 have not been extensively validated!
+Caution should be taken for 8mer predictions as some alleles might not bind 8mers to any significant extend.
+
+Strong and weak binding peptides are indicated in the output. In the selection window for HLA alleles, the recommended allele for each HLA supertype is indicated. 
+
+**Inputs**
+
+  A fasta file of peptide sequences in your history
+  
+  A list Alleles entered as text or from a history dataset, one allele per line 
+
+**Outputs**
+
+  **Summary**
+
+  ====  ==========  =========  ============  ==========  ============  ===========
+  #pos  peptide     logscore   affinity(nM)  Bind Level  Protein Name  Allele
+  ====  ==========  =========  ============  ==========  ============  ===========
+  2     GMYCMVFLV   0.858      4             SB          PPAP2C        HLA-A02:01
+  1     FGMYCMVFL   0.501      222           WB          PPAP2C        HLA-A02:01
+  3     MYCMVFLVK   0.070      23399                     PPAP2C        HLA-A02:01
+  0     SFGMYCMVF   0.066      24390                     PPAP2C        HLA-A02:01
+  0     SLDMCISGL   0.698      26            SB          ADAMTSL1      HLA-A02:01
+  3     MCISGLCQL   0.306      1823                      ADAMTSL1      HLA-A02:01
+  1     LDMCISGLC   0.069      23677                     ADAMTSL1      HLA-A02:01
+  2     DMCISGLCQ   0.042      31630                     ADAMTSL1      HLA-A02:01
+  ====  ==========  =========  ============  ==========  ============  ===========
+
+
+  **Allele Scores**
+
+  ========  ========  =========   ==============================================================  =============================================================
+  #Protein  Position  Peptide     HLA-A02:01 ANN/Mat Direct predicted affinity (Kd, nM)/Matscore  HLA-A23:01 ANN/Mat Direct predicted affinity (Kd, nM)/Matscore
+  ========  ========  =========   ==============================================================  =============================================================
+  ADAMTSL1  0         SLDMCISGL   26                                                              27179
+  ADAMTSL1  1         LDMCISGLC   23677                                                           33222
+  ADAMTSL1  2         DMCISGLCQ   31630                                                           34451
+  ADAMTSL1  3         MCISGLCQL   1823                                                            5781
+  PPAP2C    0         SFGMYCMVF   24390                                                           67
+  PPAP2C    1         FGMYCMVFL   222                                                             4423
+  PPAP2C    2         GMYCMVFLV   4                                                               3256
+  PPAP2C    3         MYCMVFLVK   23399                                                           146
+  ========  ========  =========   ==============================================================  =============================================================
+
+
+    ]]></help>
+    <citations>
+       <citation type="doi">10.1093/nar/gkn202</citation>
+       <citation type="doi">10.1093/bioinformatics/btn128</citation>
+       <citation type="doi">10.1093/bioinformatics/btn100</citation>
+       <citation type="doi">10.1110/ps.0239403</citation>
+    </citations>
+</tool>
