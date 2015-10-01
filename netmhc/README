@@ -3,7 +3,7 @@ NetMHC 3.4 server predicts binding of peptides to a number of different HLA alle
 SEE:  http://www.cbs.dtu.dk/services/NetMHC/
 
 NetMHC is available to academic researchers.  
-The download webpage requires the user to accept a academic license aggrement, which prevents automatic gGalaxy package installation.
+The download webpage requires the user to accept a academic license aggrement, which prevents automatic Galaxy package installation.
 http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?netMHC
 
 
