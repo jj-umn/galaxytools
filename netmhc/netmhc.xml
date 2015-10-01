@@ -53,6 +53,7 @@ if len(sys.argv) != 4:
 hpat = '^(Protein)(?:\t([^\t]+))+$'
 epat = '^(Entry_(\d+))(.*)$'
 ids = ['']
+cnt = 0
 try:
   fh = open(sys.argv[1],'r')
   for i,line in enumerate(fh):
@@ -65,7 +66,8 @@ try:
     m = re.match(epat,line)
     if m:
       wh.write(re.sub(m.groups()[0],ids[int(m.groups()[1])],line))
-    else:
+      cnt += 1
+    elif cnt == 0:
       m = re.match(hpat,line)
       if m:
          wh.write("#%s" % line)
@@ -200,10 +202,6 @@ except Exception, e:
 'SLA-30401'
 ]
         ### python netMHC.py -a 'HLA-A02:01,HLA-A03:01,HLA-B07:02,HLA-B18:01' -p frameshift.pep
-        python \$NMHOME/netMHC.py 
-        -l $pep_len
-        $sort
-        ## Alleles
         #set $allelelist = []
         #set $unknown_alleles = []
         #if $alleles.allelesrc == 'history':
@@ -227,14 +225,20 @@ except Exception, e:
             #end if
           #end for
         #end if
-        -a #echo ','.join($allelelist)
-        -x results.tsv
-        ## Sequence file
-        $seq_fasta
-        > results.out 
+        python \$NMHOME/netMHC.py -A > netMHC_alleles.txt
+        #for $pep_len in str($lengths).split(','):
+            && python \$NMHOME/netMHC.py 
+            -l $pep_len
+            $sort
+            -a #echo ','.join($allelelist)
+            -x results${pep_len}.tsv
+            $seq_fasta
+            >> results.out 
+            && cat  results${pep_len}.tsv >> results.tsv
+        #end for
         && python $format_out results.out $output
         && python $format_tsv $seq_fasta results.tsv $scores
-        && echo "peptide length: $pep_len"  
+        && echo "peptide lengths: $lengths"  
         && echo "alleles: $allelelist"  
         && echo "unknown: $unknown_alleles"  
     ]]></command>
@@ -256,7 +260,19 @@ except Exception, e:
                </param>
            </when>
         </conditional>
+        <!--
         <param name="pep_len" type="integer" value="9" min="8" max="14" label="Length of subpeptides to predict"/>
+        -->
+        <param name="lengths" type="select" multiple="true" label="peptide lengths for prediction">
+            <help>Used for any alleles which don't include specified lengths</help>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12 (unvalidated)</option>
+            <option value="13">13 (unvalidated)</option>
+            <option value="14">14 (unvalidated)</option>
+        </param>
         <param name="sort" type="boolean" truevalue="--sort" falsevalue="" checked="false" label="Sort output on descending affinity"/>
     </inputs>
     <outputs>
