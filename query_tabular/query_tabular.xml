@@ -28,7 +28,8 @@
           -t ${tbl.table}=${tname}${$col_names}
         #end for
         #if $query:
-          -q "$query"
+          -q "$query" 
+          $no_header
           -o $output
         #end if
     ]]></command>
@@ -53,6 +54,8 @@
                 <sanitizer sanitize="False"/>
                 <validator type="regex" message="">^(?i)\s*select\s+.*\s+from\s+.*$</validator>
         </param>
+        <param name="no_header" type="boolean" truevalue="-n" falsevalue="" checked="False" label="Omit column headers"/>
+
         <param name="save_db" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Save the sqlite database"/>
     </inputs>
     <outputs>

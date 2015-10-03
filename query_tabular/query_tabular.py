@@ -103,6 +103,7 @@ def create_table(conn,file_path,table_name,skip=0,comment_char='#',column_names=
     c.close()
   except Exception, e:
     print >> sys.stderr, 'Failed: %s' % (e)
+    exit(1)
 
 def __main__():
   #Parse Command Line
@@ -175,6 +176,7 @@ def __main__():
       outputFile.write("%s\n" % '\t'.join([str(val) for val in row]))
   except Exception, exc:
     print >> sys.stderr, "Error: %s" % exc
+    exit(1)
 
 if __name__ == "__main__": __main__()
 
