@@ -6,7 +6,11 @@
     <stdio>
         <exit_code range="1:" />
     </stdio>
-
+    <configfiles>
+        <configfile name="query_file">
+$sqlquery
+        </configfile>
+    </configfiles>
     <command interpreter="python"><![CDATA[
         query_tabular.py 
         #if $save_db
@@ -27,8 +31,8 @@
           #end if
           -t ${tbl.table}=${tname}${$col_names}
         #end for
-        #if $query:
-          -q "$query" 
+        #if $sqlquery:
+          -Q "$query_file" 
           $no_header
           -o $output
         #end if
@@ -49,7 +53,7 @@
                 <validator type="regex" message="A List of separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores">^([A-Za-z]\w*)?(,([A-Za-z]\w*)?)*$</validator>
             </param>
         </repeat>
-        <param name="query" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
+        <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
                 <help>By default, tables will be named: t1,t2,...,tn</help>
                 <sanitizer sanitize="False"/>
                 <validator type="regex" message="">^(?i)\s*select\s+.*\s+from\s+.*$</validator>
@@ -60,10 +64,10 @@
     </inputs>
     <outputs>
         <data format="sqlite" name="sqlitedb" label="sqlite">
-            <filter>save_db or not (query and len(query) > 0)</filter>
+            <filter>save_db or not (sqlquery and len(sqlquery) > 0)</filter>
         </data>
         <data format="tabular" name="output" label="query results">
-            <filter>query and len(query) > 0</filter>
+            <filter>sqlquery and len(sqlquery) > 0</filter>
         </data>
     </outputs>
     <tests>
@@ -79,7 +83,7 @@
                 <param name="table_name" value="sales"/>
                 <param name="col_names" value="CustomerID,Date,SaleAmount"/>
             </repeat>
-            <param name="query" value="SELECT FirstName,LastName,sum(SaleAmount) as &quot;TotalSales&quot; FROM customers join sales on customers.CustomerID = sales.CustomerID GROUP BY customers.CustomerID ORDER BY TotalSales DESC"/>
+            <param name="sqlquery" value="SELECT FirstName,LastName,sum(SaleAmount) as &quot;TotalSales&quot; FROM customers join sales on customers.CustomerID = sales.CustomerID GROUP BY customers.CustomerID ORDER BY TotalSales DESC"/>
              <output name="output" file="sales_results.tsv"/>
         </test>
 
@@ -91,7 +95,7 @@
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="sales.tsv"/>
             </repeat>
-            <param name="query" value="SELECT FirstName,LastName,sum(t2.c3) as &quot;TotalSales&quot; FROM t1 join t2 on t1.c1 = t2.c1 GROUP BY t1.c1 ORDER BY TotalSales DESC;"/>
+            <param name="sqlquery" value="SELECT FirstName,LastName,sum(t2.c3) as &quot;TotalSales&quot; FROM t1 join t2 on t1.c1 = t2.c1 GROUP BY t1.c1 ORDER BY TotalSales DESC;"/>
              <output name="output" file="sales_results.tsv"/>
         </test>
 
@@ -106,7 +110,7 @@
                 <param name="table_name" value="mhc_summary"/>
                 <param name="col_names" value="pos,peptide,logscore,affinity,Bind_Level,Protein,Allele"/>
             </repeat>
-            <param name="query" value="select iedb.ID,iedb.peptide,iedb.start,iedb.end,iedb.percentile_rank,mhc_summary.logscore,mhc_summary.affinity,mhc_summary.Bind_Level from iedb left outer join mhc_summary on iedb.peptide = mhc_summary.peptide order by affinity,Bind_Level"/>
+            <param name="sqlquery" value="select iedb.ID,iedb.peptide,iedb.start,iedb.end,iedb.percentile_rank,mhc_summary.logscore,mhc_summary.affinity,mhc_summary.Bind_Level from iedb left outer join mhc_summary on iedb.peptide = mhc_summary.peptide order by affinity,Bind_Level"/>
              <output name="output" file="query_results.tsv"/>
         </test>
 
