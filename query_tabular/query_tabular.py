@@ -94,7 +94,7 @@ def create_table(conn,file_path,table_name,skip=0,comment_char='#',column_names=
           continue
         data_lines += 1
         try:
-          fields = line.split('\t')
+          fields = line.rstrip('\r\n').split('\t')
           vals = [col_func[i](x) if x else None for i,x in enumerate(fields)]
           c.execute(insert_stmt,vals)
         except Exception, e:
