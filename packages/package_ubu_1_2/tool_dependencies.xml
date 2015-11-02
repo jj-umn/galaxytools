@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="ubu" version="1.2">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url">https://github.com/mozack/ubu/releases/download/v1.2b/ubu-1.2b-SNAPSHOT-jar-with-dependencies.jar</action>
+                <action type="move_directory_files">
+                    <source_directory>.</source_directory>
+                    <destination_directory>$INSTALL_DIR</destination_directory>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="UBU_JAR_PATH" action="set_to">$INSTALL_DIR</environment_variable>
+                    <environment_variable name="UBU_JAR" action="set_to">$INSTALL_DIR/ubu-1.2b-SNAPSHOT-jar-with-dependencies.jar</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme></readme>
+    </package>
+</tool_dependency>

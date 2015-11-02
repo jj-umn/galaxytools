@@ -1,0 +1,45 @@
+<tool id="ubu_sam2fastq" name="UBU sam2fastq" version="0.1.0">
+    <description>Convert a SAM/BAM file to FASTQ</description>
+
+    <requirements>
+        <requirement version="1.2">ubu</requirement>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+
+    <command><![CDATA[
+        java -Xmx1G -jar \$UBU_JAR sam2fastq --in $input --fastq1 paired1.fastq --fastq2 paired2.fastq --end1 '$end1' --end2 '$end2'
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="sam,bam" label="Sam or Bam file to convert" />
+        <param name="end1" type="text" value="/1" label="Id suffix used to identify the first read in a pair." />
+        <param name="end2" type="text" value="/2" label="Id suffix used to identify the second read in a pair." />
+    </inputs>
+    <outputs>
+        <data name="fastq1" format="data" from_work_dir="paired1.fastq" />
+        <data name="fastq2" format="data" from_work_dir="paired2.fastq" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="sam2fastq_test.sam" />
+            <output name="fastq1" file="sam2fastq_expected_paired1.fastq"/>
+            <output name="fastq2" file="sam2fastq_expected_paired2.fastq"/>
+        </test>
+    </tests>
+    <help><![CDATA[
+        input SAM/BAM file
+Option                                  Description                            
+------                                  -----------                            
+--in                                    Required input sam or bam file         
+--fastq1                                Required output FASTQ file             
+--fastq2                                Second FASTQ file for paired end       
+--end1                                  Id suffix used to identify the first   
+                                          read in a pair.  i.e. /1 (omit this  
+                                          option to use bit flag)              
+--end2                                  Id suffix used to identify the second  
+                                          read in a pair.  i.e. /2 (omit this  
+                                          option to use bit flag)              
+
+    ]]></help>
+</tool>
