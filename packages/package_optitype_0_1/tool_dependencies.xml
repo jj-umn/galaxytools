@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="optitype" version="1.0">
+        <install version="1.0">
+            <actions_group>
+    <package name="hdf5" version="1.8.12">
+            <repository name="package_hdf5_1_8_12" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="razers3" version="3.4.0">
+            <repository name="package_razers3_3_4_0" owner="jjohnson" prior_installation_required="True" />
+    </package>
+                <actions architecture="x86_64" os="linux">
+                    <action type="download_by_url">https://github.com/jj-umn/optitype_venv/releases/download/v.1.0.0/optitype_venv.1.0.0.tgz</action>
+              <action type="set_environment_for_install">
+                  <repository name="package_hdf5_1_8_12" owner="iuc">
+                    <package name="hdf5" version="1.8.12" />
+                  </repository>
+                  <repository name="package_razers3_3_4_0" owner="jjohnson">
+                    <package name="razers3" version="3.4.0" />
+                  </repository>
+              </action>
+              <action type="shell_command">if [ "$RAZERS3" ]; then sed -i.orig "s#^RAZERS3=.*#RAZERS3=$RAZERS3#" config.ini; else echo "razers3 not found"; echo "$PATH"; fi</action>
+                    <action type="move_directory_files">
+                        <source_directory>.</source_directory>
+                        <destination_directory>$INSTALL_DIR</destination_directory>
+                    </action>
+              <action type="set_environment">
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/venv/bin</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/venv/lib</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR</environment_variable>
+                    <environment_variable action="set_to" name="OPTITYPE_DIR">$INSTALL_DIR</environment_variable>
+              </action>
+                </actions>
+            <actions>
+    <package name="razers3" version="3.4.0">
+            <repository changeset_revision="98fbcf8559a9" name="package_razers3_3_4_0" owner="jjohnson" prior_installation_required="True" toolshed="https://testtoolshed.g2.bx.psu.edu" />
+    </package>
+    <package name="hdf5" version="1.8.12">
+            <repository changeset_revision="3412ecd1792d" name="package_hdf5_1_8_12" owner="iuc" prior_installation_required="True" toolshed="https://testtoolshed.g2.bx.psu.edu" />
+    </package>
+              <action type="shell_command">git clone https://github.com/FRED-2/OptiType.git optitype</action>
+              <action type="shell_command">pwd</action>
+              <action type="shell_command">ls -l</action>
+              <action type="set_environment_for_install">
+                  <repository changeset_revision="3412ecd1792d" name="package_hdf5_1_8_12" owner="iuc" toolshed="https://testtoolshed.g2.bx.psu.edu">
+                    <package name="hdf5" version="1.8.12" />
+                  </repository>
+              </action>
+              <action type="move_directory_files">
+                <source_directory>.</source_directory>
+                <destination_directory>$INSTALL_DIR/bin</destination_directory>
+              </action>
+              <action type="chmod"><file mode="755">$INSTALL_DIR/bin/hlatyper.py</file></action>
+              <action type="chmod"><file mode="755">$INSTALL_DIR/bin/model.py</file></action>
+              <action type="chmod"><file mode="755">$INSTALL_DIR/bin/OptiTypePipeline.py</file></action>
+              <action type="shell_command">pwd</action>
+              <action type="shell_command">ls -l</action>
+              <action type="shell_command">env</action>
+              <action type="setup_virtualenv">
+biopython &gt;= 1.63
+Cython &gt;= 0.20.1
+numpy &gt;= 1.9
+numexpr &gt;= 2.4.1
+tables &gt;= 3.1.1
+pandas &gt;= 0.16.0
+pyutilib &gt;= 5.0.3478
+pyutilib.autotest &gt;= 2.0.1
+coopr == 3.5.8787
+              </action>
+              <action type="set_environment">
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/venv/bin</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR/venv/lib</environment_variable>
+                    <environment_variable action="prepend_to" name="PYTHONPATH">$INSTALL_DIR</environment_variable>
+                    <environment_variable action="set_to" name="OPTITYPE_DIR">$INSTALL_DIR</environment_variable>
+              </action>
+            </actions>
+
+            </actions_group>
+        </install>
+        <readme>
+        </readme>
+    </package>
+</tool_dependency>

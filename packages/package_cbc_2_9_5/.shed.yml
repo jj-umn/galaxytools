@@ -1,0 +1,11 @@
+owner: jjohnson
+name: package_cbc_2_9_5
+categories:
+- Tool Dependency Packages
+description: Installs Cbc v2.9.5  MILP solver
+long_description: |
+  BC is an open-source MILP solver. It uses many of the COIN components and is designed to be used with CLP. It is available as a library and as a standalone solver. 
+
+  https://projects.coin-or.org/Cbc
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/packages/package_cbc_2_9_5
+type: tool_dependency_definition

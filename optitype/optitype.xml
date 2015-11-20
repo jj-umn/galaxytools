@@ -1,0 +1,89 @@
+<tool id="optitype" name="OptiType" version="1.0.0">
+  <description>HLA genotyping predictions from NGS data</description>
+  <requirements>
+    <requirement type="package" version="1.8.12">hdf5</requirement>
+    <requirement type="package" version="3.4.0">razers3</requirement>
+    <requirement type="package" version="1.0">optitype</requirement>
+    <requirement type="package" version="2.9.5">cbc</requirement>
+  </requirements>
+ <stdio>
+     <exit_code range="1:"  level="fatal" description="Error Running optitype" />
+ </stdio>
+  <command>
+<![CDATA[
+#set $fastqs = []
+#if str( $fastq_input.fastq_input_selector ) == "paired":
+  ln -s "${fastq_input.fastq_input1}" reads_1.fastq
+  && ln -s "${fastq_input.fastq_input2}" reads_2.fastq
+  #set $fastqs = ['reads_1.fastq','reads_2.fastq']
+#elif str( $fastq_input.fastq_input_selector ) == "paired_collection":
+  ln -s "${fastq_input.fastq_input1.forward}" reads_1.fastq
+  && ln -s "${fastq_input.fastq_input1.reverse}" reads_2.fastq
+  #set $fastqs = ['reads_1.fastq','reads_2.fastq']
+#elif str( $fastq_input.fastq_input_selector ) == "single":
+  ln -s "${fastq_input.fastq_input1}" reads.fastq
+  #set $fastqs = ['reads.fastq']
+#end if
+&& cp \$OPTITYPE_DIR/config.ini .
+&& ln -s \$OPTITYPE_DIR/data data
+#set $input_fq = ' '.join($fastqs)
+&& python  \$OPTITYPE_DIR/OptiTypePipeline.py 
+$read_type --input  ${' '.join($fastqs)}
+#if $beta != None: 
+ --beta $beta
+#end if
+#if $enumerate != None: 
+ --enumerate $enumerations
+#end if
+--outdir $outdir
+&& cp $outdir/*/*_coverage_plot.pdf $coverage_plot
+&& cp $outdir/*/*_result.tsv $result
+&& cat $outdir/*/*_result.tsv | tr '\t' '\n' | grep '[ABC].[0-9][0-9]:[0-9][0-9]' > $hla_alleles
+]]>
+  </command>
+  <inputs>
+    <conditional name="fastq_input">
+      <param name="fastq_input_selector" type="select" label="Single or Paired-end reads" help="Select between paired and single end data">
+        <option value="paired">Paired</option>
+        <option value="single">Single</option>
+        <option value="paired_collection">Paired Collection</option>
+      </param>
+      <when value="paired">
+        <param name="fastq_input1" type="data" format="fastqsanger" label="Select first set of reads" help="Specify dataset with forward reads"/>
+        <param name="fastq_input2" type="data" format="fastqsanger" label="Select second set of reads" help="Specify dataset with reverse reads"/>
+      </when>
+      <when value="single">
+        <param name="fastq_input1" type="data" format="fastqsanger" label="Select fastq dataset" help="Specify dataset with single reads"/>
+      </when>
+      <when value="paired_collection">
+        <param name="fastq_input1" format="fastqsanger" type="data_collection" collection_type="paired" label="Select a paired collection" help="See help section for an explanation of dataset collections"/>
+      </when>
+    </conditional>
+    <param name="read_type" type="select" label="Nucleotide Type" help="">
+      <option value="--rna">RNA</option>
+      <option value="--dna">DNA</option>
+    </param>
+    <param name="beta" type="float" value="" min="0.0" max="0.1" optional="true" label="homozygosity beta" help="The beta value for for homozygosity detection"/>
+    <param name="enumerations" type="integer" value="" min="1" max="5" optional="true" label="Enumerations" help="The number of enumerations"/>
+    <param name="outdir" type="hidden" value="output_dir"/>
+  </inputs>
+  <outputs>
+    <data format="pdf" name="coverage_plot" label="${tool.name} on ${on_string} coverage_plot.pdf"/>
+    <data format="tabular" name="result" label="${tool.name} on ${on_string} result.tsv"/>
+    <data format="tabular" name="hla_alleles" label="${tool.name} on ${on_string} hla_alleles.tsv"/>
+  </outputs>
+  <tests>
+    <test>
+    </test>
+  </tests>
+  <help>
+<![CDATA[
+**OptiType**
+============
+
+]]>
+  </help>
+  <citations>
+    <citation type="doi">10.1093/bioinformatics/btu548. Epub 2014 Aug 20.</citation>
+  </citations>
+</tool>

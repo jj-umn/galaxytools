@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="cbc" version="2.9.5">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url">http://www.coin-or.org/download/source/Cbc/Cbc-2.9.5.tgz</action>
+                <action type="shell_command">./configure --prefix=$INSTALL_DIR</action>
+                <action type="shell_command">make</action>
+                <action type="shell_command">make install</action>
+                <action type="set_environment">
+                    <environment_variable action="prepend_to" name="PATH">$INSTALL_DIR/bin</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+CBC is an open-source MILP solver. It uses many of the COIN components and is designed to be used with CLP. It is available as a library and as a standalone solver. 
+https://projects.coin-or.org/Cbc
+        </readme>
+    </package>
+</tool_dependency>

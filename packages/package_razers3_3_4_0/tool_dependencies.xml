@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tool_dependency>
+    <package name="razers3" version="3.4.0">
+        <install version="1.0">
+            <actions_group>
+                <!-- Download the binaries for razers3 compatible with 64-bit OSX. -->
+                <actions os="darwin" architecture="x86_64">
+                    <action type="download_by_url">http://packages.seqan.de/razers3/razers3-3.4.0-Mac-x86_64.tar.bz2</action>
+                    <action type="move_directory_files">
+                        <source_directory>bin</source_directory>
+                        <destination_directory>$INSTALL_DIR/bin</destination_directory>
+                    </action>
+                </actions>
+                <!-- Download the binaries for razers3 compatible with 32-bit OSX. -->
+                <actions os="darwin" architecture="i386">
+                    <action type="download_by_url">http://packages.seqan.de/razers3/razers3-3.4.0-Mac-x86_64.tar.bz2</action>
+                    <action type="move_directory_files">
+                        <source_directory>bin</source_directory>
+                        <destination_directory>$INSTALL_DIR/bin</destination_directory>
+                    </action>
+                </actions>
+                <!-- Download the binaries for razers3 compatible with 64-bit Linux. -->
+                <actions os="linux" architecture="x86_64">
+                    <action type="download_by_url">http://packages.seqan.de/razers3/razers3-3.4.0-Linux-x86_64.tar.bz2</action>
+                    <action type="move_directory_files">
+                        <source_directory>bin</source_directory>
+                        <destination_directory>$INSTALL_DIR/bin</destination_directory>
+                    </action>
+                </actions>
+                <!-- Download the binaries for razers3 compatible with 32-bit Linux. -->
+                <actions os="linux" architecture="i386">
+                    <action type="download_by_url">http://packages.seqan.de/razers3/razers3-3.4.0-Linux-i686.tar.bz2</action>
+                    <action type="move_directory_files">
+                        <source_directory>bin</source_directory>
+                        <destination_directory>$INSTALL_DIR/bin</destination_directory>
+                    </action>
+                </actions>
+                <!-- The $PATH environment variable is only set if one of the above <actions> tags resulted in a successful installation. -->
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/bin</environment_variable>
+                    <environment_variable name="RAZERS3" action="set_to">$INSTALL_DIR/bin/razers3</environment_variable>
+                </action>
+            </actions_group>
+        </install>
+        <readme>
+Downloads the precompiled 32bit Linux, 64bit Linux, or Mac OS X razers3 binaries.
+
+RazerS is a read mapping program with adjustable sensitivity based on counting q-grams.
+http://www.seqan.de/projects/razers/
+        </readme>
+    </package>
+</tool_dependency>

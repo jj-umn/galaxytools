@@ -1,0 +1,11 @@
+owner: jjohnson
+name: package_razers3_3_4_0
+categories:
+- Tool Dependency Packages
+description: Installs RazerS version 3.4.0  read mapping program
+long_description: |
+  Installs RazerS version 3.4.0 read mapping program
+
+  http://packages.seqan.de/razers3/
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/packages/package_razers3_3_4_0
+type: tool_dependency_definition
