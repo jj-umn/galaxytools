@@ -29,16 +29,15 @@
 #set $input_fq = ' '.join($fastqs)
 && python  \$OPTITYPE_DIR/OptiTypePipeline.py 
 $read_type --input  ${' '.join($fastqs)}
-#if $beta != None: 
+#if str($beta) != '': 
  --beta $beta
 #end if
-#if $enumerate != None: 
+#if str($enumerations) != '': 
  --enumerate $enumerations
 #end if
 --outdir $outdir
 && cp $outdir/*/*_coverage_plot.pdf $coverage_plot
 && cp $outdir/*/*_result.tsv $result
-&& cat $outdir/*/*_result.tsv | tr '\t' '\n' | grep '[ABC].[0-9][0-9]:[0-9][0-9]' > $hla_alleles
 ]]>
   </command>
   <inputs>
@@ -70,7 +69,6 @@ $read_type --input  ${' '.join($fastqs)}
   <outputs>
     <data format="pdf" name="coverage_plot" label="${tool.name} on ${on_string} coverage_plot.pdf"/>
     <data format="tabular" name="result" label="${tool.name} on ${on_string} result.tsv"/>
-    <data format="tabular" name="hla_alleles" label="${tool.name} on ${on_string} hla_alleles.tsv"/>
   </outputs>
   <tests>
     <test>
