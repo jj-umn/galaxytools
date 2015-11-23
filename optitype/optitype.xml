@@ -62,8 +62,8 @@ $read_type --input  ${' '.join($fastqs)}
       <option value="--rna">RNA</option>
       <option value="--dna">DNA</option>
     </param>
-    <param name="beta" type="float" value="" min="0.0" max="0.1" optional="true" label="homozygosity beta" help="The beta value for for homozygosity detection"/>
-    <param name="enumerations" type="integer" value="" min="1" max="5" optional="true" label="Enumerations" help="The number of enumerations"/>
+    <param name="beta" type="float" value="" min="0.0" max="0.1" optional="true" label="homozygosity beta" help="The beta value for for homozygosity detection (Leave blank for default: 0.009)"/>
+    <param name="enumerations" type="integer" value="" min="1" max="5" optional="true" label="Enumerations" help="The number of enumerations (Leave blank for default: 1)"/>
     <param name="outdir" type="hidden" value="output_dir"/>
   </inputs>
   <outputs>
@@ -79,9 +79,37 @@ $read_type --input  ${' '.join($fastqs)}
 **OptiType**
 ============
 
+OptiType_ is a novel HLA genotyping algorithm based on integer linear programming, capable of producing accurate 4-digit HLA genotyping predictions from NGS data by simultaneously selecting all major and minor HLA Class I alleles.
+
+**INPUTS** 
+
+   RNA or DNA sequences in fastq format.
+
+**OPTIONS**
+
+  --beta <BETA_VALUE>           The beta value for for homozygosity detection (see cited paper). 
+                                Default: 0.009. Handle with care.
+  --enumerate <ENUMERATIONS>    Number of enumerations. 
+                                OptiType will output the optimal solution and the top N-1 suboptimal solutions in the results. 
+                                Default: 1
+
+
+**OUTPUTS**
+
+  result.tsv   A TAB-separated file of HLA genotyping predictions:
+
+  ::
+
+		A1	A2	B1	B2	C1	C2	Reads	Objective
+	0	A*31:01	A*68:01	B*40:01	B*51:01	C*15:02	C*03:04	132	128.43599999999998
+
+
+  coverage_plot.pdf  Plots of coverage of HLA genotyping predictions
+
+.. _OptiType: https://github.com/FRED-2/OptiType
 ]]>
   </help>
   <citations>
-    <citation type="doi">10.1093/bioinformatics/btu548. Epub 2014 Aug 20.</citation>
+    <citation type="doi">10.1093/bioinformatics/btu548</citation>
   </citations>
 </tool>
