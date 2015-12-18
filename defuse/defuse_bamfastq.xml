@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<tool id="defuse_bamfastq" name="Defuse BamFastq" version="0.6.1">
+  <description>converts a bam file to fastq files.</description>
+  <requirements>
+    <requirement type="package" version="0.6.1">defuse</requirement>
+  </requirements>
+  <version_command>bamfastq --version</version_command>
+  <command>bamfastq
+    #if $pair == True :
+      $pair
+    #end if
+    #if $multiple == True :
+      $multiple
+    #end if
+    #if $rename == True :
+      $rename
+    #end if
+    -b $bamfile
+    -1 $fastq1
+    -2 $fastq2
+  </command>
+  <inputs>
+    <param name="bamfile" type="data" format="bam" label="Bam file"/> 
+    <param name="pair" type="boolean" truevalue="-p" falsevalue="" checked="true" label="Name contains pair info as /1 /2."/>
+    <param name="multiple" type="boolean" truevalue="-m" falsevalue="" checked="true" label="Bam contains multiple mappings per read."/>
+    <param name="rename" type="boolean" truevalue="-r" falsevalue="" checked="true" label="Rename with integer IDs."/>
+  </inputs>
+  <stdio>
+    <exit_code range="1:" level="fatal" description="Error" />
+  </stdio>
+  <outputs>
+    <data format="fastqsanger" name="fastq1" label="fastq1"  />
+    <data format="fastqsanger" name="fastq2" label="fastq2"  />
+  </outputs>
+  <tests>
+    <test>
+      <param name="bamfile" ftype="bam" value="tophat_out2h.bam" />
+      <param name="pair" value="True" />
+      <param name="multiple" value="True" />
+      <param name="rename" value="True" />
+      <output name="fastq1">
+        <assert_contents>
+          <has_text text="@test_mRNA_36_146_27/1" />
+          <not_has_text text="@test_mRNA_36_146_27/2" />
+          <not_has_text text="test_mRNA_150_290_0" />
+        </assert_contents>
+      </output>
+      <output name="fastq2">
+        <assert_contents>
+          <has_text text="@test_mRNA_36_146_27/2" />
+          <not_has_text text="@test_mRNA_36_146_27/1" />
+          <not_has_text text="test_mRNA_150_290_0" />
+        </assert_contents>
+      </output>
+    </test>
+  </tests>
+  <help>
+    bamfastq converts a bam file input into a pair of fastq files that can be used as input to deFuse.
+  </help>
+</tool>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<data_managers>
+  <data_manager tool_file="datamanager_create_reference.xml" id="data_manager_defuse_reference" >
+    <data_table name="defuse_reference">  <!-- Defines a Data Table to be modified. -->
+            <output> <!-- Handle the output of the Data Manager Tool -->
+                <column name="value" /> <!-- columns that are going to be specified by the Data Manager Tool -->
+                <column name="dbkey" />
+                <column name="name" />
+                <column name="path" output_ref="out_file" >  <!-- The value of this column will be modified based upon data in "out_file". example value "phiX.fa" -->
+                    <move type="directory"> <!-- Moving a file from the extra files path of "out_file" -->
+                        <!-- <source>${path}</source>--> <!-- out_file.extra_files_path is used as base by default --> <!-- if no source, eg for type=directory, then refers to base -->
+                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${value}/defuse</target> <!-- Target Location to store the file, directories are created as needed -->
+                    </move>
+                    <!-- datamanager_create_reference.py should have copied the defuse config file to the working directory.  
+                         so if we put the ${dbkey}.config path in this column,  defuse.xml can set the data_directory to this this directory.
+                     -->
+                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/${value}/defuse/${value}.config</value_translation> <!-- Store this value in the final Data Table -->
+                    <value_translation type="function">abspath</value_translation>
+                </column>
+            </output>
+        </data_table>
+  </data_manager>
+</data_managers>
+
+

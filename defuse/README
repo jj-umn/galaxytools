@@ -1,0 +1,62 @@
+The DeFuse galaxy tool is based on DeFuse_Version_0.6.1
+http://sourceforge.net/apps/mediawiki/defuse/index.php?title=Main_Page
+
+DeFuse is a software package for gene fusion discovery using RNA-Seq data. The software uses clusters of discordant paired end alignments to inform a split read alignment analysis for finding fusion boundaries. The software also employs a number of heuristic filters in an attempt to reduce the number of false positives and produces a fully annotated output for each predicted fusion.
+
+
+Manual:
+http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.1
+
+The included tool_dependencies.xml will download and install the defuse code.  
+It will set the environment variable: "DEFUSE_PATH" to the location of the defuse install.  
+The tool_dependencies.xml also has the download for bowtie.
+
+
+The defuse.pl command relies on a configuration file to specifiy options, the location of reference data, and other applications that it depends upon: bowtie, bowtie-build, samtools, gmap, blat, fatotwobit, R, and Rscript.
+
+The DeFuse galaxy tool can either construct the config.txt file that is mentioned in the defuse manual, or select an existing config.txt file in the users history.   
+When constructing the config.txt file, the DeFuse tool uses the values selected in: tool-data/defuse.loc    
+The dictionary field in the tool-data/defuse.loc can be used to set fields in the config.txt file, including the site specific location of reference data and the paths to the other application binaries.  
+The "Defuse parameter settings" are used to alter options in the config.txt file.
+
+The DeFuse galaxy tool also generates a bash script to run defuse.  
+That script will attempt to edit the config.txt file to specifiy any unset paths to applications that defuse relies upon:
+bowtie, bowtie-build, samtools, blat, fatotwobit, R, and Rscript
+The script uses the using the shell "which" command to discover the application path, so the required applications should in PATH environment variable.
+
+
+Generate Reference Datasets as described in the Manual: 
+
+Reference Dataset
+The reference dataset setup process has been simplified as of deFuse 0.6.0, and deFuse now automatically downloads all required files.
+The create_reference_dataset.pl script will download the genome and other source files, and build any derivative files including bowtie indices, gmap indices, and 2bit files. Run the following command. Expect this step to take at least 12 hours.
+create_reference_dataset.pl -c config.txt
+
+These datasets should be referenced in the tool-data/defuse.loc file. 
+
+The create_reference_dataset will run the create_reference_dataset.pl script to generate deFuse genome reference data in a galaxy dataset.   
+This should me made available in the future as a Galaxy DataManager.
+
+
+Galaxy will try to auto-install dependencies:
+
+External Tools  ( http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.1 )
+deFuse relies on other publically available tools as part of its pipeline. Some of these tools are not included with the deFuse download. Obtain these tools as detailed below.
+Download samtools
+The latest version of samtools can be downloaded from sourceforge: https://sourceforge.net/projects/samtools/files/samtools.
+Set the samtools_bin entry in config.txt to the fully qualified paths of the samtools binary.
+Download bowtie
+The latest version of bowtie can be downloaded from sourceforge: http://sourceforge.net/projects/bowtie-bio/files/bowtie/. deFuse has been tested on version 0.12.5.
+Set the bowtie_bin and bowtie_build_bin entries in config.txt to the fully qualified paths of the bowtie and bowtie-build binaries.
+Download blat and faToTwoBit
+The latest blat tool suite can be downloaded from the ucsc website: http://hgdownload.cse.ucsc.edu/admin/exe/. Download blat and faToTwoBit and set the blat_bin and fatotwobit_bin entries in config.txt to the fully qualified paths of the blat and faToTwoBit binaries.
+Download GMAP
+The latest version of GMAP can be downloaded here http://research-pub.gene.com/gmap/. Build with a default configuration. Do not worry about the `--with-gmapdb` build flag, deFuse will request a specific directory for the database anyway.
+Download R
+The latest version of R can be downloaded from the R project website: http://www.r-project.org/. Install R and then locate the R and Rscript executables, and set the r_bin and rscript_bin entries in config.txt to the path of those executables.
+Install the ada package. Run R, then at the prompt type install.packages("ada")
+Reference Dataset
+The reference dataset setup process has been simplified as of deFuse 0.6.0, and deFuse now automatically downloads all required files.
+The create_reference_dataset.pl script will download the genome and other source files, and build any derivative files including bowtie indices, gmap indices, and 2bit files. Run the following command. Expect this step to take at least 12 hours.
+create_reference_dataset.pl -c config.txt
+

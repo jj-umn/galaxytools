@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<datatypes>
+    <registration>
+        <datatype extension="defuse.conf" type="galaxy.datatypes.data:Text" subclass="True" display_in_upload="true"/>
+        <datatype extension="defuse.results.tsv" type="galaxy.datatypes.tabular:Tabular" subclass="True" display_in_upload="true"/>
+    </registration>
+</datatypes>

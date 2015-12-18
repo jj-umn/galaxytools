@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="boost" version="1.53.0">
+        <repository name="package_boost_1_53" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="defuse" version="0.6.1">
+        <install version="1.0">
+            <actions>
+                <action type="download_by_url">http://sourceforge.net/projects/defuse/files/defuse/0.6/defuse-0.6.1.tar.gz</action>
+                <!-- populate the environment variables from the dependent repos -->
+                <action type="set_environment_for_install">
+                    <repository name="package_boost_1_53" owner="iuc" >
+                        <package name="boost" version="1.53.0" />
+                    </repository>
+                </action>
+                <action type="shell_command">export CPLUS_INCLUDE_PATH=$BOOST_ROOT_DIR:$CPLUS_INCLUDE_PATH &amp;&amp; cd tools &amp;&amp; make</action>
+                <!-- modify create_reference_dataset.pl to handle more than just human genomes -->
+                <action type="shell_command">
+                   cd scripts &amp;&amp; 
+                   cp create_reference_dataset.pl create_reference_dataset.pl.orig &amp;&amp; 
+                   cat create_reference_dataset.pl.orig |
+                   sed 's#wget_gunzip("ftp://hgdownload.cse.ucsc.edu/goldenPath/$ucsc_genome_version/database/rmsk.txt.gz", $repeats_filename);##' |
+                   sed 's#wget_gunzip("ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/database/intronEst.txt.gz", $est_alignments);##' |
+                   sed 's#^\(my .*ensembl_genome_version.*config.*get_value.*;\)#\1Qmy $ensembl_organism = $config->get_value("ensembl_organism");Qmy $ensembl_prefix = $config->get_value("ensembl_prefix");Qmy $ncbi_organism = $config->get_value("ncbi_organism");Qmy $ncbi_prefix = $config->get_value("ncbi_prefix");#' |
+                   sed 's/^\(sub wget_gunzip\)/sub try_wgetQ{Q my $url = shift;Q my $filename = shift;Q my $filename_gz = $filename.".gz";Q my $rslt = system "wget $url -O $filename_gz";Q if($rslt == 0)Q {Q  $rslt = system "gunzip $filename_gz";Q }Q return $rslt;Q}QQ\1/' |
+                   sed 's#^\(.*/gtf/.*\)$#\1Q        system_with_check("if `grep -v gene_name $gene_models > /dev/null`; then mv $gene_models ${gene_models}.orig; grep gene_name  ${gene_models}.orig &gt; $gene_models; fi");#' | 
+                   tr 'Q' '\n' |
+                   awk 'BEGIN{pfx="p1";fn="p2";}/if \(not -e \$repeats_filename\)/{pfx="rmsk";fn="repeats_filename";} /if \(not -e \$est_alignments\)/{pfx="intronEst";fn="est_alignments"} /ucsc_genome_version eq "hg18"/{printf("\tif (try_wget(\"ftp://hgdownload.cse.ucsc.edu/goldenPath/$ucsc_genome_version/database/%s.txt.gz\", \$%s) != 0)\n",pfx,fn);} $0 !~ /ucsc_genome_version eq "hg18/{print $0;}' |
+                   sed 's#UniGene/Homo_sapiens#UniGene/$ncbi_organism#' |
+                   sed 's/Hs.seq.uniq.gz/$ncbi_prefix.seq.uniq.gz/' |
+                   sed 's/homo_sapiens/$ensembl_organism/' |
+                   sed 's/Homo_sapiens/$ensembl_prefix/' |
+                   sed 's/hg19/$ucsc_genome_version/' > create_reference_dataset.pl
+                </action>
+                <action type="move_directory_files">
+                    <source_directory>.</source_directory>
+                    <destination_directory>$INSTALL_DIR</destination_directory>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="DEFUSE_PATH" action="set_to">$INSTALL_DIR</environment_variable>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/tools</environment_variable>
+                </action>
+            </actions>
+        </install>
+        <readme>
+deFuse code
+To build the deFuse toolset you must have the boost c++ development libraries installed. If they are not installed on your system you can download them from the boost website. A full install of boost is not required. The easiest thing to do is to download the latest boost source tar.gz, extract it, then add the extracted path to the CPLUS_INCLUDE_PATH environment variable (in bash, `export CPLUS_INCLUDE_PATH=/boost/directory/:$CPLUS_INCLUDE_PATH`)
+        </readme>
+    </package>
+
+</tool_dependency>

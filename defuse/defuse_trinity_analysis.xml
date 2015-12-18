@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<tool id="defuse_trinity_analysis" name="Defuse Trinity" version="0.6.1">
+  <description>verify fusions with trinity</description>
+  <stdio>
+    <exit_code range="1:" level="fatal" description="Error" />
+  </stdio>
+  <command interpreter="python">defuse_trinity_analysis.py --input $defuse_results --transcripts $trinity_transcripts --peptides $trinity_orfs 
+  --nbases $nbases --min_pep_len $min_pep_len --ticdist $ticdist --readthrough=$readthrough
+  #if 'matched' in str($outputs).split(','):
+    --matched="$matched_output"
+  #end if  
+  #if 'aligned' in str($outputs).split(','):
+    --transcript_alignment="$aligned_output"
+  #end if  
+  --output $output 
+  </command>
+  <inputs>
+    <param name="defuse_results" type="data" format="defuse.results.tsv" label="Defuse Results file"/> 
+    <param name="trinity_transcripts" type="data" format="fasta" label="TrinityRNAseq: Assembled Transcripts"/> 
+    <param name="trinity_orfs" type="data" format="fasta" label="transcriptsToOrfs: Candidate Peptide Sequences"/> 
+    <param name="nbases" type="integer" value="12" min="1" label="Number of bases on either side of the fusion to compare"/> 
+    <param name="min_pep_len" type="integer" value="100" min="0" label="Minimum length of peptide to report"/> 
+    <param name="ticdist" type="integer" value="1000000" min="0" label="Maximum intrachromosomal distance to be classified a Transcription-induced chimera (TIC)"/> 
+    <param name="readthrough" type="integer" value="4" min="0" label="Number of stop_codons to read through"/> 
+    <param name="outputs" type="select" multiple="true" display="checkboxes" label="Additional outputs">
+      <option value="matched">Matched Fusions Trinity Tanscripts and ORFs Tabular</option>
+      <option value="aligned">Aligned Fusion and Trinity Transcipts Fasta</option>
+    </param>
+  </inputs>
+  <outputs>
+    <data name="matched_output" metadata_source="defuse_results" format="tabular" label="${tool.name} on ${on_string}: Fusions Trinity Matched ">
+      <filter>(outputs and 'matched' in outputs)</filter>
+    </data>
+    <data name="aligned_output" metadata_source="defuse_results" format="fasta" label="${tool.name} on ${on_string}: Fusion Trinity Sequences">
+      <filter>(outputs and 'aligned' in outputs)</filter>
+    </data>
+    <data name="output" metadata_source="defuse_results" format="tabular" label="${tool.name} on ${on_string}: Fusion Report"/>
+  </outputs>
+  <tests>
+    <test>
+      <param name="defuse_results" value="mm10_results.filtered.tsv" ftype="defuse.results.tsv" dbkey="mm10"/>
+      <output name="vcf" file="mm10_results.filtered.vcf"/>
+    </test>
+  </tests>
+  <help>
+**Defuse Results**
+
+Verifies DeFuse_ fusion predictions in results.tsv with TrinityRNAseq_ assembled transcripts and ORFs.   
+
+This program relies on the header line of the results.tsv to determine which columns to use for analysis.   
+
+.. _DeFuse: http://sourceforge.net/apps/mediawiki/defuse
+.. _TrinityRNAseq: http://trinityrnaseq.github.io/
+  </help>
+</tool>

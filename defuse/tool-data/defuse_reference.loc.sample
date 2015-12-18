@@ -1,0 +1,7 @@
+## Configurstion info for prepared data references for DeFuse
+## http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.0
+## 4 columns separated by the TAB character
+## The 4th column has the path to the defuse config.txt file, it needs to have the dataset_directory set the directory path where the defuse reference data resides.
+## The defuse galaxy tool  will substitute the directory path of config.txt if the dataset_directory property is not set '__DATASET_DIRECTORY__'
+#<unique_build_id>   <dbkey>   <display_name>   <file_base_path>
+GRCh37	GRCh37	Human GRCh37 (hg19)	/depot/GRCh37/defuse/GRCh37.config

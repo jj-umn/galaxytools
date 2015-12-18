@@ -1,0 +1,307 @@
+<tool id="create_defuse_reference" name="Create DeFuse Reference" version="1.6.1">
+ <description>create a defuse reference from Ensembl and UCSC sources</description>
+ <requirements>
+  <requirement type="package" version="0.6.1">defuse</requirement>
+  <requirement type="package" version="0.1.18">samtools</requirement>
+  <requirement type="package" version="1.0.0">bowtie</requirement>
+  <requirement type="package" version="2013-05-09">gmap</requirement>
+  <requirement type="package" version="latest">kent</requirement>
+ </requirements>
+  <command interpreter="command"> /bin/bash $defuse_script </command>
+ <inputs>
+  <conditional name="genome">
+    <param name="choice" type="select" label="Select a Genome Build">
+      <option value="GRCh38">Homo_sapiens GRCh38  hg38</option>
+      <option value="GRCh37">Homo_sapiens GRCh37  hg19</option>
+      <option value="NCBI36">Homo_sapiens NCBI36 hg18</option>
+      <option value="GRCm38">Mus_musculus GRCm38 mm10</option>
+      <option value="NCBIM37">Mus_musculus NCBIM37 mm9</option>
+      <option value="Rnor_5.0">Rattus_norvegicus Rnor_5.0 rn5</option>
+      <option value="user_specified">User specified</option>
+    </param>
+    <when value="GRCh38">
+      <param name="ensembl_organism" type="hidden" value="homo_sapiens"/>
+      <param name="ensembl_prefix" type="hidden" value="Homo_sapiens"/>
+      <param name="ensembl_genome_version" type="hidden" value="GRCh38"/>
+      <param name="ensembl_version" type="hidden" value="80"/>
+      <param name="ncbi_organism" type="hidden" value="Homo_sapiens"/>
+      <param name="ncbi_prefix" type="hidden" value="Hs"/>
+      <param name="ucsc_genome_version" type="hidden" value="hg38"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="GRCh37">
+      <param name="ensembl_organism" type="hidden" value="homo_sapiens"/>
+      <param name="ensembl_prefix" type="hidden" value="Homo_sapiens"/>
+      <param name="ensembl_genome_version" type="hidden" value="GRCh37"/>
+      <param name="ensembl_version" type="hidden" value="71"/>
+      <param name="ncbi_organism" type="hidden" value="Homo_sapiens"/>
+      <param name="ncbi_prefix" type="hidden" value="Hs"/>
+      <param name="ucsc_genome_version" type="hidden" value="hg19"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="NCBI36">
+      <param name="ensembl_organism" type="hidden" value="homo_sapiens"/>
+      <param name="ensembl_prefix" type="hidden" value="Homo_sapiens"/>
+      <param name="ensembl_genome_version" type="hidden" value="NCBI36"/>
+      <param name="ensembl_version" type="hidden" value="54"/>
+      <param name="ncbi_organism" type="hidden" value="Homo_sapiens"/>
+      <param name="ncbi_prefix" type="hidden" value="Hs"/>
+      <param name="ucsc_genome_version" type="hidden" value="hg18"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="GRCm38">
+      <param name="ensembl_organism" type="hidden" value="mus_musculus"/>
+      <param name="ensembl_prefix" type="hidden" value="Mus_musculus"/>
+      <param name="ensembl_genome_version" type="hidden" value="GRCm38"/>
+      <param name="ensembl_version" type="hidden" value="71"/>
+      <param name="ncbi_organism" type="hidden" value="Mus_musculus"/>
+      <param name="ncbi_prefix" type="hidden" value="Mm"/>
+      <param name="ucsc_genome_version" type="hidden" value="mm10"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="NCBIM37">
+      <param name="ensembl_organism" type="hidden" value="mus_musculus"/>
+      <param name="ensembl_prefix" type="hidden" value="Mus_musculus"/>
+      <param name="ensembl_genome_version" type="hidden" value="NCBIM37"/>
+      <param name="ensembl_version" type="hidden" value="67"/>
+      <param name="ncbi_organism" type="hidden" value="Mus_musculus"/>
+      <param name="ncbi_prefix" type="hidden" value="Mm"/>
+      <param name="ucsc_genome_version" type="hidden" value="mm9"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="Rnor_5.0">
+      <param name="ensembl_organism" type="hidden" value="rattus_norvegicus"/>
+      <param name="ensembl_prefix" type="hidden" value="Rattus_norvegicus"/>
+      <param name="ensembl_genome_version" type="hidden" value="Rnor_5.0"/>
+      <param name="ensembl_version" type="hidden" value="71"/>
+      <param name="ncbi_organism" type="hidden" value="Rattus_norvegicus"/>
+      <param name="ncbi_prefix" type="hidden" value="Rn"/>
+      <param name="ucsc_genome_version" type="hidden" value="rn5"/>
+      <param name="chromosomes" type="hidden" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,MT"/>
+      <param name="mt_chromosome" type="hidden" value="MT"/>
+      <param name="gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding"/>
+      <param name="ig_gene_sources" type="hidden" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene"/>
+      <param name="rrna_gene_sources" type="hidden" value="Mt_rRNA,rRNA,rRNA_pseudogene"/>
+    </when>
+    <when value="user_specified">
+      <param name="ensembl_organism" type="text" value="" label="Ensembl Organism Name">
+       <help>
+       Examples: homo_sapiens, mus_musculus, rattus_norvegicus
+       ftp://ftp.ensembl.org/pub/release-$ensembl_version/fasta/$ensembl_organism/dna/$ensembl_prefix.$ensembl_genome_version.$ensembl_version.dna.chromosome.$chromosome.fa.gz
+       </help>
+       </param>
+      <param name="ensembl_prefix" type="text" value="" label="Ensembl Organism prefix" help="Examples: Homo_sapiens, Mus_musculus, Rattus_norvegicus"/>
+      <param name="ensembl_genome_version" type="text" value="" label="Ensembl Genome Version" help="Examples: GRCh37, GRCm38, Rnor_5.0"/>
+      <param name="ensembl_version" type="integer" value="" label="Ensembl Release Version" help="Example: 71"/>
+      <param name="ncbi_organism" type="text" value="" label="NCBI Organism Name" help="Examples: Homo_sapiens, Mus_musculus, Rattus_norvegicus"/>
+      <param name="ncbi_prefix" type="text" value="" label="NCBI Organism Unigene prefix" help="Examples: Hs, Mm, Rn"/>
+      <param name="ucsc_genome_version" type="text" value="" label="UCSC Genome Version" help="Examples: hg19, mm10, rn5"/>
+      <param name="chromosomes" type="text" value="" label="Chromosomes for Ensembl genome build" >
+       <help>  Examples: 
+         Homo_sapiens: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y,MT
+         Mus_musculus: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,Y,MT
+         Rattus_norvegicus: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,X,MT
+         ( ftp://ftp.ensembl.org/pub/release-71/fasta/homo_sapiens/dna/ )
+       </help>
+      </param>
+      <param name="mt_chromosome" type="text" value="MT" label="Ensembl Mitochonrial Chromosome name" />
+      <param name="gene_sources" type="text" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,processed_transcript,protein_coding" label="Gene sources" />
+      <param name="ig_gene_sources" type="text" value="IG_C_gene,IG_D_gene,IG_J_gene,IG_V_gene,IG_pseudogene" label="IG Gene sources" />
+      <param name="rrna_gene_sources" type="text" value="Mt_rRNA,rRNA,rRNA_pseudogene" label="Ribosomal Gene sources" />
+    </when>
+  </conditional>
+ </inputs>
+ <outputs>
+  <data format="defuse.conf" name="config_txt" label="${tool.name} on ${genome.ensembl_genome_version} : config.txt"/>
+ </outputs>
+  <stdio>
+    <exit_code range="1:"  level="fatal"   description="Error running Create DeFuse Reference" />
+    <regex match="Error:" 
+           source="both" 
+           level="fatal" 
+           description="Error running Create DeFuse Reference" />
+
+  </stdio>
+ <configfiles>
+  <configfile name="defuse_config">
+#
+# Configuration file for defuse
+#
+# Variables that desiganate the PATH to an application, e.g. __SAMTOOLS_BIN__ 
+#   will be set by the runtime script using the ENV PATH
+#
+
+# Directory where the defuse code was unpacked
+source_directory = __DEFUSE_PATH__
+
+# Organism IDs
+ensembl_organism = $genome.ensembl_organism
+ensembl_prefix = $genome.ensembl_prefix
+ensembl_version = $genome.ensembl_version
+ensembl_genome_version = $genome.ensembl_genome_version
+ucsc_genome_version = $genome.ucsc_genome_version
+ncbi_organism = $genome.ncbi_organism
+ncbi_prefix = $genome.ncbi_prefix
+
+# Directory where you want your dataset
+dataset_directory = $config_txt.dataset.extra_files_path
+
+#raw
+# Input genome and gene models
+gene_models                                 = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).gtf
+genome_fasta                                = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).dna.chromosomes.fa
+
+# Repeat table from ucsc genome browser
+repeats_filename                            = $(dataset_directory)/repeats.txt
+
+# EST info downloaded from ucsc genome browser
+est_fasta                                   = $(dataset_directory)/est.fa
+est_alignments                              = $(dataset_directory)/intronEst.txt
+
+# Unigene clusters downloaded from ncbi
+unigene_fasta                               = $(dataset_directory)/$(ncbi_prefix).seq.uniq
+#end raw
+
+# Paths to external tools
+samtools_bin =  __SAMTOOLS_BIN__
+bowtie_bin = __BOWTIE_BIN__
+bowtie_build_bin = __BOWTIE_BUILD_BIN__
+blat_bin = __BLAT_BIN__
+fatotwobit_bin = __FATOTWOBIT_BIN__
+gmap_bin = __GMAP_BIN__
+gmap_setup_bin = __GMAP_SETUP_BIN__
+r_bin = __R_BIN__
+rscript_bin = __RSCRIPT_BIN__
+
+#raw
+# Directory where you want your dataset
+gmap_index_directory                        = $(dataset_directory)/gmap
+#end raw
+
+#raw
+# Dataset files
+dataset_prefix       = $(dataset_directory)/defuse
+chromosome_prefix    = $(dataset_prefix).dna.chromosomes
+exons_fasta          = $(dataset_prefix).exons.fa
+cds_fasta            = $(dataset_prefix).cds.fa
+cdna_regions         = $(dataset_prefix).cdna.regions
+cdna_fasta           = $(dataset_prefix).cdna.fa
+reference_fasta      = $(dataset_prefix).reference.fa
+rrna_fasta           = $(dataset_prefix).rrna.fa
+ig_gene_list         = $(dataset_prefix).ig.gene.list
+repeats_regions      = $(dataset_directory)/repeats.regions
+est_split_fasta1     = $(dataset_directory)/est.1.fa
+est_split_fasta2     = $(dataset_directory)/est.2.fa
+est_split_fasta3     = $(dataset_directory)/est.3.fa
+est_split_fasta4     = $(dataset_directory)/est.4.fa
+est_split_fasta5     = $(dataset_directory)/est.5.fa
+est_split_fasta6     = $(dataset_directory)/est.6.fa
+est_split_fasta7     = $(dataset_directory)/est.7.fa
+est_split_fasta8     = $(dataset_directory)/est.8.fa
+est_split_fasta9     = $(dataset_directory)/est.9.fa
+
+# Fasta files with bowtie indices for prefiltering reads for concordantly mapping pairs
+prefilter1           = $(unigene_fasta)
+
+# deFuse scripts and tools
+scripts_directory    = $(source_directory)/scripts
+tools_directory      = $(source_directory)/tools
+data_directory       = $(source_directory)/data
+#end raw
+
+# Parameters for building the dataset
+chromosomes = $genome.chromosomes
+mt_chromosome = $genome.mt_chromosome
+gene_sources = $genome.gene_sources
+ig_gene_sources = $genome.ig_gene_sources
+rrna_gene_sources = $genome.rrna_gene_sources
+gene_biotypes = $genome.gene_sources
+ig_gene_biotypes = $genome.ig_gene_sources
+rrna_gene_biotypes = $genome.rrna_gene_sources
+
+#raw
+# Remove temp files
+remove_job_files                            = yes
+remove_job_temp_files                       = yes
+#end raw
+  </configfile>
+  <configfile name="defuse_script">
+#!/bin/bash
+## define some things for cheetah proccessing
+#set $amp = chr(38)
+#set $gt = chr(62)
+## substitute pathnames into config file
+if `grep __DEFUSE_PATH__ $defuse_config ${gt} /dev/null`;then sed -i'.tmp' "s#__DEFUSE_PATH__#\${DEFUSE_PATH}#" $defuse_config; fi
+if `grep __SAMTOOLS_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} SAMTOOLS_BIN=`which samtools`;then sed -i'.tmp' "s#__SAMTOOLS_BIN__#\${SAMTOOLS_BIN}#" $defuse_config; fi
+if `grep __BOWTIE_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BIN=`which bowtie`;then sed -i'.tmp' "s#__BOWTIE_BIN__#\${BOWTIE_BIN}#" $defuse_config; fi
+if `grep __BOWTIE_BUILD_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BUILD_BIN=`which bowtie-build`;then sed -i'.tmp' "s#__BOWTIE_BUILD_BIN__#\${BOWTIE_BUILD_BIN}#" $defuse_config; fi
+if `grep __BLAT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BLAT_BIN=`which blat`;then sed -i'.tmp' "s#__BLAT_BIN__#\${BLAT_BIN}#" $defuse_config; fi
+if `grep __FATOTWOBIT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} FATOTWOBIT_BIN=`which faToTwoBit`;then sed -i'.tmp' "s#__FATOTWOBIT_BIN__#\${FATOTWOBIT_BIN}#" $defuse_config; fi
+if `grep __GMAP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BIN=`which gmap`;then sed -i'.tmp' "s#__GMAP_BIN__#\${GMAP_BIN}#" $defuse_config; fi
+if `grep __GMAP_SETUP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_SETUP_BIN=`which gmap_setup`;then sed -i'.tmp' "s#__GMAP_SETUP_BIN__#\${GMAP_SETUP_BIN}#" $defuse_config; fi
+if `grep __GMAP_INDEX_DIR__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_INDEX_DIR=`pwd`/gmap;then sed -i'.tmp' "s#__GMAP_INDEX_DIR__#\${GMAP_INDEX_DIR}#" $defuse_config; fi
+if `grep __R_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} R_BIN=`which R`;then sed -i'.tmp' "s#__R_BIN__#\${R_BIN}#" $defuse_config; fi
+if `grep __RSCRIPT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} RSCRIPT_BIN=`which Rscript`;then sed -i'.tmp' "s#__RSCRIPT_BIN__#\${RSCRIPT_BIN}#" $defuse_config; fi
+## copy config to output
+cp $defuse_config $config_txt
+## make a data_dir  and ln -s the input fastq
+mkdir -p $config_txt.dataset.extra_files_path
+## create_reference_dataset.pl
+perl \${DEFUSE_PATH}/scripts/create_reference_dataset.pl -c $defuse_config 
+  </configfile>
+ </configfiles>
+
+ <tests>
+ </tests>
+ <help>
+**DeFuse**
+
+DeFuse_ is a software package for gene fusion discovery using RNA-Seq data. The software uses clusters of discordant paired end alignments to inform a split read alignment analysis for finding fusion boundaries. The software also employs a number of heuristic filters in an attempt to reduce the number of false positives and produces a fully annotated output for each predicted fusion.  See the DeFuse_Version_0.6_ manual for details.
+
+DeFuse uses a Reference Dataset to search for gene fusions.  The Reference Dataset is generated from the following sources in DeFuse_Version_0.6_:
+    - genome_fasta from Ensembl
+    - gene_models from Ensembl
+    - repeats_filename from UCSC RepeatMasker rmsk.txt
+    - est_fasta from UCSC
+    - est_alignments from UCSC intronEst.txt
+    - unigene_fasta from NCBI
+
+The create_defuse_reference Galaxy tool downloads the reference genome and other source files, and builds any derivative files including bowtie indices, gmap indices, and 2bit files. Expect this step to take at least 12 hours.
+
+
+It will generate a config.txt file that can be input into the deFuse Galaxy tool.  
+
+Journal reference: http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjournal.pcbi.1001138
+
+.. _DeFuse: http://sourceforge.net/apps/mediawiki/defuse/index.php?title=Main_Page
+
+.. _DeFuse_Version_0.6: http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.1
+
+------
+
+**Outputs**
+
+The galaxy history will contain: the config.txt file that provides DeFuse with the reference data paths.  
+
+ </help>
+</tool>

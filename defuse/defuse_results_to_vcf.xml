@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<tool id="defuse_results_to_vcf" name="Defuse Results to VCF" version="0.6.1">
+  <description>generate a VCF from a DeFuse Results file</description>
+  <requirements>
+    <requirement type="package" version="0.6.1">defuse</requirement>
+  </requirements>
+  <command interpreter="python">defuse_results_to_vcf.py  --input $defuse_results --reference ${defuse_results.metadata.dbkey} --output $vcf
+  </command>
+  <inputs>
+    <param name="defuse_results" type="data" format="defuse.results.tsv" label="Defuse Results file"/> 
+  </inputs>
+  <stdio>
+    <exit_code range="1:" level="fatal" description="Error" />
+  </stdio>
+  <outputs>
+    <data name="vcf" metadata_source="defuse_results" format="vcf"/>
+  </outputs>
+  <tests>
+    <test>
+      <param name="defuse_results" value="mm10_results.filtered.tsv" ftype="defuse.results.tsv" dbkey="mm10"/>
+      <output name="vcf" file="mm10_results.filtered.vcf"/>
+    </test>
+  </tests>
+  <help>
+**Defuse Results to VCF**
+
+Generates a VCF_ Variant Call Format file from a DeFuse_ results.tsv file.   
+
+This program relies on the header line of the results.tsv to determine which columns to use for genrating the VCF file.   
+
+.. _VCF: http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
+.. _DeFuse: http://sourceforge.net/apps/mediawiki/defuse
+  </help>
+</tool>
