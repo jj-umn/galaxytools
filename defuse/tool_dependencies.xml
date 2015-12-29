@@ -15,4 +15,10 @@
     <package name="kent" version="latest">
         <repository name="package_kent" owner="jjohnson" />
     </package>
+    <package name="R" version="3.1.2">
+        <repository name="package_r_3_1_2" owner="iuc" />
+    </package>
+    <package name="ada" version="2.0.3">
+        <repository name="package_r_ada_2_0_3" owner="jjohnson" />
+    </package>
 </tool_dependency>

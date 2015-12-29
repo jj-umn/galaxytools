@@ -6,6 +6,8 @@
   <requirement type="package" version="1.0.0">bowtie</requirement>
   <requirement type="package" version="2013-05-09">gmap</requirement>
   <requirement type="package" version="latest">kent</requirement>
+  <requirement type="package" version="3.1.2">R</requirement>
+  <requirement type="package" version="2.0.3">ada</requirement>
  </requirements>
   <command interpreter="command"> /bin/bash $shscript </command>
  <inputs>
