@@ -1,0 +1,15 @@
+categories:
+- Tool Dependency Packages
+description: Contains a tool dependency definition that downloads and installs version
+  2.0.3 of the ada R package along with depenedency rpart
+long_description: |
+  ada performs discrete, real, and gentle boost under both exponential and logistic loss 
+  on a given data set. The package ada provides a straightforward, well-documented, and 
+  broad boosting routine for classification, ideally suited for small to moderate-sized 
+  data sets.
+
+  https://cran.r-project.org/web/packages/ada/index.html
+name: package_r_ada_2_0_3
+owner: jj
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/packages/package_r_ada_2_0_3
+type: tool_dependency_definition

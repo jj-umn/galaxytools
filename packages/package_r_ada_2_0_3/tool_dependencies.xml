@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<tool_dependency>
+    <package name="R" version="3.1.2">
+        <repository name="package_r_3_1_2" owner="iuc" prior_installation_required="True" />
+    </package>
+    <package name="ada" version="2.0.3">
+        <install version="1.0">
+            <actions>
+                <action type="setup_r_environment">
+                    <repository name="package_r_3_1_2" owner="iuc">
+                        <package name="R" version="3.1.2" />
+                    </repository>
+                    <package>https://github.com/jj-umn/download_store/blob/master/cran/rpart_4.1-10.tar.gz</package>
+                    <package>https://github.com/jj-umn/download_store/blob/master/cran/ada_2.0-3.tar.gz</package>
+                </action>
+            </actions>
+        </install>
+        <readme><![CDATA[
+ada: an R package for stochastic boosting
+
+Performs discrete, real, and gentle boost under both exponential and logistic loss on a given data set. The package ada provides a straightforward, well-documented, and broad boosting routine for classification, ideally suited for small to moderate-sized data sets. Please refer to the Url below for more information.
+
+https://cran.r-project.org/web/packages/ada/index.html
+
+]]>
+        </readme>
+    </package>
+</tool_dependency>
