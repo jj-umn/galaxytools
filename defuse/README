@@ -1,11 +1,12 @@
-The DeFuse galaxy tool is based on DeFuse_Version_0.6.1
+The DeFuse galaxy tool is based on DeFuse_Version_0.6.2
 http://sourceforge.net/apps/mediawiki/defuse/index.php?title=Main_Page
+https://bitbucket.org/dranew/defuse
 
 DeFuse is a software package for gene fusion discovery using RNA-Seq data. The software uses clusters of discordant paired end alignments to inform a split read alignment analysis for finding fusion boundaries. The software also employs a number of heuristic filters in an attempt to reduce the number of false positives and produces a fully annotated output for each predicted fusion.
 
 
 Manual:
-http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.1
+http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.2
 
 The included tool_dependencies.xml will download and install the defuse code.  
 It will set the environment variable: "DEFUSE_PATH" to the location of the defuse install.  
@@ -40,7 +41,7 @@ This should me made available in the future as a Galaxy DataManager.
 
 Galaxy will try to auto-install dependencies:
 
-External Tools  ( http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.1 )
+External Tools  ( http://sourceforge.net/apps/mediawiki/defuse/index.php?title=DeFuse_Version_0.6.2 )
 deFuse relies on other publically available tools as part of its pipeline. Some of these tools are not included with the deFuse download. Obtain these tools as detailed below.
 Download samtools
 The latest version of samtools can be downloaded from sourceforge: https://sourceforge.net/projects/samtools/files/samtools.

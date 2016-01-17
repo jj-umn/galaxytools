@@ -1,14 +1,13 @@
-<tool id="defuse" name="DeFuse" version="1.6.1">
- <description>identify fusion transcripts</description>
- <requirements>
-  <requirement type="package" version="0.6.1">defuse</requirement>
-  <requirement type="package" version="0.1.19">samtools</requirement>
-  <requirement type="package" version="1.0.0">bowtie</requirement>
-  <requirement type="package" version="2013-05-09">gmap</requirement>
-  <requirement type="package" version="latest">kent</requirement>
-  <requirement type="package" version="3.1.2">R</requirement>
-  <requirement type="package" version="2.0.3">ada</requirement>
- </requirements>
+<tool id="defuse" name="DeFuse" version="@DEFUSE_VERSION@.1">
+    <description>identify fusion transcripts</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <requirements>
+        <expand macro="defuse_requirement" />
+        <expand macro="mapping_requirements" />
+        <expand macro="r_requirements" />
+    </requirements>
   <command interpreter="command"> /bin/bash $shscript </command>
  <inputs>
   <param name="left_pairendreads" type="data" format="fastq" label="left part of read pairs" help="The left and right reads pairs must be in the same order, and not have any unpaired reads.  (FASTQ interlacer will pair reads and remove the unpaired.   FASTQ de-interlacer will separate the result into left and right reads.)"/>
@@ -62,9 +61,17 @@
       <param name="probability_threshold" type="float" value="0.50" optional="true" label="Filter probability_threshold">
         <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
       </param>
+      <param name="multi_exon_transcripts_stats" type="select" label="Use multiple exon transcripts for stats calculations" help="should be enabled for very small libraries">
+        <option value="no" select="true">no</option>
+        <option value="yes">yes</option>
+      </param>
       <param name="covariance_sampling_density" type="float" value="0.01" optional="true" label="covariance_sampling_density">
         <help>Position density when calculating covariance</help>
         <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
+      </param>
+      <param name="max_paired_alignments" type="integer" value="10" optional="true" label="max_paired_alignments">
+        <help>Maximum number of alignments for a read pair, Pairs with more alignments are filtered, default is 10</help>
+        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="1" max="100"/>
       </param>
       <param name="denovo_assembly" type="select" label="denovo_assembly" help="">
         <option value="">Use Default</option>
@@ -324,6 +331,12 @@ $ref_dict['bowtie_quals']
 #except
 --phred33-quals
 #end try
+bowtie_params = #slurp
+#try
+$ref_dict['bowtie_params']
+#except
+--chunkmbs 200
+#end try
 max_insert_size = #slurp
 #if $defuse_param.settings == "full" and $defuse_param.max_insert_size.__str__ != "":
 $defuse_param.max_insert_size
@@ -482,6 +495,19 @@ $ref_dict['probability_threshold']
 #end if
 positive_controls                           = \$(data_directory)/controls.txt
 
+# Use multiple exon transcripts for stats calculations (yes/no)
+# should be enabled for very small libraries
+multi_exon_transcripts_stats = #slurp
+#if $defuse_param.settings == "full" and $defuse_param.multi_exon_transcripts_stats.__str__ != ""
+$defuse_param.multi_exon_transcripts_stats
+#else
+#try
+$ref_dict['multi_exon_transcripts_stats']
+#except
+no
+#end try
+#end if
+
 # Position density when calculating covariance
 covariance_sampling_density = #slurp
 #if $defuse_param.settings == "full" and $defuse_param.covariance_sampling_density.__str__ != ""
@@ -493,6 +519,20 @@ $ref_dict['covariance_sampling_density']
 0.01
 #end try
 #end if
+
+# Maximum number of alignments for a read pair
+# Pairs with more alignments are filtered
+max_paired_alignments = #slurp
+#if $defuse_param.settings == "full" and $defuse_param.max_paired_alignments.__str__ != ""
+$defuse_param.max_paired_alignments
+#else
+#try
+$ref_dict['max_paired_alignments']
+#except
+10
+#end try
+#end if
+
 # Number of reads for each job in split
 reads_per_job = #slurp
 #if $defuse_param.settings == "full" and $defuse_param.reads_per_job.__str__ != ""
@@ -512,6 +552,8 @@ $ref_dict['reads_per_job']
 # Remove temp files
 remove_job_files                            = yes
 remove_job_temp_files                       = yes
+
+qsub_params                                 = ""
 
 #end raw
 
@@ -584,7 +626,7 @@ ln -s $defuse_out.dataset.extra_files_path  output_dir
 mkdir -p output_dir
 #end if
 ## run defuse.pl
-perl \${DEFUSE_PATH}/scripts/defuse.pl -name "$library_name" -c $defuse_config -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p 8
+perl \${DEFUSE_PATH}/scripts/defuse.pl -name "$library_name" -c $defuse_config -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p \$GALAXY_SLOTS
 ## copy primary results to output datasets
 if [ -e output_dir/log/defuse.log ]; then cp output_dir/log/defuse.log $defuse_log; fi
 ## if [ -e output_dir/results.tsv ]; then cp output_dir/results.tsv $results_tsv; fi
@@ -750,4 +792,5 @@ results.tsv::
   3596	TGGGGGTTGAGGCTTCTGTTCCCAGGTTCCATGACCTCAGAGGTGGCTGGTGAGGTTATGACCTTTGCCCTCCAGCCCTGGCTTAAAACCTCAGCCCTAGGACCTGGTTAAAGGAAGGGGAGATGGAGCTTTGCCCCGACCCCCCCCCGTTCCCCTCACCTGTCAGCCCGAGCTGGGCCAGGGCCCCTAGGTGGGGAACTGGGCCGGGGGGCGGGCACAAGCGGAGGTGGTGCCCCCAAAAGGGCTCCCGGTGGGGTCTTGCTGAGAAGGTGAGGGGTTCCCGGGGCCGCAGCAGGTGGTGGTGGAGGAGCCAAGCGGCTGTAGAGCAAGGGGTGAGCAGGTTCCAGACCGTAGAGGCGGGCAGCGGCCACGGCCCCGGGTCCAGTTAGCTCCTCACCCGCCTCATAGAAGCGGGGTGGCCTTGCCAGGCGTGGGGGTGCTGCC|TTCCTTGGATGTGGTAGCCGTTTCTCAGGCTCCCTCTCCGGAATCGAACCCTGATTCCCCGTCACCCGTGGTCACCATGGTAGGCACGGCGACTACCATCGAAAGTTGATAGGGCAGACGTTCGAATGGGTCGTCGCCGCCACGGGGGGCGTGCGATCAGCCCGAGGTTATCTAGAGTCACCAAAGCCGCCGGCGCCCGCCCCCCGGCCGGGGCCGGAGAGGGGCTGACCGGGTTGGTTTTGATCTGATAAATGCACGCATCCCCCCCGCGAAGGGGGTCAGCGCCCGTCGGCATGTATTAGCTCTAGAATTACCACAGTTATCCAAGTAGGAGAGGAGCGAGCGACCAAAGGAACCATAACTGATTTAATGAGCCATTCGCAGTTTCACTGTACCGGCCGTGCGTACTTAGACATGCATGGCTTAATCTTTGAGACAAGCATATGCTACTGGCAGG	250	7.00711162298275e-72	0.00912124762512338	0.00684237452309549	N	N	3.31745197152461	3.47233119514066	3.31745197152461	splitr	7	0.0157657657657656	0	0	N	0.0135135135135136	N	N	0	0	ENSG00000156860	ENSG00000212932	-	+	16	21	30682131	48111157	coding	upstream	FBRS	RPL23AP4	30670289	48110676	+	+	0.0157657657657656	30680678	9827473	-	+	Y	-	-	N	output_dir	2	1	1.11111111111111	1	1	1	N	N	0	1	9	0.325530693397641	0.296465452915709	0.325530693397641	0.296465452915709	2	-	-	
 
  </help>
+    <expand macro="citations"/>
 </tool>

@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
-<tool id="defuse_bamfastq" name="Defuse BamFastq" version="0.6.1">
+<tool id="defuse_bamfastq" name="Defuse BamFastq" version="@DEFUSE_VERSION@.1">
   <description>converts a bam file to fastq files.</description>
-  <requirements>
-    <requirement type="package" version="0.6.1">defuse</requirement>
-  </requirements>
-  <version_command>bamfastq --version</version_command>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <requirements>
+        <expand macro="defuse_requirement" />
+    </requirements>
   <command>bamfastq
     #if $pair == True :
       $pair
@@ -57,4 +59,5 @@
   <help>
     bamfastq converts a bam file input into a pair of fastq files that can be used as input to deFuse.
   </help>
+    <expand macro="citations"/>
 </tool>

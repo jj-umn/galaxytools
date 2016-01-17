@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="defuse" version="0.6.1">
-        <repository name="package_defuse_0_6_1" owner="jjohnson" />
+    <package name="defuse" version="0.6.2">
+        <repository name="package_defuse_0_6_2" owner="jjohnson" />
     </package>
     <package name="samtools" version="0.1.19">
         <repository name="package_samtools_0_1_19" owner="iuc" />

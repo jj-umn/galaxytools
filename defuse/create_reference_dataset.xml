@@ -1,12 +1,12 @@
-<tool id="create_defuse_reference" name="Create DeFuse Reference" version="1.6.1">
+<tool id="create_defuse_reference" name="Create DeFuse Reference" version="@DEFUSE_VERSION@.1">
  <description>create a defuse reference from Ensembl and UCSC sources</description>
- <requirements>
-  <requirement type="package" version="0.6.1">defuse</requirement>
-  <requirement type="package" version="0.1.18">samtools</requirement>
-  <requirement type="package" version="1.0.0">bowtie</requirement>
-  <requirement type="package" version="2013-05-09">gmap</requirement>
-  <requirement type="package" version="latest">kent</requirement>
- </requirements>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <requirements>
+        <expand macro="defuse_requirement" />
+        <expand macro="mapping_requirements" />
+    </requirements>
   <command interpreter="command"> /bin/bash $defuse_script </command>
  <inputs>
   <conditional name="genome">
@@ -304,4 +304,5 @@ Journal reference: http://www.ploscompbiol.org/article/info%3Adoi%2F10.1371%2Fjo
 The galaxy history will contain: the config.txt file that provides DeFuse with the reference data paths.  
 
  </help>
+    <expand macro="citations"/>
 </tool>
