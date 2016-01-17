@@ -7,13 +7,13 @@
         <repository name="package_samtools_0_1_19" owner="iuc" />
     </package>
     <package name="bowtie" version="1.0.0">
-        <repository name="package_bowtie_1_0_0" owner="jjohnson" />
+        <repository name="package_bowtie_1_0_0" owner="iuc" />
     </package>
     <package name="gmap" version="2013-05-09">
         <repository name="package_gmap_2013_05_09" owner="jjohnson" />
     </package>
-    <package name="kent" version="latest">
-        <repository name="package_kent" owner="jjohnson" />
+    <package name="blat" version="35x1">
+        <repository name="package_blat_35x1" owner="iuc" />
     </package>
     <package name="R" version="3.1.2">
         <repository name="package_r_3_1_2" owner="iuc" />
