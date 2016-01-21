@@ -1,9 +1,19 @@
 #!/usr/bin/env python
 
 import sys
+import re
 import os.path
 import optparse
 import sqlite3 as sqlite
+
+def regex_match(expr, item):
+    return re.match(expr, item) is not None
+
+def regex_search(expr, item):
+    return re.search(expr, item) is not None
+
+def regex_sub(expr, replace, item):
+    return re.sub(expr, replace, item)
 
 def __main__():
   #Parse Command Line
@@ -58,6 +68,9 @@ def __main__():
   #  exit(2)
   try:
     conn = sqlite.connect(options.sqlitedb)
+    conn.create_function("re_match", 2, regex_match)
+    conn.create_function("re_search", 2, regex_search)
+    conn.create_function("re_sub", 3, regex_sub)
     cur = conn.cursor()
     results = cur.execute(query)
     if not options.no_header:
