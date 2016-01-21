@@ -10,6 +10,35 @@
         <configfile name="query_file">
 $sqlquery
         </configfile>
+        <configfile name="table_json">
+#import json
+#set $jtbldef = dict()
+#set $jtbls = []
+#set $jtbldef['tables'] = $jtbls
+#for $i,$tbl in enumerate($tables):
+  #set $jtbl = dict()
+  #set $jtbl['file_path'] = str($tbl.table)
+  #if $tbl.table_name
+  #set $tname = str($tbl.table_name)
+  #else
+  #set $tname = 't' + str($i + 1) 
+  #end if
+  #set $jtbl['table_name'] = $tname
+  #if $tbl.col_names:
+  #set $col_names = str($tbl.col_names)
+  #else 
+  #set $col_names = ''
+  #end if
+  #set $jtbl['column_names'] = $col_names
+  #if str($tbl.skip_lines) != '':
+    #set $jtbl['comment_lines'] = $tbl.skip_lines
+  #elif $tbl.table.metadata.comment_lines > 0:
+    #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
+  #end if
+  #set $jtbls += [$jtbl]
+#end for
+#echo $json.dumps($jtbldef)
+        </configfile>
     </configfiles>
     <command interpreter="python"><![CDATA[
         query_tabular.py 
@@ -18,19 +47,22 @@ $sqlquery
         #else
         -s $workdb
         #end if
-        #for $i,$tbl in enumerate($tables):
-          #if $tbl.table_name
-          #set $tname = $tbl.table_name
-          #else
-          #set $tname = 't' + str($i + 1) 
-          #end if
-          #if $tbl.col_names:
-          #set $col_names = ':' + str($tbl.col_names)
-          #else 
-          #set $col_names = ''
-          #end if
-          -t ${tbl.table}=${tname}${$col_names}
-        #end for
+        -j $table_json
+        #*
+        ##          #for $i,$tbl in enumerate($tables):
+        ##            #if $tbl.table_name
+        ##            #set $tname = $tbl.table_name
+        ##            #else
+        ##            #set $tname = 't' + str($i + 1) 
+        ##            #end if
+        ##            #if $tbl.col_names:
+        ##            #set $col_names = ':' + str($tbl.col_names)
+        ##            #else 
+        ##            #set $col_names = ''
+        ##            #end if
+        ##            -t ${tbl.table}=${tname}${$col_names}
+        ##          #end for
+        *#
         #if $sqlquery:
           -Q "$query_file" 
           $no_header
@@ -52,6 +84,7 @@ $sqlquery
                 <help>By default, table columns will be named: c1,c2,c3,...,cn</help>
                 <validator type="regex" message="A List of separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores">^([A-Za-z]\w*)?(,([A-Za-z]\w*)?)*$</validator>
             </param>
+            <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the datatype comment lines metadata" />
         </repeat>
         <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
                 <help>By default, tables will be named: t1,t2,...,tn</help>
@@ -63,10 +96,10 @@ $sqlquery
         <param name="save_db" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Save the sqlite database"/>
     </inputs>
     <outputs>
-        <data format="sqlite" name="sqlitedb" label="sqlite">
+        <data format="sqlite" name="sqlitedb" label="sqlite db of ${on_string}">
             <filter>save_db or not (sqlquery and len(sqlquery) > 0)</filter>
         </data>
-        <data format="tabular" name="output" label="query results">
+        <data format="tabular" name="output" label="query results on ${on_string}">
             <filter>sqlquery and len(sqlquery) > 0</filter>
         </data>
     </outputs>
@@ -84,7 +117,7 @@ $sqlquery
                 <param name="col_names" value="CustomerID,Date,SaleAmount"/>
             </repeat>
             <param name="sqlquery" value="SELECT FirstName,LastName,sum(SaleAmount) as &quot;TotalSales&quot; FROM customers join sales on customers.CustomerID = sales.CustomerID GROUP BY customers.CustomerID ORDER BY TotalSales DESC"/>
-             <output name="output" file="sales_results.tsv"/>
+            <output name="output" file="sales_results.tsv"/>
         </test>
 
         <test>
@@ -96,7 +129,16 @@ $sqlquery
                 <param name="table" ftype="tabular" value="sales.tsv"/>
             </repeat>
             <param name="sqlquery" value="SELECT FirstName,LastName,sum(t2.c3) as &quot;TotalSales&quot; FROM t1 join t2 on t1.c1 = t2.c1 GROUP BY t1.c1 ORDER BY TotalSales DESC;"/>
-             <output name="output" file="sales_results.tsv"/>
+            <output name="output" file="sales_results.tsv"/>
+        </test>
+
+        <test>
+            <repeat name="tables">
+                <param name="table" ftype="tabular" value="customers.tsv"/>
+                <param name="col_names" value=",FirstName,LastName,,BirthDate,"/>
+            </repeat>
+            <param name="sqlquery" value="select FirstName,LastName,re_sub('^\d{2}(\d{2})-(\d\d)-(\d\d)','\3/\2/\1',BirthDate) as &quot;DOB&quot; from t1 WHERE re_search('[hp]er',c4)"/>
+            <output name="output" file="regex_results.tsv"/>
         </test>
 
         <test>
@@ -111,7 +153,7 @@ $sqlquery
                 <param name="col_names" value="pos,peptide,logscore,affinity,Bind_Level,Protein,Allele"/>
             </repeat>
             <param name="sqlquery" value="select iedb.ID,iedb.peptide,iedb.start,iedb.end,iedb.percentile_rank,mhc_summary.logscore,mhc_summary.affinity,mhc_summary.Bind_Level from iedb left outer join mhc_summary on iedb.peptide = mhc_summary.peptide order by affinity,Bind_Level"/>
-             <output name="output" file="query_results.tsv"/>
+            <output name="output" file="query_results.tsv"/>
         </test>
 
     </tests>
@@ -207,7 +249,7 @@ See: http://www.sqlite.org/lang_datefunc.html
     Results in the following data base table
   
     =========== ========== ========== ===================== ========== ============
-    #c1         FirstName  LastName   c4                    BithDate   c6
+    #c1         FirstName  LastName   c4                    BirthDate  c6
     =========== ========== ========== ===================== ========== ============
     1           John       Smith      John.Smith@yahoo.com  1968-02-04 626 222-2222
     2           Steven     Goldfish   goldfish@fishhere.net 1974-04-04 323 455-4545
@@ -215,6 +257,46 @@ See: http://www.sqlite.org/lang_datefunc.html
     4           James      Smith      jim@supergig.co.uk    1980-10-20 416 323-8888
     =========== ========== ========== ===================== ========== ============
 
+  Regular_expression_ functions are included for: 
+
+  ::
+
+    matching:      re_match('pattern',column) 
+
+    SELECT t1.FirstName, t1.LastName
+    FROM t1
+    WHERE re_match('^.*\.(net|org)$',c4)
+
+  Results:
+
+    =========== ==========
+    #FirstName  LastName
+    =========== ==========
+    Steven      Goldfish
+    Paula       Brown
+    =========== ==========
+
+
+  ::
+
+    searching:     re_search('pattern',column)
+    substituting:  re_sub('pattern','replacement,column)
+
+    SELECT t1.FirstName, t1.LastName, re_sub('^\d{2}(\d{2})-(\d\d)-(\d\d)','\3/\2/\1',BirthDate) as "DOB"
+    FROM t1
+    WHERE re_search('[hp]er',c4)
+
+  Results:
+
+    =========== ========== ==========
+    #FirstName  LastName   DOB
+    =========== ========== ==========
+    Steven      Goldfish   04/04/74
+    Paula       Brown      24/05/78
+    James       Smith      20/10/80
+    =========== ========== ==========
+
+.. _Regular_expression: https://docs.python.org/release/2.7/library/re.html
 .. _SQLite: http://www.sqlite.org/index.html
 
     ]]></help>
