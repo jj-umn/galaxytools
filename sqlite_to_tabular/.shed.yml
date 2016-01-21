@@ -1,0 +1,15 @@
+categories:
+- Convert Formats
+description: Outputs tabular results of a query on a SQLite Database
+long_description: |
+  Outputs tabular results of a query on a SQLite Database.
+  In addition to the standard SQLite functions, it includes 
+  regular expression functions re.match, re.search, and re.sub
+
+  http://www.sqlite.org/index.html
+  https://docs.python.org/release/2.7/library/re.html
+
+name: sqlite_to_tabular
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/sqlite_to_tabular
+type: unrestricted
