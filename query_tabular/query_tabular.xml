@@ -6,6 +6,35 @@
     <stdio>
         <exit_code range="1:" />
     </stdio>
+    <command interpreter="python"><![CDATA[
+        query_tabular.py 
+        #if $save_db
+        -s $sqlitedb
+        #else
+        -s $workdb
+        #end if
+        -j $table_json
+        #*
+        ##          #for $i,$tbl in enumerate($tables):
+        ##            #if $tbl.table_name
+        ##            #set $tname = $tbl.table_name
+        ##            #else
+        ##            #set $tname = 't' + str($i + 1) 
+        ##            #end if
+        ##            #if $tbl.col_names:
+        ##            #set $col_names = ':' + str($tbl.col_names)
+        ##            #else 
+        ##            #set $col_names = ''
+        ##            #end if
+        ##            -t ${tbl.table}=${tname}${$col_names}
+        ##          #end for
+        *#
+        #if $sqlquery:
+          -Q "$query_file" 
+          $no_header
+          -o $output
+        #end if
+    ]]></command>
     <configfiles>
         <configfile name="query_file">
 $sqlquery
@@ -40,35 +69,6 @@ $sqlquery
 #echo $json.dumps($jtbldef)
         </configfile>
     </configfiles>
-    <command interpreter="python"><![CDATA[
-        query_tabular.py 
-        #if $save_db
-        -s $sqlitedb
-        #else
-        -s $workdb
-        #end if
-        -j $table_json
-        #*
-        ##          #for $i,$tbl in enumerate($tables):
-        ##            #if $tbl.table_name
-        ##            #set $tname = $tbl.table_name
-        ##            #else
-        ##            #set $tname = 't' + str($i + 1) 
-        ##            #end if
-        ##            #if $tbl.col_names:
-        ##            #set $col_names = ':' + str($tbl.col_names)
-        ##            #else 
-        ##            #set $col_names = ''
-        ##            #end if
-        ##            -t ${tbl.table}=${tname}${$col_names}
-        ##          #end for
-        *#
-        #if $sqlquery:
-          -Q "$query_file" 
-          $no_header
-          -o $output
-        #end if
-    ]]></command>
     <inputs>
         <param name="workdb" type="hidden" value="workdb.sqlite" label=""/>
         <repeat name="tables" title="Add tables" min="1">

@@ -1,0 +1,17 @@
+categories:
+- Text Manipulation
+description: Loads tabular files into a SQLite DB to perform a SQL query producing a tabular output 
+long_description: |
+  Loads tabular files into a SQLite DB to perform a SQL query 
+  producing a tabular output.  It includes regular expression 
+  functions re.match, re.search, and re.sub
+
+  The SQLite DB may optionally be saved as an additional output.
+
+  http://www.sqlite.org/index.html
+  https://docs.python.org/release/2.7/library/re.html
+
+name: query_tabular
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/query_tabular
+type: unrestricted
