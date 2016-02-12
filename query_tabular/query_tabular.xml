@@ -89,7 +89,7 @@ $sqlquery
         <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
                 <help>By default, tables will be named: t1,t2,...,tn</help>
                 <sanitizer sanitize="False"/>
-                <validator type="regex" message="">^(?i)\s*select\s+.*\s+from\s+.*$</validator>
+                <validator type="regex" message="">^(?im)\s*select\s+.*\s+from\s+.*$</validator>
         </param>
         <param name="no_header" type="boolean" truevalue="-n" falsevalue="" checked="False" label="Omit column headers"/>
 
