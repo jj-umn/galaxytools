@@ -60,7 +60,7 @@ $sqlquery
   #end if
   #set $jtbl['column_names'] = $col_names
   #if str($tbl.skip_lines) != '':
-    #set $jtbl['comment_lines'] = $tbl.skip_lines
+    #set $jtbl['comment_lines'] = int($tbl.skip_lines)
   #elif $tbl.table.metadata.comment_lines > 0:
     #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
   #end if
