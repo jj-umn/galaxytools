@@ -28,8 +28,10 @@ JSON config:
             comment_lines : 1
     },
     { file_path : '/home/galaxy/dataset_102.dat',
-            table_name : 't2',
-            column_names : ['c1', 'c2', 'c3']
+            table_name : 'gff',
+            column_names : ['seqname',,,'start','end']
+            comment_lines : 1
+            load_named_columns : True
     },
     { file_path : '/home/galaxy/dataset_103.dat',
             table_name : 'test',
@@ -58,10 +60,12 @@ def getValueType(val):
 
 
 def get_column_def(file_path, table_name, skip=0, comment_char='#',
-                   column_names=None, max_lines=100):
+                   column_names=None, max_lines=100,load_named_columns=False):
     col_pref = ['TEXT', 'REAL', 'INTEGER', None]
     col_types = []
+    col_idx = None
     data_lines = 0
+
     try:
         with open(file_path, "r") as fh:
             for linenum, line in enumerate(fh):
@@ -82,22 +86,33 @@ def get_column_def(file_path, table_name, skip=0, comment_char='#',
                     print >> sys.stderr, 'Failed at line: %d err: %s' % (linenum, e)
     except Exception, e:
         print >> sys.stderr, 'Failed: %s' % (e)
-    for i, col_type in enumerate(col_types):
+    for i,col_type in enumerate(col_types):
         if not col_type:
             col_types[i] = 'TEXT'
-    col_names = ['c%d' % i for i in range(1, len(col_types) + 1)]
-    if column_names:
-        for i, cname in enumerate([cn.strip() for cn in column_names.split(',')]):
-            if cname and i < len(col_names):
-                col_names[i] = cname
+    if column_names: 
+        col_names = []
+        if load_named_columns:
+            col_idx = []
+            for i, cname in enumerate([cn.strip() for cn in column_names.split(',')]):
+                if cname != '':
+                    col_idx.append(i)
+                    col_names.append(cname)                
+            col_types = [col_types[i] for i in col_idx]
+        else:
+            col_names = ['c%d' % i for i in range(1, len(col_types) + 1)]
+            for i, cname in enumerate([cn.strip() for cn in column_names.split(',')]):
+                if cname and i < len(col_names):
+                    col_names[i] = cname
+    else:
+        col_names = ['c%d' % i for i in range(1, len(col_types) + 1)]
     col_def = []
     for i, col_name in enumerate(col_names):
         col_def.append('%s %s' % (col_names[i], col_types[i]))
-    return col_names, col_types, col_def
+    return col_names, col_types, col_def, col_idx
 
 
-def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_names=None):
-    col_names, col_types, col_def = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, column_names=column_names)
+def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_names=None,load_named_columns=False):
+    col_names, col_types, col_def, col_idx = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, column_names=column_names,load_named_columns=load_named_columns)
     col_func = [float if t == 'REAL' else int if t == 'INTEGER' else str for t in col_types]
     table_def = 'CREATE TABLE %s (\n    %s\n);' % (table_name, ', \n    '.join(col_def))
     # print >> sys.stdout, table_def
@@ -114,6 +129,8 @@ def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_n
                 data_lines += 1
                 try:
                     fields = line.rstrip('\r\n').split('\t')
+                    if col_idx:
+                        fields = [fields[i] for i in col_idx]
                     vals = [col_func[i](x) if x else None for i, x in enumerate(fields)]
                     c.execute(insert_stmt, vals)
                 except Exception, e:
@@ -193,9 +210,13 @@ def __main__():
                 for ti, table in enumerate(tdef['tables']):
                     path = table['file_path']
                     table_name = table['table_name'] if 'table_name' in table else 't%d' % (ti + 1)
-                    column_names = table['column_names'] if 'column_names' in table else None
                     comment_lines = table['comment_lines'] if 'comment_lines' in table else 0
-                    create_table(conn, path, table_name, column_names=column_names, skip=comment_lines)
+                    column_names = table['column_names'] if 'column_names' in table else None
+                    if column_names:
+                        load_named_columns = table['load_named_columns'] if 'load_named_columns' in table else False
+                    else:   
+                        load_named_columns = False
+                    create_table(conn, path, table_name, column_names=column_names, skip=comment_lines,load_named_columns=load_named_columns)
         except Exception, exc:
             print >> sys.stderr, "Error: %s" % exc
     conn.close()

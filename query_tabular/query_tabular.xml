@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="0.1.0">
+<tool id="query_tabular" name="Query Tabular" version="0.1.1">
     <description>using sqlite sql</description>
 
     <requirements>
@@ -14,21 +14,6 @@
         -s $workdb
         #end if
         -j $table_json
-        #*
-        ##          #for $i,$tbl in enumerate($tables):
-        ##            #if $tbl.table_name
-        ##            #set $tname = $tbl.table_name
-        ##            #else
-        ##            #set $tname = 't' + str($i + 1) 
-        ##            #end if
-        ##            #if $tbl.col_names:
-        ##            #set $col_names = ':' + str($tbl.col_names)
-        ##            #else 
-        ##            #set $col_names = ''
-        ##            #end if
-        ##            -t ${tbl.table}=${tname}${$col_names}
-        ##          #end for
-        *#
         #if $sqlquery:
           -Q "$query_file" 
           $no_header
@@ -55,6 +40,9 @@ $sqlquery
   #set $jtbl['table_name'] = $tname
   #if $tbl.col_names:
   #set $col_names = str($tbl.col_names)
+    #if $tbl.load_named_columns:
+      #set $jtbl['load_named_columns'] = True
+    #end if
   #else 
   #set $col_names = ''
   #end if
@@ -77,13 +65,12 @@ $sqlquery
                 <help>By default, tables will be named: t1,t2,...,tn</help>
                 <validator type="regex" message="Table name should start with a letter and may contain additional letters, digits, and underscores">^[A-Za-z]\w*$</validator>
             </param>
-            <!--
-            <param name="sel_cols" label="Include columns" type="data_column" multiple="true" data_ref="table" />
-            -->
             <param name="col_names" type="text" value="" optional="true" label="Column names">
                 <help>By default, table columns will be named: c1,c2,c3,...,cn</help>
-                <validator type="regex" message="A List of separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores">^([A-Za-z]\w*)?(,([A-Za-z]\w*)?)*$</validator>
+                <sanitizer sanitize="False"/>
+                <validator type="regex" message="A List of names separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores. Otherwise, the name must be eclosed in: double quotes, back quotes, or square brackets.">^([A-Za-z]\w*|"\S+[^,"]*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?(,([A-Za-z]\w*|"\S+.*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?)*$</validator>
             </param>
+            <param name="load_named_columns" type="boolean" truevalue="load_named_columns" falsevalue="" checked="false" label="Only load named columns into database"/>
             <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the datatype comment lines metadata" />
         </repeat>
         <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
