@@ -14,8 +14,16 @@ TODO:
 - could read column names from comment lines, but issues with legal names
 - could add some transformations on tabular columns,
   e.g. a regex to format date/time strings
-    c2 : re.sub('pat', 'sub', c2)
-    c3 :
+    index: ['c2','c4,c5']
+    unique: ['c1']
+    format: {
+      c2 : re.sub('pat', 'sub', c2)
+      c3 : len(c3)
+   }
+   def format(colname,val, expr):
+     
+- allow optional autoincrement id column - user supplied name?
+    autoincrement : 'id'
 - column_defs dict of columns to create from tabular input
     column_defs : { 'name1' : 'expr', 'name2' : 'expr'}
 - allow multiple queries and outputs
@@ -111,7 +119,7 @@ def get_column_def(file_path, table_name, skip=0, comment_char='#',
     return col_names, col_types, col_def, col_idx
 
 
-def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_names=None,load_named_columns=False):
+def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_names=None,load_named_columns=False,unique_indexes=[],indexes=[]):
     col_names, col_types, col_def, col_idx = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, column_names=column_names,load_named_columns=load_named_columns)
     col_func = [float if t == 'REAL' else int if t == 'INTEGER' else str for t in col_types]
     table_def = 'CREATE TABLE %s (\n    %s\n);' % (table_name, ', \n    '.join(col_def))
@@ -122,6 +130,17 @@ def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_n
     try:
         c = conn.cursor()
         c.execute(table_def)
+        conn.commit()
+        c.close()
+        for i,index in enumerate(unique_indexes):
+            index_name='idx_uniq_%s_%d' % (table_name,i)
+            index_columns = index.split(',')
+            create_index(conn, table_name, index_name, index_columns,unique=True)
+        for i,index in enumerate(indexes):
+            index_name='idx_%s_%d' % (table_name,i)
+            index_columns = index.split(',')
+            create_index(conn, table_name, index_name, index_columns)
+        c = conn.cursor()
         with open(file_path, "r") as fh:
             for linenum, line in enumerate(fh):
                 if linenum < skip or line.startswith(comment_char):
@@ -141,6 +160,12 @@ def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_n
         print >> sys.stderr, 'Failed: %s' % (e)
         exit(1)
 
+def create_index(conn, table_name, index_name, index_columns, unique=False):
+    index_def = "CREATE %s INDEX %s on %s(%s)" % ('UNIQUE' if unique else '', index_name, table_name, ','.join(index_columns))
+    c = conn.cursor()
+    c.execute(index_def)
+    conn.commit()
+    c.close()
 
 def regex_match(expr, item):
     return re.match(expr, item) is not None
@@ -216,7 +241,11 @@ def __main__():
                         load_named_columns = table['load_named_columns'] if 'load_named_columns' in table else False
                     else:   
                         load_named_columns = False
-                    create_table(conn, path, table_name, column_names=column_names, skip=comment_lines,load_named_columns=load_named_columns)
+                    unique_indexes = table['unique'] if 'unique' in table else []
+                    indexes = table['index'] if 'index' in table else []
+                    create_table(conn, path, table_name, column_names=column_names, 
+                                 skip=comment_lines, load_named_columns=load_named_columns, 
+                                 unique_indexes=unique_indexes, indexes=indexes)
         except Exception, exc:
             print >> sys.stderr, "Error: %s" % exc
     conn.close()
