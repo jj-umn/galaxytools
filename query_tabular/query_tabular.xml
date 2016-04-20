@@ -98,7 +98,7 @@ $sqlquery
                         <validator type="regex" message="Column name">^([A-Za-z]\w*)?$</validator>
                 </param>
                 <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the comment lines metadata for this dataset" />
-                <repeat name="indexes">
+                <repeat name="indexes" title="Table Index">
                     <param name="unique" type="boolean" truevalue="yes" falsevalue="no" checked="False" label="This is a unique index"/>
                     <param name="index_columns" type="text" value="" label="Index on Columns">
                         <help>Create an index on the column names: e,g, c1  or c2,c4</help>
