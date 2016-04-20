@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="0.1.2">
+<tool id="query_tabular" name="Query Tabular" version="0.1.3">
     <description>using sqlite sql</description>
 
     <requirements>
@@ -41,6 +41,9 @@ $sqlquery
   ## #if $tbl.tbl_opts.sel_cols:
   ##   #set $jtbl['sel_cols'] = $tbl.tbl_opts.sel_cols el_cols
   ## #end if
+  #if $tbl.tbl_opts.pkey_autoincr:
+    #set $jtbl['pkey_autoincr'] = str($tbl.tbl_opts.pkey_autoincr)
+  #end if
   #if $tbl.tbl_opts.col_names:
   #set $col_names = str($tbl.tbl_opts.col_names)
     #if $tbl.tbl_opts.load_named_columns:
@@ -77,20 +80,24 @@ $sqlquery
     </configfiles>
     <inputs>
         <param name="workdb" type="hidden" value="workdb.sqlite" label=""/>
-        <repeat name="tables" title="Add tables" min="1">
-            <param name="table" type="data" format="tabular" label="Dataset"/>
+        <repeat name="tables" title="Database Table" min="1">
+            <param name="table" type="data" format="tabular" label="Tabular Dataset for Table"/>
             <section name="tbl_opts" expanded="false" title="Table Options">
-                <param name="table_name" type="text" value="" optional="true" label="Table name">
-                    <help>By default, tables will be named: t1,t2,...,tn</help>
+                <param name="table_name" type="text" value="" optional="true" label="Specify Name for Table">
+                    <help>By default, tables will be named: t1,t2,...,tn (table names must be unique)</help>
                     <validator type="regex" message="Table name should start with a letter and may contain additional letters, digits, and underscores">^[A-Za-z]\w*$</validator>
                 </param>
-                <param name="col_names" type="text" value="" optional="true" label="Column names">
-                    <help>By default, table columns will be named: c1,c2,c3,...,cn</help>
+                <param name="col_names" type="text" value="" optional="true" label="Specify Column Names">
+                    <help>By default, table columns will be named: c1,c2,c3,...,cn  (column names for a table must be unique)</help>
                     <sanitizer sanitize="False"/>
                     <validator type="regex" message="A List of names separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores. Otherwise, the name must be eclosed in: double quotes, back quotes, or square brackets.">^([A-Za-z]\w*|"\S+[^,"]*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?(,([A-Za-z]\w*|"\S+.*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?)*$</validator>
                 </param>
-                <param name="load_named_columns" type="boolean" truevalue="load_named_columns" falsevalue="" checked="false" label="Only load named columns into database"/>
-                <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the datatype comment lines metadata" />
+                <param name="load_named_columns" type="boolean" truevalue="load_named_columns" falsevalue="" checked="false" label="Only load the columns you have named into database"/>
+                <param name="pkey_autoincr" type="text" value="" optional="true" label="Add an auto increment primary key column with this name"
+                       help="Only creates this additional column when a name is entered. (This can not be the same name as any of the other columns in this table.)">
+                        <validator type="regex" message="Column name">^([A-Za-z]\w*)?$</validator>
+                </param>
+                <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the comment lines metadata for this dataset" />
                 <repeat name="indexes">
                     <param name="unique" type="boolean" truevalue="yes" falsevalue="no" checked="False" label="This is a unique index"/>
                     <param name="index_columns" type="text" value="" label="Index on Columns">
@@ -100,14 +107,13 @@ $sqlquery
                 </repeat>
             </section>
         </repeat>
-        <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query">
-                <help>By default, tables will be named: t1,t2,...,tn</help>
+        <param name="save_db" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Save the sqlite database in your history"/>
+        <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query to generate tabular output">
+                <help>By default: tables are named: t1,t2,...,tn and columns in each table: c1,c2,...,cn</help>
                 <sanitizer sanitize="False"/>
                 <validator type="regex" message="">^(?ims)\s*select\s+.*\s+from\s+.*$</validator>
         </param>
-        <param name="no_header" type="boolean" truevalue="-n" falsevalue="" checked="False" label="Omit column headers"/>
-
-        <param name="save_db" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Save the sqlite database"/>
+        <param name="no_header" type="boolean" truevalue="-n" falsevalue="" checked="False" label="Omit column headers from tabular output"/>
     </inputs>
     <outputs>
         <data format="sqlite" name="sqlitedb" label="sqlite db of ${on_string}">
@@ -185,6 +191,9 @@ Query Tabular
   The results of a SQL query are output to the history as a tabular file.
 
   The SQLite_ data base can also be saved and output as a dataset in the history.  
+
+    *(The* **SQLite to tabular** *tool can run additional queries on this database.)*
+
 
 
 For help in using SQLite_ see:  http://www.sqlite.org/docs.html

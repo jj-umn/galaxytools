@@ -14,16 +14,11 @@ TODO:
 - could read column names from comment lines, but issues with legal names
 - could add some transformations on tabular columns,
   e.g. a regex to format date/time strings
-    index: ['c2','c4,c5']
-    unique: ['c1']
     format: {
       c2 : re.sub('pat', 'sub', c2)
       c3 : len(c3)
    }
    def format(colname,val, expr):
-     
-- allow optional autoincrement id column - user supplied name?
-    autoincrement : 'id'
 - column_defs dict of columns to create from tabular input
     column_defs : { 'name1' : 'expr', 'name2' : 'expr'}
 - allow multiple queries and outputs
@@ -33,7 +28,10 @@ JSON config:
     { file_path : '/home/galaxy/dataset_101.dat',
             table_name : 't1',
             column_names : ['c1', 'c2', 'c3'],
+            pkey_autoincr : 'id'
             comment_lines : 1
+            unique: ['c1'],
+            index: ['c2','c3']
     },
     { file_path : '/home/galaxy/dataset_102.dat',
             table_name : 'gff',
@@ -119,10 +117,13 @@ def get_column_def(file_path, table_name, skip=0, comment_char='#',
     return col_names, col_types, col_def, col_idx
 
 
-def create_table(conn, file_path, table_name, skip=0, comment_char='#', column_names=None,load_named_columns=False,unique_indexes=[],indexes=[]):
+def create_table(conn, file_path, table_name, skip=0, comment_char='#', pkey_autoincr=None, column_names=None,load_named_columns=False,unique_indexes=[],indexes=[]):
     col_names, col_types, col_def, col_idx = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, column_names=column_names,load_named_columns=load_named_columns)
     col_func = [float if t == 'REAL' else int if t == 'INTEGER' else str for t in col_types]
-    table_def = 'CREATE TABLE %s (\n    %s\n);' % (table_name, ', \n    '.join(col_def))
+    table_def = 'CREATE TABLE %s (\n    %s%s\n);' % (
+                table_name, 
+                '%s INTEGER PRIMARY KEY AUTOINCREMENT,' % pkey_autoincr if pkey_autoincr else '',
+                ', \n    '.join(col_def))
     # print >> sys.stdout, table_def
     insert_stmt = 'INSERT INTO %s(%s) VALUES(%s)' % (table_name, ','.join(col_names), ','.join(["?" for x in col_names]))
     # print >> sys.stdout, insert_stmt
@@ -243,7 +244,8 @@ def __main__():
                         load_named_columns = False
                     unique_indexes = table['unique'] if 'unique' in table else []
                     indexes = table['index'] if 'index' in table else []
-                    create_table(conn, path, table_name, column_names=column_names, 
+                    pkey_autoincr = table['pkey_autoincr'] if 'pkey_autoincr' in table else None
+                    create_table(conn, path, table_name, pkey_autoincr=pkey_autoincr, column_names=column_names, 
                                  skip=comment_lines, load_named_columns=load_named_columns, 
                                  unique_indexes=unique_indexes, indexes=indexes)
         except Exception, exc:
