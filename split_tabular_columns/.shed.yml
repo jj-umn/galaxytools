@@ -1,0 +1,15 @@
+categories:
+- Text Manipulation
+description: Normalize tabular files 
+long_description: |
+  Normalize tabular files which have columns with lists.
+  Rows with lists in a column will be duplicated for each 
+  item in the list.
+
+  The target use case is for proteomics Peptide Spectrum Match 
+  search outputs with a list of protein accessions in a column. 
+
+name: split_tabular_columns
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/split_tabular_columns
+type: unrestricted
