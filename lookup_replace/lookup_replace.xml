@@ -1,0 +1,124 @@
+<tool id="lookup_replace" name="Lookup Replace" version="0.1.0">
+    <description>replace text with value from a lookup table</description>
+    <requirements>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+    <command interpreter="python"><![CDATA[
+        lookup_replace.py 
+        #if $lookup.lookup_fmt == 'sqlite':
+        --sqlitedb="$lookup.sqlitedb" --query="$lookup.sqlquery" 
+        #else
+        --table="$lookup.tabular_map" --key_column=$lookup.key_column --value_column=$lookup.value_column
+        #end if
+        --pattern='$regex_pattern' --match_group=$match_group 
+        --replace='$replace_template' 
+        --input $input --output $output
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="txt" label="input" />
+        <param name="regex_pattern" type="text" label="Regex search pattern" 
+               help="there must be one group for the lookup key">
+            <sanitizer sanitize="False"/>
+            <validator type="regex" message="">^.*[(].+[)].*$</validator>
+        </param>
+        <param name="match_group" type="integer" min="0" value="0" label="Match group index" 
+               help="Match group index in the Regex search pattern to use as lookup key"/>
+        <param name="replace_template" type="text" label="replacement template" 
+               help="replace pattern, there must be one %s">
+            <sanitizer sanitize="False"/>
+            <validator type="regex" message="">^.*%s.*$</validator>
+        </param>
+        <conditional name="lookup">
+            <param name="lookup_fmt" type="select" label="lookup map format">
+                <option value="sqlite">sqlite database</option>
+                <option value="tabular">tabular (suitable for small maps)</option>
+            </param>
+            <when value="sqlite">
+                <param name="sqlitedb" type="data" format="sqlite" label="SQLite mapping database" />
+                <param name="sqlquery" type="text" area="true" value="" optional="true" label="SQL Query">
+                    <sanitizer sanitize="False"/>
+                    <validator type="regex" message="">^(?ims)\s*select\s+.*\s+from\s+.*%s.*$</validator>
+                </param>
+            </when>
+            <when value="tabular">
+                <param name="tabular_map" type="data" format="tabular" label="tabular map " />
+                <param name="key_column" type="data_column" data_ref="tabular_map" label="Column to use as the key for lookup" />
+                <param name="value_column" type="data_column" data_ref="tabular_map" label="Column to use as the value for lookup" />
+            </when>
+        </conditional>
+
+    </inputs>
+    <outputs>
+        <data name="output" format_source="input" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" value="blastp.txt"/>
+            <param name="regex_pattern" value="[a-z]+[|]([^|]+)"/>
+            <param name="match_group" value="0"/>
+            <param name="replace_template" value="gi|%s"/>
+            <param name="lookup_fmt" value="tabular"/>
+            <param name="tabular_map" value="nr_acc_gi_map.tabular"/>
+            <param name="key_column" value="1"/>
+            <param name="value_column" value="2"/>
+            <output name="output" file="blastp_converted.txt"/>
+        </test>
+        <test>
+            <param name="input" value="blastp.txt"/>
+            <param name="regex_pattern" value="[a-z]+[|]([^|]+)"/>
+            <param name="match_group" value="0"/>
+            <param name="replace_template" value="gi|%s"/>
+            <param name="lookup_fmt" value="sqlite"/>
+            <param name="sqlitedb" value="nr_acc_gi_map.sqlite"/>
+            <param name="sqlquery" value="select gi from acc_gi where acc = '%s'"/>
+            <output name="output" file="blastp_converted.txt"/>
+        </test>
+        <test>
+            <param name="input" value="blastp.txt"/>
+            <param name="regex_pattern" value="([a-z]+[|]([^|]+))"/>
+            <param name="match_group" value="1"/>
+            <param name="replace_template" value="gi|%s|\\1"/>
+            <param name="lookup_fmt" value="sqlite"/>
+            <param name="sqlitedb" value="nr_acc_gi_map.sqlite"/>
+            <param name="sqlquery" value="select gi from acc_gi where acc = '%s'"/>
+            <output name="output"> 
+                <assert_contents>
+                    <has_text text="gi|371653751|gb|EHO19126.1" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Usage: lookup_replace.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -i INPUT, --input=INPUT
+                        Tabular input file
+  -o OUTPUT, --output=OUTPUT
+                        Tabular output file
+  -c COLUMN, --column=COLUMN
+                        column ordinal in input to replace
+  -p PATTERN, --pattern=PATTERN
+                        Regex search pattern, there must be one group for
+                        lookup key
+  -m MATCH_GROUP, --match_group=MATCH_GROUP
+                        Regex match group for lookup key
+  -r REPLACE, --replace=REPLACE
+                        replace pattern, there must be one %s
+  -s SQLITEDB, --sqlitedb=SQLITEDB
+                        SQLite DB for lookup
+  -q QUERY, --query=QUERY
+                        SQLite DB query for lookup
+  -t TABLE, --table=TABLE
+                        Tabular lookup table
+  -k KEY_COLUMN, --key_column=KEY_COLUMN
+                        column ordinal  for lookup key
+  -v VALUE_COLUMN, --value_column=VALUE_COLUMN
+                        column ordinal  for lookup value
+  -d, --debug           Turn on wrapper debugging to stderr
+
+    ]]></help>
+</tool>

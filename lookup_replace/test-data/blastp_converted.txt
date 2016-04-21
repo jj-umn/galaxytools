@@ -1,0 +1,976 @@
+BLASTP 2.2.29+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+Reference for composition-based statistics: Alejandro A. Schaffer,
+L. Aravind, Thomas L. Madden, Sergei Shavirin, John L. Spouge, Yuri
+I. Wolf, Eugene V. Koonin, and Stephen F. Altschul (2001),
+"Improving the accuracy of PSI-BLAST protein database searches with
+composition-based statistics and other refinements", Nucleic Acids
+Res. 29:2994-3005.
+
+
+
+Database: All non-redundant GenBank CDS translations+PDB+SwissProt+PIR+PRF
+excluding environmental samples from WGS projects
+           81,622,391 sequences; 29,838,499,437 total letters
+
+
+
+Query= GLQLVRSAAR1 length=10
+
+Length=10
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+gi|371653751|  hypothetical protein HMPREF0981_04802, partial [E...  32.5    5.1  
+gi|371661189|  hypothetical protein HMPREF0981_02602 [Erysipelot...  32.5    5.4  
+gi|769176914|  hypothetical protein [Erysipelotrichaceae ba...  32.5    5.4  
+gi|739670179|  transposase [Sphingomonas wittichii]             27.8      148
+gi|652484849|  rhodanese-like domain-containing protein [Ig...  27.8      163
+gi|808087539|  DNA-binding response regulator [Hymenobacter...  27.4      220
+gi|935483873|  pantoate--beta-alanine ligase [Hymenobacter ...  27.4      222
+gi|764940417|  pantoate--beta-alanine ligase [Hymenobacter ...  27.4      222
+gi|917507548|  hypothetical protein [Actinotalea fermentans]    27.4      224
+gi|697976481|  hypothetical protein N867_07080 [Actinotalea ferm...  27.4      224
+gi|737887451|  acyl-CoA dehydrogenase [Kitasatospora azatica]   27.4      229
+gi|490114211|  aminopeptidase N [Mobiluncus mulieris] >gi|490114211gi|490109697|  aminopeptidase N [Mobiluncus curtisii] >gi|490109697gi|490109190|  aminopeptidase N [Mobiluncus curtisii] >gi|490109190gi|490107426|  aminopeptidase N [Mobiluncus curtisii] >gi|490107426gi|490112271|  membrane alanyl aminopeptidase [Mobiluncus m...  27.4      232
+gi|502953665|  membrane alanyl aminopeptidase [Mobiluncus c...  27.4      232
+gi|755639347|  hypothetical protein [Leucobacter komagatae]     26.9      286
+gi|808663074|  thiamine-phosphate pyrophosphorylase [Mycobacter...  26.9      298
+gi|654410615|  hypothetical protein [Meiothermus rufus]         26.9      303
+gi|658924931|  PREDICTED: olfactory receptor-like protein O...  26.9      304
+gi|961868849|  PREDICTED: olfactory receptor 1493-like [Poe...  26.9      304
+gi|617466321|  PREDICTED: olfactory receptor-like protein O...  26.9      304
+gi|859269284|  hypothetical protein PMG11_02307 [Penicillium br...  26.9      306
+gi|518859479|  hypothetical protein [Promicromonospora suku...  26.9      307
+gi|970527684|  MULTISPECIES: dihydroorotase [Sphingopyxis] ...  26.9      309
+gi|654472871|  hypothetical protein [Amycolatopsis taiwanen...  26.9      309
+gi|919888246|  heme lyase [Pectobacterium carotovorum]          26.9      313
+gi|852022275|  heme lyase [Pectobacterium carotovorum] >gi|852022275gi|746459710|  heme lyase [Pectobacterium carotovorum] >gi|746459710gi|748780894|  heme lyase [Pectobacterium carotovorum] >gi|748780894gi|746464318|  heme lyase [Pectobacterium carotovorum] >gi|746464318gi|746471143|  heme lyase [Pectobacterium carotovorum] >gi|746471143gi|746515721|  heme lyase [Pectobacterium carotovorum] >gi|746515721gi|746523176|  heme lyase [Pectobacterium carotovorum] >gi|746523176gi|746482176|  heme lyase [Pectobacterium carotovorum] >gi|746482176gi|746477940|  heme lyase [Pectobacterium carotovorum] >gi|746477940gi|746488217|  heme lyase [Pectobacterium carotovorum] >gi|746488217gi|746266485|  heme lyase [Pectobacterium carotovorum] >gi|746266485gi|746441108|  heme lyase [Pectobacterium carotovorum] >gi|746441108gi|746227626|  heme lyase [Pectobacterium carotovorum] >gi|746227626gi|746237573|  heme lyase [Pectobacterium carotovorum] >gi|746237573gi|746427390|  heme lyase [Pectobacterium carotovorum] >gi|746427390gi|504728676|  heme lyase subunit NrfE [Pectobacterium caro...  26.9      313
+gi|506320866|  cytochrome c-type biogenesis protein CcmF [P...  26.9      313
+gi|497962301|  heme lyase subunit NrfE [Pectobacterium caro...  26.9      313
+gi|488713625|  permease [Myxococcus sp. mixupus] >gi|488713625gi|503703518|  permease [Myxococcus fulvus] >gi|503703518|...  26.9      316
+gi|499875958|  permease [Myxococcus xanthus] >gi|499875958gi|780104596|  two-component sensor histidine kinase [Thiop...  26.9      316
+gi|664356711|  hypothetical protein [Streptomyces sp. NRRL ...  26.9      316
+gi|664352135|  hypothetical protein [Streptomyces sp. NRRL ...  26.9      316
+gi|671635088|  hypothetical protein [Ferrovum myxofaciens]      26.9      317
+gi|594625542|  PREDICTED: abnormal spindle-like microcephal...  26.9      319
+gi|602695337|  PREDICTED: abnormal spindle-like microcephal...  26.9      319
+gi|594082710|  PREDICTED: abnormal spindle-like microcephal...  26.9      319
+gi|555970518|  PREDICTED: abnormal spindle-like microcephal...  26.9      319
+gi|741955295|  PREDICTED: abnormal spindle-like microcephal...  26.9      320
+gi|803295328|  PREDICTED: abnormal spindle-like microcephal...  26.9      320
+gi|742233254|  PREDICTED: abnormal spindle-like microcephal...  26.9      320
+gi|307717700|  abnormal spindle-like microcephaly-associated pro...  26.9      320
+gi|307717698|  abnormal spindle-like microcephaly-associated pro...  26.9      320
+gi|617559165|  PREDICTED: abnormal spindle-like microcephal...  26.9      320
+gi|60391782|ASPM_BOVIN  RecName: Full=Abnormal spindle-like micro...  26.9      320
+gi|60391794|ASPM_SHEEP  RecName: Full=Abnormal spindle-like micro...  26.9      320
+gi|593721146|  PREDICTED: abnormal spindle-like microcephal...  26.9      320
+gi|594082706|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|965965360|  PREDICTED: LOW QUALITY PROTEIN: abnormal spi...  26.9      321
+gi|741955293|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|594625540|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|555970514|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|330864819|  abnormal spindle-like microcephaly-associate...  26.9      321
+gi|602695335|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|594082708|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|821423643|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|555970516|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|296478906|  TPA: asp (abnormal spindle) homolog, microcephal...  26.9      321
+gi|803295326|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|926711630|  PREDICTED: abnormal spindle-like microcephal...  26.9      321
+gi|556769089|  PREDICTED: LOW QUALITY PROTEIN: abnormal spi...  26.9      321
+gi|984273220|  Metallo-beta-lactamase superfamily protein [Burk...  26.5      405
+gi|890485464|  thiamine phosphate synthase [Mycobacterium h...  26.5      406
+gi|495129848|  GNAT family acetyltransferase [Acidovorax sp...  26.5      407
+gi|71390093|  structural maintenance of chromosome 3 protein ...  26.5      411
+gi|682397824|  hypothetical protein V499_04533 [Pseudogymnoascus...  26.5      414
+gi|946981791|  hypothetical protein [Yonghaparkia sp. Root3...  26.5      415
+gi|682454799|  hypothetical protein V501_03849 [Pseudogymnoascus...  26.5      416
+gi|74153208|  unnamed protein product [Mus musculus]               26.5      417
+gi|926282312|  transcriptional regulator [Nocardiopsis sp. ...  26.5      421
+gi|490283586|  glycerol kinase [Nitrosospira lacus] >gi|490283586gi|495096692|  cation:proton antiporter [Rhizobium sp. CF14...  26.5      424
+gi|910223961|  glycerol kinase [Verrucomicrobium sp. BvORR034]  26.5      425
+gi|497646137|  glycerol kinase [Verrucomicrobium spinosum]      26.5      425
+gi|740329439|  glycerol kinase [Verrucomicrobium sp. BvORR106]  26.5      425
+gi|645038151|  PREDICTED: potassium/sodium hyperpolarizatio...  26.5      425
+gi|645038148|  PREDICTED: potassium/sodium hyperpolarizatio...  26.5      426
+gi|645038145|  PREDICTED: potassium/sodium hyperpolarizatio...  26.5      426
+gi|645038142|  PREDICTED: potassium/sodium hyperpolarizatio...  26.5      426
+gi|645038139|  PREDICTED: potassium/sodium hyperpolarizatio...  26.5      426
+gi|625218292|  PREDICTED: serine/threonine-protein kinase D...  26.5      426
+
+
+>gi|371653751| hypothetical protein HMPREF0981_04802, partial [Erysipelotrichaceae 
+bacterium 6_1_45]
+ gi|371653831| hypothetical protein HMPREF0981_04801, partial [Erysipelotrichaceae 
+bacterium 6_1_45]
+Length=354
+
+ Score = 32.5 bits (69),  Expect = 5.1
+ Identities = 10/10 (100%), Positives = 10/10 (100%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GLQLVRSAAR
+Sbjct  244  GLQLVRSAAR  253
+
+
+>gi|371661189| hypothetical protein HMPREF0981_02602 [Erysipelotrichaceae bacterium 
+6_1_45]
+Length=1285
+
+ Score = 32.5 bits (69),  Expect = 5.4
+ Identities = 10/10 (100%), Positives = 10/10 (100%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GLQLVRSAAR
+Sbjct  244  GLQLVRSAAR  253
+
+
+>gi|769176914| hypothetical protein [Erysipelotrichaceae bacterium 6_1_45]
+Length=1295
+
+ Score = 32.5 bits (69),  Expect = 5.4
+ Identities = 10/10 (100%), Positives = 10/10 (100%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GLQLVRSAAR
+Sbjct  254  GLQLVRSAAR  263
+
+
+>gi|739670179| transposase [Sphingomonas wittichii]
+Length=124
+
+ Score = 27.8 bits (58),  Expect =   148
+ Identities = 9/10 (90%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GL LVRSAAR
+Sbjct  112  GLKLVRSAAR  121
+
+
+>gi|652484849| rhodanese-like domain-containing protein [Ignatzschineria larvae]
+Length=294
+
+ Score = 27.8 bits (58),  Expect =   163
+ Identities = 10/12 (83%), Positives = 10/12 (83%), Gaps = 2/12 (17%)
+
+Query  1    GLQLV--RSAAR  10
+            GLQLV  RSAAR
+Sbjct  174  GLQLVDARSAAR  185
+
+
+>gi|808087539| DNA-binding response regulator [Hymenobacter sp. MIMtkLc17]
+Length=245
+
+ Score = 27.4 bits (57),  Expect =   220
+ Identities = 9/10 (90%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1   GLQLVRSAAR  10
+           GLQLVRS AR
+Sbjct  63  GLQLVRSLAR  72
+
+
+>gi|935483873| pantoate--beta-alanine ligase [Hymenobacter sp. DG25A]
+ gi|926468481| pantoate--beta-alanine ligase [Hymenobacter sp. DG25A]
+Length=284
+
+ Score = 27.4 bits (57),  Expect =   222
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2   LQLVRSAAR  10
+           LQLVR AAR
+Sbjct  38  LQLVRAAAR  46
+
+
+>gi|764940417| pantoate--beta-alanine ligase [Hymenobacter sp. DG25B]
+ gi|731476463| pantoate--beta-alanine ligase [Hymenobacter sp. DG25B]
+Length=285
+
+ Score = 27.4 bits (57),  Expect =   222
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2   LQLVRSAAR  10
+           LQLVR AAR
+Sbjct  38  LQLVRAAAR  46
+
+
+>gi|917507548| hypothetical protein [Actinotalea fermentans]
+Length=320
+
+ Score = 27.4 bits (57),  Expect =   224
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  249  LQLVRTAAR  257
+
+
+>gi|697976481| hypothetical protein N867_07080 [Actinotalea fermentans ATCC 
+43279 = JCM 9966 = DSM 3133]
+Length=322
+
+ Score = 27.4 bits (57),  Expect =   224
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  251  LQLVRTAAR  259
+
+
+>gi|737887451| acyl-CoA dehydrogenase [Kitasatospora azatica]
+Length=546
+
+ Score = 27.4 bits (57),  Expect =   229
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2   LQLVRSAAR  10
+           LQLVR AAR
+Sbjct  60  LQLVRTAAR  68
+
+
+>gi|490114211| aminopeptidase N [Mobiluncus mulieris]
+ gi|269934944| membrane alanyl aminopeptidase [Mobiluncus mulieris 28-1]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  650  LQLVRAAAR  658
+
+
+>gi|490109697| aminopeptidase N [Mobiluncus curtisii]
+ gi|315492911| membrane alanyl aminopeptidase [Mobiluncus curtisii subsp. holmesii 
+ATCC 35242]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  649  LQLVRAAAR  657
+
+
+>gi|490109190| aminopeptidase N [Mobiluncus curtisii]
+ gi|315489798| membrane alanyl aminopeptidase [Mobiluncus curtisii ATCC 51333]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  649  LQLVRAAAR  657
+
+
+>gi|490107426| aminopeptidase N [Mobiluncus curtisii]
+ gi|304325754| membrane alanyl aminopeptidase [Mobiluncus curtisii subsp. curtisii 
+ATCC 35241]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  649  LQLVRAAAR  657
+
+
+>gi|490112271| membrane alanyl aminopeptidase [Mobiluncus mulieris]
+ gi|227843513| membrane alanyl aminopeptidase [Mobiluncus mulieris ATCC 35243]
+ gi|304648044| membrane alanyl aminopeptidase [Mobiluncus mulieris ATCC 35239]
+ gi|307614672| membrane alanyl aminopeptidase [Mobiluncus mulieris FB024-16]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  650  LQLVRAAAR  658
+
+
+>gi|502953665| membrane alanyl aminopeptidase [Mobiluncus curtisii]
+ gi|298235375| membrane alanyl aminopeptidase [Mobiluncus curtisii ATCC 43063]
+Length=856
+
+ Score = 27.4 bits (57),  Expect =   232
+ Identities = 8/9 (89%), Positives = 8/9 (89%), Gaps = 0/9 (0%)
+
+Query  2    LQLVRSAAR  10
+            LQLVR AAR
+Sbjct  649  LQLVRAAAR  657
+
+
+>gi|755639347| hypothetical protein [Leucobacter komagatae]
+Length=150
+
+ Score = 26.9 bits (56),  Expect =   286
+ Identities = 8/9 (89%), Positives = 9/9 (100%), Gaps = 0/9 (0%)
+
+Query  2   LQLVRSAAR  10
+           L+LVRSAAR
+Sbjct  19  LELVRSAAR  27
+
+
+>gi|808663074| thiamine-phosphate pyrophosphorylase [Mycobacterium europaeum]
+Length=226
+
+ Score = 26.9 bits (56),  Expect =   298
+ Identities = 8/10 (80%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GL+LVR AAR
+Sbjct  161  GLELVRAAAR  170
+
+
+>gi|654410615| hypothetical protein [Meiothermus rufus]
+Length=286
+
+ Score = 26.9 bits (56),  Expect =   303
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  206  QLVRSAAR  213
+
+
+>gi|658924931| PREDICTED: olfactory receptor-like protein OLF4 [Poecilia reticulata]
+Length=304
+
+ Score = 26.9 bits (56),  Expect =   304
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  215  QLVRSAAR  222
+
+
+>gi|961868849| PREDICTED: olfactory receptor 1493-like [Poecilia latipinna]
+Length=306
+
+ Score = 26.9 bits (56),  Expect =   304
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  215  QLVRSAAR  222
+
+
+>gi|617466321| PREDICTED: olfactory receptor-like protein OLF4 [Poecilia formosa]
+ gi|961825635| PREDICTED: olfactory receptor-like protein OLF4 [Poecilia mexicana]
+Length=306
+
+ Score = 26.9 bits (56),  Expect =   304
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  215  QLVRSAAR  222
+
+
+>gi|859269284| hypothetical protein PMG11_02307 [Penicillium brasilianum]
+Length=345
+
+ Score = 26.9 bits (56),  Expect =   306
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3   QLVRSAAR  10
+           QLVRSAAR
+Sbjct  12  QLVRSAAR  19
+
+
+>gi|518859479| hypothetical protein [Promicromonospora sukumoe]
+Length=361
+
+ Score = 26.9 bits (56),  Expect =   307
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3   QLVRSAAR  10
+           QLVRSAAR
+Sbjct  35  QLVRSAAR  42
+
+
+>gi|970527684| MULTISPECIES: dihydroorotase [Sphingopyxis]
+ gi|962339267| dihydroorotase [Sphingopyxis sp. H057]
+ gi|962367194| dihydroorotase [Sphingopyxis sp. H071]
+ gi|962368489| dihydroorotase [Sphingopyxis sp. H073]
+ gi|962373746| dihydroorotase [Sphingopyxis sp. H107]
+ gi|962377538| dihydroorotase [Sphingopyxis sp. H100]
+ gi|962393456| dihydroorotase [Sphingopyxis sp. H067]
+Length=402
+
+ Score = 26.9 bits (56),  Expect =   309
+ Identities = 10/14 (71%), Positives = 10/14 (71%), Gaps = 4/14 (29%)
+
+Query  1    GLQLVR----SAAR  10
+            GLQLVR    SAAR
+Sbjct  316  GLQLVRDGHISAAR  329
+
+
+>gi|654472871| hypothetical protein [Amycolatopsis taiwanensis]
+Length=406
+
+ Score = 26.9 bits (56),  Expect =   309
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3   QLVRSAAR  10
+           QLVRSAAR
+Sbjct  82  QLVRSAAR  89
+
+
+>gi|919888246| heme lyase [Pectobacterium carotovorum]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|852022275| heme lyase [Pectobacterium carotovorum]
+ gi|848271218| heme lyase subunit NrfE [Pectobacterium carotovorum subsp. brasiliensis 
+ICMP 19477]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746459710| heme lyase [Pectobacterium carotovorum]
+ gi|741147399| heme lyase [Pectobacterium carotovorum subsp. carotovorum]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|748780894| heme lyase [Pectobacterium carotovorum]
+ gi|741116989| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+ gi|741120117| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746464318| heme lyase [Pectobacterium carotovorum]
+ gi|741109870| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746471143| heme lyase [Pectobacterium carotovorum]
+ gi|741107803| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746515721| heme lyase [Pectobacterium carotovorum]
+ gi|741095949| heme lyase [Pectobacterium carotovorum subsp. carotovorum]
+ gi|741121764| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746523176| heme lyase [Pectobacterium carotovorum]
+ gi|741091040| heme lyase [Pectobacterium carotovorum subsp. carotovorum]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746482176| heme lyase [Pectobacterium carotovorum]
+ gi|741083147| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+ gi|741089206| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746477940| heme lyase [Pectobacterium carotovorum]
+ gi|741080458| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746488217| heme lyase [Pectobacterium carotovorum]
+ gi|741078075| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746266485| heme lyase [Pectobacterium carotovorum]
+ gi|684996053| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746441108| heme lyase [Pectobacterium carotovorum]
+ gi|679636777| heme lyase [Pectobacterium carotovorum subsp. carotovorum]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746227626| heme lyase [Pectobacterium carotovorum]
+ gi|671739242| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746237573| heme lyase [Pectobacterium carotovorum]
+ gi|671733754| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|746427390| heme lyase [Pectobacterium carotovorum]
+ gi|671732530| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|504728676| heme lyase subunit NrfE [Pectobacterium carotovorum]
+ gi|402806302| heme lyase subunit NrfE [Pectobacterium carotovorum subsp. carotovorum 
+PCC21]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|506320866| cytochrome c-type biogenesis protein CcmF [Pectobacterium carotovorum]
+ gi|251755383| cytochrome c-type biogenesis protein CcmF [Pectobacterium carotovorum 
+subsp. carotovorum PC1]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|497962301| heme lyase subunit NrfE [Pectobacterium carotovorum]
+ gi|684985755| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+ gi|946516457| heme lyase [Pectobacterium carotovorum subsp. brasiliense]
+Length=624
+
+ Score = 26.9 bits (56),  Expect =   313
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  336  QLVRSAAR  343
+
+
+>gi|488713625| permease [Myxococcus sp. mixupus]
+ gi|891158483| AttF component of AttEFGH ABC transport system / AttG component 
+of AttEFGH ABC transport system [Myxococcus sp. mixupus]
+Length=846
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/10 (80%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GL+LVR AAR
+Sbjct  231  GLELVRAAAR  240
+
+
+>gi|503703518| permease [Myxococcus fulvus]
+ gi|337258274| ABC transporter permease [Myxococcus fulvus HW-1]
+Length=846
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/10 (80%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GL+LVR AAR
+Sbjct  231  GLELVRAAAR  240
+
+
+>gi|499875958| permease [Myxococcus xanthus]
+ gi|108464830| ABC transporter, permease protein [Myxococcus xanthus DK 1622]
+Length=846
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/10 (80%), Positives = 9/10 (90%), Gaps = 0/10 (0%)
+
+Query  1    GLQLVRSAAR  10
+            GL+LVR AAR
+Sbjct  231  GLELVRAAAR  240
+
+
+>gi|780104596| two-component sensor histidine kinase [Thioploca ingrica]
+ gi|686204735| osmosensitive K channel His kinase sensor [Thioploca ingrica]
+Length=909
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  267  QLVRSAAR  274
+
+
+>gi|664356711| hypothetical protein [Streptomyces sp. NRRL F-5053]
+Length=955
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  542  QLVRSAAR  549
+
+
+>gi|664352135| hypothetical protein [Streptomyces sp. NRRL S-1868]
+Length=955
+
+ Score = 26.9 bits (56),  Expect =   316
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  542  QLVRSAAR  549
+
+
+>gi|671635088| hypothetical protein [Ferrovum myxofaciens]
+Length=1181
+
+ Score = 26.9 bits (56),  Expect =   317
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  930  QLVRSAAR  937
+
+
+>gi|594625542| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X2 [Balaenoptera acutorostrata scammoni]
+Length=1891
+
+ Score = 26.9 bits (56),  Expect =   319
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1217  QLVRSAAR  1224
+
+
+>gi|602695337| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X2 [Lipotes vexillifer]
+Length=1893
+
+ Score = 26.9 bits (56),  Expect =   319
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|594082710| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X3 [Bubalus bubalis]
+Length=1895
+
+ Score = 26.9 bits (56),  Expect =   319
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1221  QLVRSAAR  1228
+
+
+>gi|555970518| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+isoform X3 [Bos mutus]
+Length=1895
+
+ Score = 26.9 bits (56),  Expect =   319
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1221  QLVRSAAR  1228
+
+
+>gi|741955295| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X2 [Bos taurus]
+Length=2669
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|803295328| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X2 [Ovis aries musimon]
+Length=2672
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1222  QLVRSAAR  1229
+
+
+>gi|742233254| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+[Bison bison bison]
+Length=3159
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3    QLVRSAAR  10
+            QLVRSAAR
+Sbjct  917  QLVRSAAR  924
+
+
+>gi|307717700| abnormal spindle-like microcephaly-associated protein [Hippopotamus 
+amphibius]
+Length=3273
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1074  QLVRSAAR  1081
+
+
+>gi|307717698| abnormal spindle-like microcephaly-associated protein [Tursiops 
+truncatus]
+Length=3317
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1074  QLVRSAAR  1081
+
+
+>gi|617559165| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+[Erinaceus europaeus]
+Length=3336
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1218  QLVRSAAR  1225
+
+
+>gi|60391782|ASPM_BOVIN RecName: Full=Abnormal spindle-like microcephaly-associated protein 
+homolog
+ gi|41056704| ASPM [Bos taurus]
+Length=3371
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1150  QLVRSAAR  1157
+
+
+>gi|60391794|ASPM_SHEEP RecName: Full=Abnormal spindle-like microcephaly-associated protein 
+homolog
+ gi|41056702| ASPM [Ovis aries]
+Length=3374
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1153  QLVRSAAR  1160
+
+
+>gi|593721146| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog [Physeter catodon]
+Length=3388
+
+ Score = 26.9 bits (56),  Expect =   320
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1147  QLVRSAAR  1154
+
+
+>gi|594082706| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X1 [Bubalus bubalis]
+Length=3460
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|965965360| PREDICTED: LOW QUALITY PROTEIN: abnormal spindle-like microcephaly-associated 
+protein homolog isoform X1 [Ovis aries]
+Length=3461
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|741955293| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X1 [Bos taurus]
+Length=3461
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|594625540| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+homolog isoform X1 [Balaenoptera acutorostrata scammoni]
+Length=3461
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1217  QLVRSAAR  1224
+
+
+>gi|555970514| PREDICTED: abnormal spindle-like microcephaly-associated protein 
+isoform X2 [Bos mutus]
+Length=3461
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+
+
+>gi|330864819| abnormal spindle-like microcephaly-associated protein homolog 
+[Bos taurus]
+Length=3461
+
+ Score = 26.9 bits (56),  Expect =   321
+ Identities = 8/8 (100%), Positives = 8/8 (100%), Gaps = 0/8 (0%)
+
+Query  3     QLVRSAAR  10
+             QLVRSAAR
+Sbjct  1219  QLVRSAAR  1226
+

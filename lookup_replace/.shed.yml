@@ -1,0 +1,15 @@
+categories:
+- Text Manipulation
+description: finds text, and replaces with a value from a tabular or sqlite db lookup table
+long_description: |
+
+  Searches for a text pattern in each line of the input dataset 
+  and replaces with a value from a tabular or sqlite db lookup table
+
+  http://www.sqlite.org/index.html
+  https://docs.python.org/release/2.7/library/re.html
+
+name: lookup_replace
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/lookup_replace
+type: unrestricted
