@@ -84,10 +84,10 @@
       <param name="reads_per_job" type="integer" value="1000000" optional="true" label="Number of reads for each job in split" />
     </when> <!-- full -->
   </conditional>  <!-- defuse_param -->
-  <param name="breakpoints_bam" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Generate a Bam file for the fusions"/>
   <param name="keep_output" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Save DeFuse working directory files" 
          help="The defuse output working directory can be helpful for determining errors that may have occurred during the run, 
                but they require considerable diskspace, and should be deleted and purged when no longer needed."/>
+  <param name="breakpoints_bam" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Generate a Bam file for the fusions"/>
   <param name="do_get_reads" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Run get_reads on each cluster"/>
  </inputs>
  <stdio>
