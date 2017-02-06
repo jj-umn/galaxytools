@@ -1,0 +1,11 @@
+categories:
+- Variant Analysis
+description: Report variant peptides for snpEff variants
+long_description: |
+  Report variant peptides for snpEff variants for epitope analysis.
+  Replacement for snpeff_cds_report.
+
+name: ensembl_variant_report
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/ensembl_variant_report
+type: unrestricted

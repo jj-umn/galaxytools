@@ -1,0 +1,188 @@
+<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.1.0">
+    <requirements>
+        <requirement type="package" version="1.40">gtf_to_genes</requirement>
+        <requirement type="package" version="3.1.4">twobitreader</requirement>
+        <requirement type="package" version="1.62">biopython</requirement>
+    </requirements>
+    <stdio>
+        <exit_code range="1:" />
+    </stdio>
+    <command><![CDATA[
+         python '$__tool_directory__/ensembl_variant_report.py'
+         #if $ref.ref_source == 'cached':
+             --twobit="$ref.ref_loc.fields.path"
+         #else
+             --twobit="$ref.ref_file"
+         #end if
+         --gene_model="$gtf_file"
+         #if $variant.fmt == 'vcf':
+             --input="$variant.input_vcf"
+             --format=snpeff
+         #else
+             --input="$variant.input_tsv"
+            --pos_column=$variant.pos_column
+            --ref_column=$variant.ref_column
+            --alt_column=$variant.alt_column
+            --transcript_column=$variant.transcript_column
+            --dp_column=$variant.dp_column
+            --dpr_column=$variant.dpr_column
+         #end if
+         #if str($filter.min_depth) != '':
+             --min_depth=$filter.min_depth
+         #end if
+         #if str($filter.min_freq) != '':
+             --min_freq=$filter.min_freq
+         #end if
+         #if str($report.readthrough) != '':
+             --readthrough=$report.readthrough
+         #end if
+         #if str($report.leading_aa) != '':
+             --leading_aa=$report.leading_aa
+         #end if
+         #if str($report.trailing_aa) != '':
+             --trailing_aa=$report.trailing_aa
+         #end if
+         --output="$output"
+    ]]></command>
+    <inputs>
+        <conditional name="variant">
+            <param name="fmt" type="select" label="Input format for variants">
+                <option value="vcf">snpEff vcf</option>
+                <option value="tsv">tabular from snpsift extract</option>
+            </param>
+            <when value="vcf">
+                <param name="input_vcf" type="data" format="vcf" label="snpEff VCF file"/>
+            </when>
+            <when value="tsv">
+                <param name="input_tsv" type="data" format="tabular" label="tabular file"/>
+                <param name="pos_column" type="data_column" data_ref="input_tsv" label="POS column"/>
+                <param name="ref_column" type="data_column" data_ref="input_tsv" label="REF column"/>
+                <param name="alt_column" type="data_column" data_ref="input_tsv" label="ALT column"/>
+                <param name="transcript_column" type="data_column" data_ref="input_tsv" label="Transcript ID column"/>
+                <param name="dp_column" type="data_column" data_ref="input_tsv" label="Read Depth (DP) column"/>
+                <param name="dpr_column" type="data_column" data_ref="input_tsv" label="Allele Count (DPR ro AN) column"/>
+            </when>
+        </conditional>
+        <conditional name="ref">
+            <param name="ref_source" type="select" label="Source for Genomic Data">
+                <option value="cached">Locally cached</option>
+                <option value="history">History</option>
+            </param>
+            <when value="cached">
+                <param name="ref_loc" type="select" label="Select reference 2bit file">
+                    <options from_data_table="twobit" />
+                </param>
+            </when>
+            <when value="history">
+                <param name="ref_file" type="data" format="twobit" label="reference 2bit file" />
+            </when>
+        </conditional>
+        <param name="gtf_file" type="data" format="gtf" label="Ensembl GTF file"/>
+        <section name="filter" expanded="false" title="Filter Options">
+            <param name="min_depth" type="integer" value="" optional="true" min="0" label="Minimum Read Depth to report"/>
+            <param name="min_freq" type="float" value="" optional="true" min="0.0" max="1.0" label="Minimum Alt frequency to report"/>
+        </section>
+        <section name="report" expanded="false" title="Report Options">
+            <param name="readthrough" type="integer" value="" optional="true" min="0" max="4" label="Number of readthrough stop codons to display"/>
+            <param name="leading_aa" type="integer" value="" optional="true" min="0" label="Number of Amino Acids prior to variant to display"/>
+            <param name="trailing_aa" type="integer" value="" optional="true" min="0" label="Number of Amino Acids following the variant to display"/>
+        </section>
+        
+    </inputs>
+    <outputs>
+        <data name="output" format="tabular" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="fmt" value="vcf"/>
+            <param name="input_vcf" value="GRCh38_X400k_ANN.vcf" ftype="vcf"/>
+            <param name="ref_source" value="history"/>
+            <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
+            <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="MGGQ_A_SASNSFSRLH" />
+                    <not_has_text text="*REDHAAGPEA" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="fmt" value="vcf"/>
+            <param name="input_vcf" value="GRCh38_X400k_EFF.vcf" ftype="vcf"/>
+            <param name="ref_source" value="history"/>
+            <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
+            <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="MGGQ_A_SASNSFSRLH" />
+                    <not_has_text text="*REDHAAGPEA" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="fmt" value="vcf"/>
+            <param name="input_vcf" value="GRCh38_X400k_ANN.vcf" ftype="vcf"/>
+            <param name="ref_source" value="history"/>
+            <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
+            <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
+            <param name="readthrough" value="1"/>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="MGGQ_A_SASNSFSRLH" />
+                    <has_text text="*REDHAAGPEA" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="fmt" value="vcf"/>
+            <param name="input_vcf" value="GRCh38_X400k_ANN.vcf" ftype="vcf"/>
+            <param name="ref_source" value="history"/>
+            <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
+            <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
+            <param name="min_depth" value="100"/>
+            <param name="min_freq" value=".80"/>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="EQLDAGVRYL_E_LRIAHMLEGS" />
+                    <not_has_text text="EYDILVAEET_V_GEPWEDGFEA" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <param name="fmt" value="tsv"/>
+            <param name="input_tsv" value="GRCh38_X400k.tsv" ftype="tabular"/>
+            <param name="ref_source" value="history"/>
+            <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
+            <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
+            <param name="pos_column" value="2"/>
+            <param name="ref_column" value="3"/>
+            <param name="alt_column" value="4"/>
+            <param name="transcript_column" value="7"/>
+            <param name="dp_column" value="8"/>
+            <param name="dpr_column" value="9"/>
+            <output name="output_file">
+                <assert_contents>
+                    <has_text text="MGGQ_A_SASNSFSRLH" />
+                    <not_has_text text="*REDHAAGPEA" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Uses an Essembl GTF and a genome 2bit reference to report variant peptides from snpEff reported missense and frameshift variants.
+Allows readthrough of stop codons, and reports the stop codons.  
+
+Input can be a snpEff vcf file using either ANN or EFF annotations.
+Alternatively, the input can be a tabular file that has columns:
+  - pos
+  - ref
+  - alt
+  - Ensembl Transcript ID
+  - Read Depth (DP)
+  - AlleleDepth (DPR)
+
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1093/bioinformatics/btt385</citation>
+    </citations>
+</tool>
