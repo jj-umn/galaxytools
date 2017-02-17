@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="0.1.3">
+<tool id="query_tabular" name="Query Tabular" version="2.0.0">
     <description>using sqlite sql</description>
 
     <requirements>
@@ -6,8 +6,15 @@
     <stdio>
         <exit_code range="1:" />
     </stdio>
-    <command interpreter="python"><![CDATA[
-        query_tabular.py 
+    <command><![CDATA[
+        #if $add_to_database.withdb: 
+            #if $save_db:
+                cp "$add_to_database.withdb" "$save_db" &&
+            #else:
+                cp "$add_to_database.withdb" "$workdb" &&
+            #end if 
+        #end if
+        python $__tool_directory__/query_tabular.py 
         #if $save_db
         -s $sqlitedb
         #else
@@ -19,6 +26,8 @@
           $no_header
           -o $output
         #end if
+        && cat $query_file
+        && cat $table_json
     ]]></command>
     <configfiles>
         <configfile name="query_file">
@@ -53,11 +62,6 @@ $sqlquery
   #set $col_names = ''
   #end if
   #set $jtbl['column_names'] = $col_names
-  #if str($tbl.tbl_opts.skip_lines) != '':
-    #set $jtbl['comment_lines'] = int($tbl.tbl_opts.skip_lines)
-  #elif $tbl.table.metadata.comment_lines and $tbl.table.metadata.comment_lines > 0:
-    #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
-  #end if
   #set $idx_unique = []
   #set $idx_non = []
   #for $idx in $tbl.tbl_opts.indexes:
@@ -73,6 +77,40 @@ $sqlquery
   #if len($idx_non) > 0:
     #set $jtbl['index'] = $idx_non
   #end if
+  #set $input_filters = []
+  #for $fi in $tbl.input_opts.linefilters:
+    #if $fi.filter.filter_type == 'skip':
+      #if str($tbl.tbl_opts.skip_lines) != '':
+        #set $jtbl['comment_lines'] = int($fi.filter.skip_lines)
+      #elif $tbl.table.metadata.comment_lines and $tbl.table.metadata.comment_lines > 0:
+        #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
+      #end if
+    #elif $fi.filter.filter_type == 'comment':
+      #set $jtbl['comment_char'] = str($fi.filter.comment_char)
+    #elif $fi.filter.filter_type == 'regex':
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = str($fi.filter.filter_type)
+      #set $filter_dict['pattern'] = str($fi.filter.regex_pattern)
+      #set $filter_dict['action'] = str($fi.filter.regex_action)
+      #silent $input_filters.append($filter_dict)
+    #elif $fi.filter.filter_type == 'replace':
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = str($fi.filter.filter_type)
+      #set $filter_dict['column'] = int(str($fi.filter.column))
+      #set $filter_dict['pattern'] = str($fi.filter.regex_pattern)
+      #set $filter_dict['replace'] = str($fi.filter.regex_replace)
+      #silent $input_filters.append($filter_dict)
+    ## #elif $fi.filter.filter_type == 'normalize':
+    ##   #set $filter_dict = dict()
+    ##   #set $filter_dict['filter'] = str($fi.filter.filter_type)
+    ##   #set $filter_dict['columns'] = [int(str($ci)) for $ci in str($fi.filter.columns).split(',')]
+    ##   #set $filter_dict['separator'] = str($fi.filter.separator)
+    ##   #silent $input_filters.append($filter_dict)
+    #end if
+  #end for
+  #if $input_filters:
+    #set $jtbl['filters'] = $input_filters
+  #end if
   #set $jtbls += [$jtbl]
 #end for
 #echo $json.dumps($jtbldef)
@@ -80,8 +118,66 @@ $sqlquery
     </configfiles>
     <inputs>
         <param name="workdb" type="hidden" value="workdb.sqlite" label=""/>
+        <section name="add_to_database" expanded="false" title="Add tables to an existing database">
+            <param name="withdb" type="data" format="sqlite" optional="true" label="Add tables to this Database" 
+               help="Make sure your added table names are not already in this database"/>
+        </section>
         <repeat name="tables" title="Database Table" min="1">
             <param name="table" type="data" format="tabular" label="Tabular Dataset for Table"/>
+            <section name="input_opts" expanded="false" title="Filter Dataset Input">
+                <repeat name="linefilters" title="Filter Tabular Input Lines">
+                    <conditional name="filter">
+                        <param name="filter_type" type="select" label="Filter By">
+                            <option value="skip">skip leading lines</option>
+                            <option value="comment">comment char</option>
+                            <option value="regex">by regex expression matching</option>
+                            <option value="replace">regex replace value in column</option>
+                            <!--
+                            <option value="normalize">normalize list columns, replicates row for each item in list</option>
+                            -->
+                        </param>
+                        <when value="skip">
+                             <param name="skip_lines" type="integer" value="" min="0" label="Skip lines" 
+                                 help="Leave blank to use the comment lines metadata for this dataset" />
+                        </when>
+                        <when value="comment">
+                            <param name="comment_char" type="text" value="#" label="Comment line starting text">
+                            </param>
+                        </when>
+                        <when value="regex">
+                            <param name="regex_pattern" type="text" value="" label="regex pattern">
+                                <sanitizer sanitize="False"/>
+                            </param>
+                            <param name="regex_action" type="select" label="action for regex match">
+                                <option value="exclude_match">exclude line on pattern match</option>
+                                <option value="include_match">include line on pattern match</option>
+                                <option value="exclude_find">exclude line if pattern found</option>
+                                <option value="include_find">include line if pattern found</option>
+                            </param>
+                        </when>
+                        <when value="replace">
+                            <param name="column" type="data_column" data_ref="table" label="Column to replace text"
+                                   help=""/>
+                            <param name="regex_pattern" type="text" value="" label="regex pattern">
+                                <sanitizer sanitize="False"/>
+                            </param>
+                            <param name="regex_replace" type="text" value="" label="replacement expression">
+                                <sanitizer sanitize="False"/>
+                            </param>
+                        </when>
+                        <!--
+                        <when value="normalize">
+                            <param name="columns" type="data_column" data_ref="table" multiple="True" label="Columns to split"
+                                   help=""/>
+                            <param name="separator" type="text" value="," label="List item delimiter in column">
+                                <sanitizer sanitize="False"/>
+                                <validator type="regex" message="Anything but TAB or Newline">^[^\t\n\r\f\v]+$</validator>
+                            </param>
+                        </when>
+                        -->
+                    </conditional>
+                </repeat>
+            </section>
             <section name="tbl_opts" expanded="false" title="Table Options">
                 <param name="table_name" type="text" value="" optional="true" label="Specify Name for Table">
                     <help>By default, tables will be named: t1,t2,...,tn (table names must be unique)</help>
@@ -97,7 +193,6 @@ $sqlquery
                        help="Only creates this additional column when a name is entered. (This can not be the same name as any of the other columns in this table.)">
                         <validator type="regex" message="Column name">^([A-Za-z]\w*)?$</validator>
                 </param>
-                <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" help="Leave blank to use the comment lines metadata for this dataset" />
                 <repeat name="indexes" title="Table Index">
                     <param name="unique" type="boolean" truevalue="yes" falsevalue="no" checked="False" label="This is a unique index"/>
                     <param name="index_columns" type="text" value="" label="Index on Columns">
@@ -108,7 +203,7 @@ $sqlquery
             </section>
         </repeat>
         <param name="save_db" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Save the sqlite database in your history"/>
-        <param name="sqlquery" type="text" area="true" size="10x80" value="" optional="true" label="SQL Query to generate tabular output">
+        <param name="sqlquery" type="text" area="true" size="20x80" value="" optional="true" label="SQL Query to generate tabular output">
                 <help>By default: tables are named: t1,t2,...,tn and columns in each table: c1,c2,...,cn</help>
                 <sanitizer sanitize="False"/>
                 <validator type="regex" message="">^(?ims)\s*select\s+.*\s+from\s+.*$</validator>
@@ -186,6 +281,9 @@ Query Tabular
 
   Loads tabular datasets into a SQLite_ data base.  
 
+  An existing SQLite_ data base can be used as input, and any selected tabular datasets will be added as new tables in that data base.
+
+
 **Outputs**
 
   The results of a SQL query are output to the history as a tabular file.
@@ -193,7 +291,6 @@ Query Tabular
   The SQLite_ data base can also be saved and output as a dataset in the history.  
 
     *(The* **SQLite to tabular** *tool can run additional queries on this database.)*
-
 
 
 For help in using SQLite_ see:  http://www.sqlite.org/docs.html

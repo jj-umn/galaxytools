@@ -13,15 +13,24 @@ from optparse import OptionParser
 TODO:
 - could read column names from comment lines, but issues with legal names
 - could add some transformations on tabular columns,
+  filter - skip_regex
   e.g. a regex to format date/time strings
     format: {
       c2 : re.sub('pat', 'sub', c2)
       c3 : len(c3)
-   }
-   def format(colname,val, expr):
+    }
+    def format(colname,val, expr):
+  normalize input list columns
+    iterate over list values creating one row per iteration
+      option for input line_num column
+    create associated table 
+      fk, name, value  # e.g. PSM table with list of proteins containing peptide
+      fk, name, value[, value] # if multiple columns similarly indexed, e.g. vcf
 - column_defs dict of columns to create from tabular input
     column_defs : { 'name1' : 'expr', 'name2' : 'expr'}
 - allow multiple queries and outputs
+  repeat min - max with up to max conditional outputs
+
 - add a --json input for table definitions (or yaml)
 JSON config:
 { tables : [
@@ -35,9 +44,11 @@ JSON config:
     },
     { file_path : '/home/galaxy/dataset_102.dat',
             table_name : 'gff',
-            column_names : ['seqname',,,'start','end']
+            column_names : ['seqname',,'date','start','end']
             comment_lines : 1
             load_named_columns : True
+            filters : [{'filter': 'regex', 'pattern': '#peptide', 'action': 'exclude_match'}, 
+                       {'filter': 'replace', 'column': 3, 'replace': 'gi[|]', 'pattern': ''}]
     },
     { file_path : '/home/galaxy/dataset_103.dat',
             table_name : 'test',
@@ -47,8 +58,71 @@ JSON config:
 }
 """
 
-tables_query = \
-    "SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name"
+
+class LineFilter( object ):
+    def __init__(self,source,filter_dict):
+        self.source = source
+        self.filter_dict = filter_dict
+        print >> sys.stderr, 'LineFilter %s' % filter_dict if filter_dict else 'NONE'
+        self.func = lambda l: l.rstrip('\r\n') if l else None
+        if not filter_dict:
+            return
+        if filter_dict['filter'] == 'regex':
+            rgx = re.compile(filter_dict['pattern'])
+            if filter_dict['action'] == 'exclude_match':
+                self.func = lambda l: l if not rgx.match(l) else None
+            elif filter_dict['action'] == 'include_match':
+                self.func = lambda l: l if rgx.match(l) else None
+            elif filter_dict['action'] == 'exclude_find':
+                self.func = lambda l: l if not rgx.search(l) else None
+            elif filter_dict['action'] == 'include_find':
+                self.func = lambda l: l if rgx.search(l) else None
+        elif filter_dict['filter'] == 'replace':
+            p = filter_dict['pattern']
+            r = filter_dict['replace']
+            c = int(filter_dict['column']) - 1
+            self.func = lambda l: '\t'.join([x if i != c else re.sub(p,r,x) for i,x in enumerate(l.split('\t'))])
+    def __iter__(self):
+        return self
+    def next(self):
+        for i,next_line in enumerate(self.source):
+            line = self.func(next_line)
+            if line:
+                return line
+        raise StopIteration
+
+
+class TabularReader:
+    """
+    Tabular file iterator. Returns a list 
+    """
+    def __init__(self, file_path, skip=0, comment_char=None, col_idx=None, filters=None):
+        self.skip = skip
+        self.comment_char = comment_char
+        self.col_idx = col_idx
+        self.filters = filters
+        self.tsv_file = open(file_path)
+        if skip and skip > 0:
+            for i in range(5): 
+                if not self.tsv_file.readline():
+                    break
+        source = LineFilter(self.tsv_file,None)
+        if comment_char:
+            source = LineFilter(source,{"filter": "regex", "pattern": comment_char, "action": "exclude_match"})
+        if filters:
+            for f in filters:
+                source = LineFilter(source,f)
+        self.source = source
+    def __iter__(self):
+        return self
+    def next(self):
+        ''' Iteration '''
+        for i,line in enumerate(self.source):
+            fields = line.rstrip('\r\n').split('\t')
+            if self.col_idx:
+                fields = [fields[i] for i in self.col_idx]
+            return fields
+        raise StopIteration
 
 
 def getValueType(val):
@@ -66,30 +140,25 @@ def getValueType(val):
 
 
 def get_column_def(file_path, table_name, skip=0, comment_char='#',
-                   column_names=None, max_lines=100,load_named_columns=False):
+                   column_names=None, max_lines=100,load_named_columns=False,filters=None):
     col_pref = ['TEXT', 'REAL', 'INTEGER', None]
     col_types = []
     col_idx = None
     data_lines = 0
-
     try:
-        with open(file_path, "r") as fh:
-            for linenum, line in enumerate(fh):
-                if linenum < skip:
-                    continue
-                if line.startswith(comment_char):
-                    continue
-                data_lines += 1
-                try:
-                    fields = line.split('\t')
-                    while len(col_types) < len(fields):
-                        col_types.append(None)
-                    for i, val in enumerate(fields):
-                        colType = getValueType(val)
-                        if col_pref.index(colType) < col_pref.index(col_types[i]):
-                            col_types[i] = colType
-                except Exception, e:
-                    print >> sys.stderr, 'Failed at line: %d err: %s' % (linenum, e)
+        tr = TabularReader(file_path,skip=skip, comment_char=comment_char, col_idx=None, filters=filters)
+        for linenum, fields in enumerate(tr):
+            if linenum > max_lines:
+                break
+            try:
+                while len(col_types) < len(fields):
+                    col_types.append(None)
+                for i, val in enumerate(fields):
+                    colType = getValueType(val)
+                    if col_pref.index(colType) < col_pref.index(col_types[i]):
+                        col_types[i] = colType
+            except Exception, e:
+                print >> sys.stderr, 'Failed at line: %d err: %s' % (linenum, e)
     except Exception, e:
         print >> sys.stderr, 'Failed: %s' % (e)
     for i,col_type in enumerate(col_types):
@@ -117,11 +186,13 @@ def get_column_def(file_path, table_name, skip=0, comment_char='#',
     return col_names, col_types, col_def, col_idx
 
 
-def create_table(conn, file_path, table_name, skip=0, comment_char='#', pkey_autoincr=None, column_names=None,load_named_columns=False,unique_indexes=[],indexes=[]):
-    col_names, col_types, col_def, col_idx = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, column_names=column_names,load_named_columns=load_named_columns)
+def create_table(conn, file_path, table_name, skip=0, comment_char='#', pkey_autoincr=None, column_names=None,load_named_columns=False,filters=None,unique_indexes=[],indexes=[]):
+    
+    col_names, col_types, col_def, col_idx = get_column_def(file_path, table_name, skip=skip, comment_char=comment_char, 
+        column_names=column_names,load_named_columns=load_named_columns,filters=filters)
     col_func = [float if t == 'REAL' else int if t == 'INTEGER' else str for t in col_types]
     table_def = 'CREATE TABLE %s (\n    %s%s\n);' % (
-                table_name, 
+                table_name,
                 '%s INTEGER PRIMARY KEY AUTOINCREMENT,' % pkey_autoincr if pkey_autoincr else '',
                 ', \n    '.join(col_def))
     # print >> sys.stdout, table_def
@@ -142,24 +213,22 @@ def create_table(conn, file_path, table_name, skip=0, comment_char='#', pkey_aut
             index_columns = index.split(',')
             create_index(conn, table_name, index_name, index_columns)
         c = conn.cursor()
-        with open(file_path, "r") as fh:
-            for linenum, line in enumerate(fh):
-                if linenum < skip or line.startswith(comment_char):
-                    continue
-                data_lines += 1
-                try:
-                    fields = line.rstrip('\r\n').split('\t')
-                    if col_idx:
-                        fields = [fields[i] for i in col_idx]
-                    vals = [col_func[i](x) if x else None for i, x in enumerate(fields)]
-                    c.execute(insert_stmt, vals)
-                except Exception, e:
-                    print >> sys.stderr, 'Failed at line: %d err: %s' % (linenum, e)
+        tr = TabularReader(file_path,skip=skip, comment_char=comment_char, col_idx=col_idx, filters=filters)
+        for linenum, fields in enumerate(tr):
+            data_lines += 1
+            try:
+                if col_idx:
+                    fields = [fields[i] for i in col_idx]
+                vals = [col_func[i](x) if x else None for i, x in enumerate(fields)]
+                c.execute(insert_stmt, vals)
+            except Exception, e:
+                print >> sys.stderr, 'Failed at line: %d err: %s' % (linenum, e)
         conn.commit()
         c.close()
     except Exception, e:
         print >> sys.stderr, 'Failed: %s' % (e)
         exit(1)
+
 
 def create_index(conn, table_name, index_name, index_columns, unique=False):
     index_def = "CREATE %s INDEX %s on %s(%s)" % ('UNIQUE' if unique else '', index_name, table_name, ','.join(index_columns))
@@ -167,6 +236,7 @@ def create_index(conn, table_name, index_name, index_columns, unique=False):
     c.execute(index_def)
     conn.commit()
     c.close()
+
 
 def regex_match(expr, item):
     return re.match(expr, item) is not None
@@ -237,6 +307,7 @@ def __main__():
                     path = table['file_path']
                     table_name = table['table_name'] if 'table_name' in table else 't%d' % (ti + 1)
                     comment_lines = table['comment_lines'] if 'comment_lines' in table else 0
+                    comment_char = table['comment_char'] if 'comment_char' in table else None
                     column_names = table['column_names'] if 'column_names' in table else None
                     if column_names:
                         load_named_columns = table['load_named_columns'] if 'load_named_columns' in table else False
@@ -244,10 +315,11 @@ def __main__():
                         load_named_columns = False
                     unique_indexes = table['unique'] if 'unique' in table else []
                     indexes = table['index'] if 'index' in table else []
+                    filters = table['filters'] if 'filters' in table else None
                     pkey_autoincr = table['pkey_autoincr'] if 'pkey_autoincr' in table else None
                     create_table(conn, path, table_name, pkey_autoincr=pkey_autoincr, column_names=column_names, 
-                                 skip=comment_lines, load_named_columns=load_named_columns, 
-                                 unique_indexes=unique_indexes, indexes=indexes)
+                                 skip=comment_lines, comment_char=comment_char, load_named_columns=load_named_columns, 
+                                 filters=filters,unique_indexes=unique_indexes, indexes=indexes)
         except Exception, exc:
             print >> sys.stderr, "Error: %s" % exc
     conn.close()
@@ -262,6 +334,8 @@ def __main__():
         query = options.query
 
     if (query is None):
+        tables_query = \
+            "SELECT name, sql FROM sqlite_master WHERE type='table' ORDER BY name"
         try:
             conn = get_connection(options.sqlitedb)
             c = conn.cursor()
