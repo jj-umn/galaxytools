@@ -217,8 +217,6 @@ def create_table(conn, file_path, table_name, skip=0, comment_char='#', pkey_aut
         for linenum, fields in enumerate(tr):
             data_lines += 1
             try:
-                if col_idx:
-                    fields = [fields[i] for i in col_idx]
                 vals = [col_func[i](x) if x else None for i, x in enumerate(fields)]
                 c.execute(insert_stmt, vals)
             except Exception, e:
