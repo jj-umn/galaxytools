@@ -63,7 +63,7 @@ class LineFilter( object ):
     def __init__(self,source,filter_dict):
         self.source = source
         self.filter_dict = filter_dict
-        print >> sys.stderr, 'LineFilter %s' % filter_dict if filter_dict else 'NONE'
+        # print >> sys.stderr, 'LineFilter %s' % filter_dict if filter_dict else 'NONE'
         self.func = lambda l: l.rstrip('\r\n') if l else None
         if not filter_dict:
             return

@@ -7,16 +7,17 @@
         <exit_code range="1:" />
     </stdio>
     <command><![CDATA[
+        cat $query_file &&
         #if $add_to_database.withdb: 
             #if $save_db:
-                cp "$add_to_database.withdb" "$save_db" &&
+                cp "$add_to_database.withdb" "$sqlitedb" &&
             #else:
                 cp "$add_to_database.withdb" "$workdb" &&
             #end if 
         #end if
         python $__tool_directory__/query_tabular.py 
         #if $save_db
-        -s $sqlitedb
+        -s "$sqlitedb"
         #else
         -s $workdb
         #end if
@@ -26,8 +27,6 @@
           $no_header
           -o $output
         #end if
-        && cat $query_file
-        && cat $table_json
     ]]></command>
     <configfiles>
         <configfile name="query_file">
@@ -80,7 +79,7 @@ $sqlquery
   #set $input_filters = []
   #for $fi in $tbl.input_opts.linefilters:
     #if $fi.filter.filter_type == 'skip':
-      #if str($tbl.tbl_opts.skip_lines) != '':
+      #if str($fi.filter.skip_lines) != '':
         #set $jtbl['comment_lines'] = int($fi.filter.skip_lines)
       #elif $tbl.table.metadata.comment_lines and $tbl.table.metadata.comment_lines > 0:
         #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
@@ -122,7 +121,7 @@ $sqlquery
             <param name="withdb" type="data" format="sqlite" optional="true" label="Add tables to this Database" 
                help="Make sure your added table names are not already in this database"/>
         </section>
-        <repeat name="tables" title="Database Table" min="1">
+        <repeat name="tables" title="Database Table" min="0">
             <param name="table" type="data" format="tabular" label="Tabular Dataset for Table"/>
             <section name="input_opts" expanded="false" title="Filter Dataset Input">
                 <repeat name="linefilters" title="Filter Tabular Input Lines">
@@ -137,11 +136,12 @@ $sqlquery
                             -->
                         </param>
                         <when value="skip">
-                             <param name="skip_lines" type="integer" value="" min="0" label="Skip lines" 
+                             <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" 
                                  help="Leave blank to use the comment lines metadata for this dataset" />
                         </when>
                         <when value="comment">
                             <param name="comment_char" type="text" value="#" label="Comment line starting text">
+                                <sanitizer sanitize="False"/>
                             </param>
                         </when>
                         <when value="regex">
