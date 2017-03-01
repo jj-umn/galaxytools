@@ -1,5 +1,5 @@
 <tool id="split_tabular_columns" name="Split Tabular Columns" version="0.0.1">
-    <description>splits list columns into multiple rows</description>
+    <description>into multiple rows to create a normalized table</description>
     <requirements>
     </requirements>
     <stdio>

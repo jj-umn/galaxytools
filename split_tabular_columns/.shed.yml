@@ -1,6 +1,6 @@
 categories:
 - Text Manipulation
-description: Normalize tabular files 
+description: Split list colomns to normalize tabular files 
 long_description: |
   Normalize tabular files which have columns with lists.
   Rows with lists in a column will be duplicated for each 
