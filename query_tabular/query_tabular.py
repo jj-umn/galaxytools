@@ -362,7 +362,7 @@ def __main__():
             # yield [col[0] for col in cur.description]
         for i, row in enumerate(results):
             # yield [val for val in row]
-            outputFile.write("%s\n" % '\t'.join([str(val) for val in row]))
+            outputFile.write("%s\n" % '\t'.join([str(val) if val is not None else '' for val in row]))
     except Exception, exc:
         print >> sys.stderr, "Error: %s" % exc
         exit(1)
