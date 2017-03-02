@@ -103,7 +103,7 @@ class TabularReader:
         self.filters = filters
         self.tsv_file = open(file_path)
         if skip and skip > 0:
-            for i in range(5): 
+            for i in range(skip): 
                 if not self.tsv_file.readline():
                     break
         source = LineFilter(self.tsv_file,None)
