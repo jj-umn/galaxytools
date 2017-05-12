@@ -64,31 +64,71 @@ class LineFilter( object ):
         self.source = source
         self.filter_dict = filter_dict
         # print >> sys.stderr, 'LineFilter %s' % filter_dict if filter_dict else 'NONE'
-        self.func = lambda l: l.rstrip('\r\n') if l else None
+        self.func = lambda i,l: l.rstrip('\r\n') if l else None
+        self.src_lines = []
+        self.src_line_cnt = 0
         if not filter_dict:
             return
         if filter_dict['filter'] == 'regex':
             rgx = re.compile(filter_dict['pattern'])
             if filter_dict['action'] == 'exclude_match':
-                self.func = lambda l: l if not rgx.match(l) else None
+                self.func = lambda i,l: l if not rgx.match(l) else None
             elif filter_dict['action'] == 'include_match':
-                self.func = lambda l: l if rgx.match(l) else None
+                self.func = lambda i,l: l if rgx.match(l) else None
             elif filter_dict['action'] == 'exclude_find':
-                self.func = lambda l: l if not rgx.search(l) else None
+                self.func = lambda i,l: l if not rgx.search(l) else None
             elif filter_dict['action'] == 'include_find':
-                self.func = lambda l: l if rgx.search(l) else None
+                self.func = lambda i,l: l if rgx.search(l) else None
         elif filter_dict['filter'] == 'replace':
             p = filter_dict['pattern']
             r = filter_dict['replace']
             c = int(filter_dict['column']) - 1
-            self.func = lambda l: '\t'.join([x if i != c else re.sub(p,r,x) for i,x in enumerate(l.split('\t'))])
+            self.func = lambda i,l: '\t'.join([x if i != c else re.sub(p,r,x) for i,x in enumerate(l.split('\t'))])
+        elif filter_dict['filter'] == 'prepend_line_num':
+            self.func = lambda i,l: '%d\t%s' % (i,l) 
+        elif filter_dict['filter'] == 'append_line_num':
+            self.func = lambda i,l: '%s\t%d' % (l.rstrip('\r\n'),i) 
+        elif filter_dict['filter'] == 'skip':
+            cnt = filter_dict['count']
+            self.func = lambda i,l: l if i > cnt else None
+        elif filter_dict['filter'] == 'normalize':
+            cols = [int(c) - 1 for c in filter_dict['columns']]
+            sep = filter_dict['separator']
+            self.func = lambda i,l: self.normalize(l,cols,sep)
     def __iter__(self):
         return self
-    def next(self):
+    def normalize(self,line,split_cols,sep):
+        lines = []
+        fields = line.rstrip('\r\n').split('\t')
+        split_fields = dict()
+        cnt = 0
+        for c in split_cols:
+            if c < len(fields):
+                split_fields[c] = fields[c].split(sep)
+                cnt = max(cnt, len(split_fields[c]))
+        if cnt == 0:
+            lines.append('\t'.join(fields))
+        else:
+            for n in range(0, cnt):
+                flds = [x if c not in split_cols else split_fields[c][n] if n < len(split_fields[c]) else ''  for (c, x) in enumerate(fields)]
+                lines.append('\t'.join(flds))
+        return lines
+    def get_lines(self):
         for i,next_line in enumerate(self.source):
-            line = self.func(next_line)
+            self.src_line_cnt += 1
+            line = self.func(self.src_line_cnt,next_line)
+            # print >> sys.stderr, 'LineFilter %s: %d %s' % (str(self.filter_dict),self.src_line_cnt,line)
             if line:
-                return line
+               if isinstance(line,list):
+                   self.src_lines.extend(line)
+               else:
+                   self.src_lines.append(line)
+               return
+    def next(self):
+        if not self.src_lines:
+            self.get_lines()
+        if self.src_lines:
+                return self.src_lines.pop(0)
         raise StopIteration
 
 

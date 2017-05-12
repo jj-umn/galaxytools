@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="2.0.0">
+<tool id="query_tabular" name="Query Tabular" version="3.0.0">
     <description>using sqlite sql</description>
 
     <requirements>
@@ -79,13 +79,24 @@ $sqlquery
   #set $input_filters = []
   #for $fi in $tbl.input_opts.linefilters:
     #if $fi.filter.filter_type == 'skip':
+      #set $skip_lines = None
       #if str($fi.filter.skip_lines) != '':
-        #set $jtbl['comment_lines'] = int($fi.filter.skip_lines)
+        #set $skip_lines = int($fi.filter.skip_lines)
       #elif $tbl.table.metadata.comment_lines and $tbl.table.metadata.comment_lines > 0:
-        #set $jtbl['comment_lines'] = int($tbl.table.metadata.comment_lines)
+        #set $skip_lines = int($tbl.table.metadata.comment_lines)
+      #end if
+      #if $skip_lines is not None:
+        #set $filter_dict = dict()
+        #set $filter_dict['filter'] = str($fi.filter.filter_type)
+        #set $filter_dict['count'] = $skip_lines
+        #silent $input_filters.append($filter_dict)
       #end if
     #elif $fi.filter.filter_type == 'comment':
-      #set $jtbl['comment_char'] = str($fi.filter.comment_char)
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = 'regex'
+      #set $filter_dict['pattern'] = '^' + str($fi.filter.comment_char)
+      #set $filter_dict['action'] = 'exclude'
+      #silent $input_filters.append($filter_dict)
     #elif $fi.filter.filter_type == 'regex':
       #set $filter_dict = dict()
       #set $filter_dict['filter'] = str($fi.filter.filter_type)
@@ -99,12 +110,16 @@ $sqlquery
       #set $filter_dict['pattern'] = str($fi.filter.regex_pattern)
       #set $filter_dict['replace'] = str($fi.filter.regex_replace)
       #silent $input_filters.append($filter_dict)
-    ## #elif $fi.filter.filter_type == 'normalize':
-    ##   #set $filter_dict = dict()
-    ##   #set $filter_dict['filter'] = str($fi.filter.filter_type)
-    ##   #set $filter_dict['columns'] = [int(str($ci)) for $ci in str($fi.filter.columns).split(',')]
-    ##   #set $filter_dict['separator'] = str($fi.filter.separator)
-    ##   #silent $input_filters.append($filter_dict)
+    #elif str($fi.filter.filter_type).endswith('pend_line_num'):
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = str($fi.filter.filter_type)
+      #silent $input_filters.append($filter_dict)
+    #elif $fi.filter.filter_type == 'normalize':
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = str($fi.filter.filter_type)
+      #set $filter_dict['columns'] = [int(str($ci)) for $ci in str($fi.filter.columns).split(',')]
+      #set $filter_dict['separator'] = str($fi.filter.separator)
+      #silent $input_filters.append($filter_dict)
     #end if
   #end for
   #if $input_filters:
@@ -131,9 +146,9 @@ $sqlquery
                             <option value="comment">comment char</option>
                             <option value="regex">by regex expression matching</option>
                             <option value="replace">regex replace value in column</option>
-                            <!--
+                            <option value="prepend_line_num">prepend a line number column</option>
+                            <option value="append_line_num">append a line number column</option>
                             <option value="normalize">normalize list columns, replicates row for each item in list</option>
-                            -->
                         </param>
                         <when value="skip">
                              <param name="skip_lines" type="integer" value="" min="0" optional="true" label="Skip lines" 
@@ -144,6 +159,8 @@ $sqlquery
                                 <sanitizer sanitize="False"/>
                             </param>
                         </when>
+                        <when value="prepend_line_num"/>
+                        <when value="append_line_num"/>
                         <when value="regex">
                             <param name="regex_pattern" type="text" value="" label="regex pattern">
                                 <sanitizer sanitize="False"/>
@@ -165,16 +182,14 @@ $sqlquery
                                 <sanitizer sanitize="False"/>
                             </param>
                         </when>
-                        <!--
                         <when value="normalize">
                             <param name="columns" type="data_column" data_ref="table" multiple="True" label="Columns to split"
-                                   help=""/>
+                                   help="If multiple columns are selected, they should have the same length and separator on each line"/>
                             <param name="separator" type="text" value="," label="List item delimiter in column">
                                 <sanitizer sanitize="False"/>
                                 <validator type="regex" message="Anything but TAB or Newline">^[^\t\n\r\f\v]+$</validator>
                             </param>
                         </when>
-                        -->
                     </conditional>
                 </repeat>
             </section>
@@ -183,8 +198,10 @@ $sqlquery
                     <help>By default, tables will be named: t1,t2,...,tn (table names must be unique)</help>
                     <validator type="regex" message="Table name should start with a letter and may contain additional letters, digits, and underscores">^[A-Za-z]\w*$</validator>
                 </param>
-                <param name="col_names" type="text" value="" optional="true" label="Specify Column Names">
-                    <help>By default, table columns will be named: c1,c2,c3,...,cn  (column names for a table must be unique)</help>
+                <param name="col_names" type="text" value="" optional="true" label="Specify Column Names (comma-separated list)">
+                    <help>By default, table columns will be named: c1,c2,c3,...,cn  (column names for a table must be unique)
+                          You can override the default names by entering a comma -separated list of names, e.g. ',name1,,,name2' would rename the second and fifth columns.
+                    </help>
                     <sanitizer sanitize="False"/>
                     <validator type="regex" message="A List of names separated by commas: Column names should start with a letter and may contain additional letters, digits, and underscores. Otherwise, the name must be eclosed in: double quotes, back quotes, or square brackets.">^([A-Za-z]\w*|"\S+[^,"]*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?(,([A-Za-z]\w*|"\S+.*"|`\S+[^,`]*`|[[]\S+[^,"]*[]])?)*$</validator>
                 </param>
@@ -284,6 +301,21 @@ Query Tabular
   An existing SQLite_ data base can be used as input, and any selected tabular datasets will be added as new tables in that data base.
 
 
+**Input Line Filters**
+
+  As a tabular file is being read, line filters may be applied.  
+
+  ::
+
+  - skip leading lines              skip the first *number* of lines
+  - comment char                    omit any lines that start with the specified comment character 
+  - by regex expression matching    *include/exclude* lines the match the regex expression 
+  - regex replace value in column   replace a field in a column using a regex substitution (good for date reformatting)
+  - prepend a line number column    each line has the ordinal value of the line read by this filter as the first column
+  - append a line number column     each line has the ordinal value of the line read by this filter as the last column
+  - normalize list columns          replicates the line for each item in the specified list *columns*
+
+
 **Outputs**
 
   The results of a SQL query are output to the history as a tabular file.
@@ -377,6 +409,7 @@ See: http://www.sqlite.org/lang_datefunc.html
     4           James      Smith      jim@supergig.co.uk    1980-10-20 416 323-8888
     =========== ========== ========== ===================== ========== ============
 
+
   Regular_expression_ functions are included for: 
 
   ::
@@ -408,6 +441,7 @@ See: http://www.sqlite.org/lang_datefunc.html
 
   Results:
 
+
     =========== ========== ==========
     #FirstName  LastName   DOB
     =========== ========== ==========
@@ -415,6 +449,88 @@ See: http://www.sqlite.org/lang_datefunc.html
     Paula       Brown      24/05/78
     James       Smith      20/10/80
     =========== ========== ==========
+
+
+**Line Filtering Example** 
+  *(Six filters are applied as the following file is read)*
+
+  ::
+
+    Input Tabular File:
+
+    #People with pets
+    Pets FirstName           LastName   DOB       PetNames  PetType
+    2    Paula               Brown      24/05/78  Rex,Fluff dog,cat
+    1    Steven              Jones      04/04/74  Allie     cat
+    0    Jane                Doe        24/05/78  
+    1    James               Smith      20/10/80  Spot
+
+
+    Filter 1 - append a line number column:
+
+    #People with pets                                                 1
+    Pets FirstName           LastName   DOB       PetNames  PetType   2
+    2    Paula               Brown      24/05/78  Rex,Fluff dog,cat   3
+    1    Steven              Jones      04/04/74  Allie     cat       4
+    0    Jane                Doe        24/05/78                      5
+    1    James               Smith      20/10/80  Spot                6
+
+    Filter 2 - by regex expression matching [include]: '^\d+' (include lines that start with a number) 
+
+    2    Paula               Brown      24/05/78  Rex,Fluff dog,cat   3
+    1    Steven              Jones      04/04/74  Allie     cat       4
+    0    Jane                Doe        24/05/78                      5
+    1    James               Smith      20/10/80  Spot                6
+
+    Filter 3 - append a line number column:
+
+    2    Paula               Brown      24/05/78  Rex,Fluff dog,cat   3  1
+    1    Steven              Jones      04/04/74  Allie     cat       4  2
+    0    Jane                Doe        24/05/78                      5  3
+    1    James               Smith      20/10/80  Spot                6  4
+
+    Filter 4 - regex replace value in column[4]: '(\d+)/(\d+)/(\d+)' '19\3-\2-\1' (convert dates to sqlite format) 
+
+    2    Paula               Brown      1978-05-24  Rex,Fluff dog,cat   3  1
+    1    Steven              Jones      1974-04-04  Allie     cat       4  2
+    0    Jane                Doe        1978-05-24                      5  3
+    1    James               Smith      1980-10-20  Spot                6  4
+
+    Filter 5 - normalize list columns[5,6]:
+
+    2    Paula               Brown      1978-05-24  Rex       dog       3  1
+    2    Paula               Brown      1978-05-24  Fluff     cat       3  1
+    1    Steven              Jones      1974-04-04  Allie     cat       4  2
+    0    Jane                Doe        1978-05-24                      5  3
+    1    James               Smith      1980-10-20  Spot                6  4
+
+    Filter 6 - append a line number column:
+
+    2    Paula               Brown      1978-05-24  Rex       dog       3  1  1
+    2    Paula               Brown      1978-05-24  Fluff     cat       3  1  2
+    1    Steven              Jones      1974-04-04  Allie     cat       4  2  3
+    0    Jane                Doe        1978-05-24                      5  3  4
+    1    James               Smith      1980-10-20  Spot                6  4  5
+
+
+   Table name: pets
+
+   Table columns: Pets,FirstName,LastName,Birthdate,PetNames,PetType,line_num,entry_num,row_num
+
+   Query: SELECT * FROM pets 
+
+   Result:
+
+     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
+     #Pets  FirstName  LastName  Brithdate   PetNames  PetType  line_num  entry_num  row_num
+     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
+     2      Paula      Brown     1978-05-24  Rex       dog      3         1          1
+     2      Paula      Brown     1978-05-24  Fluff     cat      3         1          2
+     1      Steven     Jones     1974-04-04  Allie     cat      4         2          3
+     0      Jane       Doe       1978-05-24                     5         3          4
+     1      James      Smith     1980-10-20  Spot               6         4          5          
+     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
+
 
 .. _Regular_expression: https://docs.python.org/release/2.7/library/re.html
 .. _SQLite: http://www.sqlite.org/index.html
