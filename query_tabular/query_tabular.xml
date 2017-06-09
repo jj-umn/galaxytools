@@ -513,24 +513,80 @@ See: http://www.sqlite.org/lang_datefunc.html
     1    James               Smith      1980-10-20  Spot                6  4  5
 
 
-   Table name: pets
+  Table name: pets
 
-   Table columns: Pets,FirstName,LastName,Birthdate,PetNames,PetType,line_num,entry_num,row_num
+  Table columns: Pets,FirstName,LastName,Birthdate,PetNames,PetType,line_num,entry_num,row_num
 
-   Query: SELECT * FROM pets 
+  Query: SELECT * FROM pets 
 
-   Result:
+  Result:
 
-     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
-     #Pets  FirstName  LastName  Brithdate   PetNames  PetType  line_num  entry_num  row_num
-     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
-     2      Paula      Brown     1978-05-24  Rex       dog      3         1          1
-     2      Paula      Brown     1978-05-24  Fluff     cat      3         1          2
-     1      Steven     Jones     1974-04-04  Allie     cat      4         2          3
-     0      Jane       Doe       1978-05-24                     5         3          4
-     1      James      Smith     1980-10-20  Spot               6         4          5          
-     =====  =========  ========  ==========  ========  =======  ========  =========  ======= 
+     ======  ==========  ========  ==========  =========  ========  =========  ==========  ========
+     #Pets   FirstName   LastName  BirthDate   PetNames   PetType   line_num   entry_num    row_num
+     ======  ==========  ========  ==========  =========  ========  =========  ==========  ========
+     2       Paula       Brown     1978-05-24  Rex        dog              3           1         1
+     2       Paula       Brown     1978-05-24  Fluff      cat              3           1         2
+     1       Steven      Jones     1974-04-04  Allie      cat              4           2         3
+     0       Jane        Doe       1978-05-24                              5           3         4
+     1       James       Smith     1980-10-20  Spot                        6           4         5          
+     ======  ==========  ========  ==========  =========  ========  =========  ==========  ======== 
 
+
+**Normalizing by Line Filtering into 2 Tables** 
+
+    *People Table*
+
+      ::
+  
+        Filter 1 - by regex expression matching [include]: '^\d+' (include lines that start with a number) 
+        Filter 2 - append a line number column:
+        Filter 3 - regex replace value in column[4]: '(\d+)/(\d+)/(\d+)' '19\3-\2-\1' (convert dates to sqlite format) 
+
+      Table: People
+      Columns: Pets,FirstName,LastName,DOB,,,id
+
+      ====  =========  ========   ==========  ==
+      Pets  FirstName  LastName   DOB         id
+      ====  =========  ========   ==========  ==
+      2     Paula      Brown      1978-05-24  1
+      1     Steven     Jones      1974-04-04  2
+      0     Jane       Doe        1978-05-24  3
+      1     James      Smith      1980-10-20  4
+      ====  =========  ========   ==========  ==
+
+
+    *Pet Table*
+
+      :: 
+
+        Filter 1 - by regex expression matching [include]: '^\d+' (include lines that start with a number) 
+        Filter 2 - append a line number column:
+        Filter 3 - by regex expression matching [exclude]: '^0\t' (exclude lines with no pets)
+        Filter 4 - normalize list columns[5,6]:
+
+      Table: Pet
+      Columns: ,,,,PetName,PetType,id
+
+      ========  ========  ==
+      PetName   PetType   id
+      ========  ========  ==
+      Rex       dog       1
+      Fluff     cat       1
+      Allie     cat       2
+      Spot                4
+      ========  ========  ==
+
+
+    Query: SELECT FirstName,LastName,PetName FROM People join Pet on People.id = Pet.id WHERE PetType = 'cat';     
+
+    Result:
+
+     =========  ========  ========
+     FirstName  LastName  PetName 
+     =========  ========  ========
+     Paula      Brown     Fluff   
+     Steven     Jones     Allie   
+     =========  ========  ========
 
 .. _Regular_expression: https://docs.python.org/release/2.7/library/re.html
 .. _SQLite: http://www.sqlite.org/index.html
