@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="3.0.0">
+<tool id="query_tabular" name="Query Tabular" version="3.1.0">
     <description>using sqlite sql</description>
 
     <requirements>
@@ -103,6 +103,11 @@ $sqlquery
       #set $filter_dict['pattern'] = str($fi.filter.regex_pattern)
       #set $filter_dict['action'] = str($fi.filter.regex_action)
       #silent $input_filters.append($filter_dict)
+    #elif $fi.filter.filter_type == 'select_columns':
+      #set $filter_dict = dict()
+      #set $filter_dict['filter'] = str($fi.filter.filter_type)
+      #set $filter_dict['columns'] = [int(str($ci)) for $ci in str($fi.filter.columns).split(',')]
+      #silent $input_filters.append($filter_dict)
     #elif $fi.filter.filter_type == 'replace':
       #set $filter_dict = dict()
       #set $filter_dict['filter'] = str($fi.filter.filter_type)
@@ -145,6 +150,7 @@ $sqlquery
                             <option value="skip">skip leading lines</option>
                             <option value="comment">comment char</option>
                             <option value="regex">by regex expression matching</option>
+                            <option value="select_columns">select columns</option>
                             <option value="replace">regex replace value in column</option>
                             <option value="prepend_line_num">prepend a line number column</option>
                             <option value="append_line_num">append a line number column</option>
@@ -170,6 +176,12 @@ $sqlquery
                                 <option value="include_match">include line on pattern match</option>
                                 <option value="exclude_find">exclude line if pattern found</option>
                                 <option value="include_find">include line if pattern found</option>
+                            </param>
+                        </when>
+                        <when value="select_columns">
+                            <param name="columns" type="text" value="" label="enter column numbers to keep"
+                                help="example: 1,4,2 (selects the first,fourth, and second columns)">
+                                <validator type="regex" message="Column ordinal positions separated by commas">^([1-9]\d*)(,[1-9]\d*)*$</validator>
                             </param>
                         </when>
                         <when value="replace">
@@ -310,6 +322,7 @@ Query Tabular
   - skip leading lines              skip the first *number* of lines
   - comment char                    omit any lines that start with the specified comment character 
   - by regex expression matching    *include/exclude* lines the match the regex expression 
+  - select columns                  choose to include only selected columns in the order specified 
   - regex replace value in column   replace a field in a column using a regex substitution (good for date reformatting)
   - prepend a line number column    each line has the ordinal value of the line read by this filter as the first column
   - append a line number column     each line has the ordinal value of the line read by this filter as the last column
@@ -541,18 +554,19 @@ See: http://www.sqlite.org/lang_datefunc.html
         Filter 1 - by regex expression matching [include]: '^\d+' (include lines that start with a number) 
         Filter 2 - append a line number column:
         Filter 3 - regex replace value in column[4]: '(\d+)/(\d+)/(\d+)' '19\3-\2-\1' (convert dates to sqlite format) 
+        Filter 4 - select columns 7,2,3,4,1
 
       Table: People
-      Columns: Pets,FirstName,LastName,DOB,,,id
+      Columns: id,FirstName,LastName,DOB,Pets
 
-      ====  =========  ========   ==========  ==
-      Pets  FirstName  LastName   DOB         id
-      ====  =========  ========   ==========  ==
-      2     Paula      Brown      1978-05-24  1
-      1     Steven     Jones      1974-04-04  2
-      0     Jane       Doe        1978-05-24  3
-      1     James      Smith      1980-10-20  4
-      ====  =========  ========   ==========  ==
+      ==  =========  ========   ==========  ====
+      id  FirstName  LastName   DOB         Pets
+      ==  =========  ========   ==========  ====
+      1     Paula      Brown    1978-05-24  2
+      2     Steven     Jones    1974-04-04  1
+      3     Jane       Doe      1978-05-24  0
+      4     James      Smith    1980-10-20  1
+      ==  =========  ========   ==========  ====
 
 
     *Pet Table*
@@ -563,18 +577,19 @@ See: http://www.sqlite.org/lang_datefunc.html
         Filter 2 - append a line number column:
         Filter 3 - by regex expression matching [exclude]: '^0\t' (exclude lines with no pets)
         Filter 4 - normalize list columns[5,6]:
+        Filter 5 - select columns 7,5,6
 
       Table: Pet
-      Columns: ,,,,PetName,PetType,id
+      Columns: id,PetName,PetType
 
-      ========  ========  ==
-      PetName   PetType   id
-      ========  ========  ==
-      Rex       dog       1
-      Fluff     cat       1
-      Allie     cat       2
-      Spot                4
-      ========  ========  ==
+      ==  ========  ========
+      id  PetName   PetType 
+      ==  ========  ========
+      1   Rex       dog     
+      1   Fluff     cat     
+      2   Allie     cat     
+      4   Spot              
+      ==  ========  ========
 
 
     Query: SELECT FirstName,LastName,PetName FROM People join Pet on People.id = Pet.id WHERE PetType = 'cat';     

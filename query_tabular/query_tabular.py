@@ -79,6 +79,9 @@ class LineFilter( object ):
                 self.func = lambda i,l: l if not rgx.search(l) else None
             elif filter_dict['action'] == 'include_find':
                 self.func = lambda i,l: l if rgx.search(l) else None
+        elif filter_dict['filter'] == 'select_columns':
+            cols = [int(c) - 1 for c in filter_dict['columns']]
+            self.func = lambda i,l: self.select_columns(l,cols)
         elif filter_dict['filter'] == 'replace':
             p = filter_dict['pattern']
             r = filter_dict['replace']
@@ -97,6 +100,9 @@ class LineFilter( object ):
             self.func = lambda i,l: self.normalize(l,cols,sep)
     def __iter__(self):
         return self
+    def select_columns(self,line,cols):
+        fields = line.split('\t')
+        return '\t'.join([fields[x] for x in cols])
     def normalize(self,line,split_cols,sep):
         lines = []
         fields = line.rstrip('\r\n').split('\t')
@@ -309,6 +315,17 @@ def __main__():
     parser.add_option('-o', '--output', dest='output', default=None, help='Output file for query results')
     (options, args) = parser.parse_args()
 
+    def run_query(query,outputFile):
+        conn = get_connection(options.sqlitedb, addfunctions=True)
+        cur = conn.cursor()
+        results = cur.execute(query)
+        if not options.no_header:
+            outputFile.write("#%s\n" % '\t'.join([str(col[0]) for col in cur.description]))
+            # yield [col[0] for col in cur.description]
+        for i, row in enumerate(results):
+            # yield [val for val in row]
+            outputFile.write("%s\n" % '\t'.join([str(val) if val is not None else '' for val in row]))
+
     # open sqlite connection
     conn = get_connection(options.sqlitedb)
     # determine output destination
@@ -394,15 +411,7 @@ def __main__():
     #    print >> sys.stderr, "Error: Must be a read only query"
     #    exit(2)
     try:
-        conn = get_connection(options.sqlitedb, addfunctions=True)
-        cur = conn.cursor()
-        results = cur.execute(query)
-        if not options.no_header:
-            outputFile.write("#%s\n" % '\t'.join([str(col[0]) for col in cur.description]))
-            # yield [col[0] for col in cur.description]
-        for i, row in enumerate(results):
-            # yield [val for val in row]
-            outputFile.write("%s\n" % '\t'.join([str(val) if val is not None else '' for val in row]))
+        run_query(query,outputFile)
     except Exception, exc:
         print >> sys.stderr, "Error: %s" % exc
         exit(1)
