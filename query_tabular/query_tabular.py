@@ -91,6 +91,12 @@ class LineFilter( object ):
             self.func = lambda i,l: '%d\t%s' % (i,l) 
         elif filter_dict['filter'] == 'append_line_num':
             self.func = lambda i,l: '%s\t%d' % (l.rstrip('\r\n'),i) 
+        elif filter_dict['filter'] == 'prepend_text':
+            s = filter_dict['column_text']
+            self.func = lambda i,l: '%s\t%s' % (s,l) 
+        elif filter_dict['filter'] == 'append_text':
+            s = filter_dict['column_text']
+            self.func = lambda i,l: '%s\t%s' % (l.rstrip('\r\n'),s) 
         elif filter_dict['filter'] == 'skip':
             cnt = filter_dict['count']
             self.func = lambda i,l: l if i > cnt else None
