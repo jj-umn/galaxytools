@@ -1,4 +1,4 @@
-<tool id="query_tabular" name="Query Tabular" version="5.0.0">
+<tool id="query_tabular" name="Query Tabular" version="1.0.0">
     <description>using sqlite sql</description>
 
     <macros>
@@ -7,29 +7,27 @@
 
     <requirements>
     </requirements>
-    <stdio>
-        <exit_code range="1:" />
-    </stdio>
-    <command><![CDATA[
-        cat $query_file &&
+
+    <command detect_errors="exit_code"><![CDATA[
+        cat '$query_file' &&
         #if $add_to_database.withdb: 
             #if $save_db:
-                cp "$add_to_database.withdb" "$sqlitedb" &&
+                cp '$add_to_database.withdb' '$sqlitedb' &&
             #else:
-                cp "$add_to_database.withdb" "$workdb" &&
+                cp '$add_to_database.withdb' '$workdb' &&
             #end if 
         #end if
-        python $__tool_directory__/query_tabular.py 
+        python '$__tool_directory__/query_tabular.py'
         #if $save_db
-        -s "$sqlitedb"
+        -s '$sqlitedb'
         #else
-        -s $workdb
+        -s '$workdb'
         #end if
-        -j $table_json
+        -j '$table_json'
         #if $sqlquery:
-          -Q "$query_file" 
+          -Q '$query_file' 
           $no_header
-          -o $output
+          -o '$output'
         #end if
     ]]></command>
     <configfiles>
@@ -145,17 +143,36 @@ $sqlquery
         </data>
     </outputs>
     <tests>
-
         <test>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="customers.tsv"/>
-                <param name="table_name" value="customers"/>
-                <param name="col_names" value="CustomerID,FirstName,LastName,Email,DOB,Phone"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="customers"/>
+                    <param name="col_names" value="CustomerID,FirstName,LastName,Email,DOB,Phone"/>
+                </section>
             </repeat>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="sales.tsv"/>
-                <param name="table_name" value="sales"/>
-                <param name="col_names" value="CustomerID,Date,SaleAmount"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="sales"/>
+                    <param name="col_names" value="CustomerID,Date,SaleAmount"/>
+                </section>
             </repeat>
             <param name="sqlquery" value="SELECT FirstName,LastName,sum(SaleAmount) as &quot;TotalSales&quot; FROM customers join sales on customers.CustomerID = sales.CustomerID GROUP BY customers.CustomerID ORDER BY TotalSales DESC"/>
             <output name="output" file="sales_results.tsv"/>
@@ -164,10 +181,28 @@ $sqlquery
         <test>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="customers.tsv"/>
-                <param name="col_names" value=",FirstName,LastName,,DOB,"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="col_names" value=",FirstName,LastName,,DOB,"/>
+                </section>
             </repeat>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="sales.tsv"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="skip"/>
+                            <param name="skip_lines" value="1"/>
+                        </conditional>
+                    </repeat>
+                </section>
             </repeat>
             <param name="sqlquery" value="SELECT FirstName,LastName,sum(t2.c3) as &quot;TotalSales&quot; FROM t1 join t2 on t1.c1 = t2.c1 GROUP BY t1.c1 ORDER BY TotalSales DESC;"/>
             <output name="output" file="sales_results.tsv"/>
@@ -176,7 +211,17 @@ $sqlquery
         <test>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="customers.tsv"/>
-                <param name="col_names" value=",FirstName,LastName,,BirthDate,"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="skip"/>
+                            <param name="skip_lines" value="1"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="col_names" value=",FirstName,LastName,,BirthDate,"/>
+                </section>
             </repeat>
             <param name="sqlquery" value="select FirstName,LastName,re_sub('^\d{2}(\d{2})-(\d\d)-(\d\d)','\3/\2/\1',BirthDate) as &quot;DOB&quot; from t1 WHERE re_search('[hp]er',c4)"/>
             <output name="output" file="regex_results.tsv"/>
@@ -185,62 +230,162 @@ $sqlquery
         <test>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="IEDB.tsv"/>
-                <param name="table_name" value="iedb"/>
-                <param name="col_names" value="ID,allele,seq_num,start,end,length,peptide,method,percentile_rank,ann_ic50,ann_rank,smm_ic50,smm_rank,comblib_sidney2008_score,comblib_sidney2008_rank,netmhcpan_ic50,netmhcpan_rank"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="iedb"/>
+                    <param name="col_names" value="ID,allele,seq_num,start,end,length,peptide,method,percentile_rank,ann_ic50,ann_rank,smm_ic50,smm_rank,comblib_sidney2008_score,comblib_sidney2008_rank,netmhcpan_ic50,netmhcpan_rank"/>
+                </section>
             </repeat>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="netMHC_summary.tsv"/>
-                <param name="table_name" value="mhc_summary"/>
-                <param name="col_names" value="pos,peptide,logscore,affinity,Bind_Level,Protein,Allele"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="skip"/>
+                            <param name="skip_lines" value="1"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="mhc_summary"/>
+                    <param name="col_names" value="pos,peptide,logscore,affinity,Bind_Level,Protein,Allele"/>
+                </section>
             </repeat>
-            <param name="sqlquery" value="select iedb.ID,iedb.peptide,iedb.start,iedb.end,iedb.percentile_rank,mhc_summary.logscore,mhc_summary.affinity,mhc_summary.Bind_Level from iedb left outer join mhc_summary on iedb.peptide = mhc_summary.peptide order by affinity,Bind_Level"/>
+            <param name="sqlquery" value="select iedb.ID,iedb.peptide,iedb.start,iedb.end,iedb.percentile_rank,mhc_summary.logscore,mhc_summary.affinity,mhc_summary.Bind_Level from iedb left outer join mhc_summary on iedb.peptide = mhc_summary.peptide order by affinity,Bind_Level,percentile_rank"/>
             <output name="output" file="query_results.tsv"/>
+        </test>
+
+        <test>
+            <section name="add_to_database">
+                <param name="withdb" ftype="sqlite" value="testdb.sqlite"/>
+            </section>
+            <repeat name="tables">
+                <param name="table" ftype="tabular" value="pets.tsv"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="regex"/>
+                            <param name="regex_pattern" value="^\d+"/>
+                            <param name="regex_action" value="include_find"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="append_line_num"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="select_columns"/>
+                            <param name="columns" value="7,2,3,4,1"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="replace"/>
+                            <param name="column" value="c4"/>
+                            <param name="regex_pattern" value="(\d+)/(\d+)/(\d+)"/>
+                            <param name="regex_replace" value="19\3-\2-\1"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="people"/>
+                    <param name="col_names" value="id,first,last,dob,pets"/>
+                </section>
+            </repeat>
+            <param name="sqlquery" value="SELECT people.id,first,last,pets,quote FROM people JOIN contacts ON people.first = contacts.first_name"/>
+            <output name="output" file="add_to_db_results.tsv"/>
         </test>
 
         <test>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="pets.tsv"/>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="comment"/>
-                    <param name="comment_char" value="35"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="append_line_num"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="select_columns"/>
-                    <param name="columns" value="7,2,3,4,1"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="replace"/>
-                    <param name="column" value="c4"/>
-                    <param name="regex_pattern" value="(\d+)/(\d+)/(\d+)"/>
-                    <param name="regex_replace" value="19\3-\2-\1"/>
-                </repeat>
-                <param name="table_name" value="people"/>
-                <param name="col_names" value="id,first,last,dob,pets"/>
-
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="regex"/>
+                            <param name="regex_pattern" value="^\d+"/>
+                            <param name="regex_action" value="include_find"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="comment"/>
+                            <param name="comment_char" value="35"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="append_line_num"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="select_columns"/>
+                            <param name="columns" value="7,2,3,4,1"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="replace"/>
+                            <param name="column" value="c4"/>
+                            <param name="regex_pattern" value="(\d+)/(\d+)/(\d+)"/>
+                            <param name="regex_replace" value="19\3-\2-\1"/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="people"/>
+                    <param name="col_names" value="id,first,last,dob,pets"/>
+                </section>
             </repeat>
             <repeat name="tables">
                 <param name="table" ftype="tabular" value="pets.tsv"/>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="comment"/>
-                    <param name="comment_char" value="35"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="append_line_num"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="select_columns"/>
-                    <param name="columns" value="c7,c5,c6"/>
-                </repeat>
-                <repeat name="linefilters">
-                    <param name="filter_type" value="normalize"/>
-                    <param name="columns" value="c2,c3"/>
-                    <param name="separator" value=","/>
-                </repeat>
-                <param name="table_name" value="pet"/>
-                <param name="col_names" value="id,name,animal"/>
+                <section name="input_opts">
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="regex"/>
+                            <param name="regex_pattern" value="^\d+"/>
+                            <param name="regex_action" value="include_find"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="append_line_num"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="select_columns"/>
+                            <param name="columns" value="c7,c5,c6"/>
+                        </conditional>
+                    </repeat>
+                    <repeat name="linefilters">
+                        <conditional name="filter">
+                            <param name="filter_type" value="normalize"/>
+                            <param name="columns" value="c2,c3"/>
+                            <param name="separator" value=","/>
+                        </conditional>
+                    </repeat>
+                </section>
+                <section name="tbl_opts">
+                    <param name="table_name" value="pet"/>
+                    <param name="col_names" value="id,name,animal"/>
+                </section>
             </repeat>
             <param name="sqlquery" value="SELECT people.id,first,last,dob,name,animal,pets FROM people JOIN pet ON people.id = pet.id WHERE animal = 'cat'"/>
             <output name="output" file="pet_normalized_query_results.tsv"/>
