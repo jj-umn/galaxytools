@@ -1,0 +1,12 @@
+categories:
+- Text Manipulation
+description: Splits a file into a dataset collection of files
+long_description: |
+  Splits a file into a dataset collection of files with the specified number of items.
+  This can be used to process segments of a dataset in parallel in a workflow.
+  
+
+name: split_to_collection
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/split_to_collection
+type: unrestricted

@@ -1,0 +1,47 @@
+<tool id="split_tabular_to_collection" name="Split Tabular into Collection" version="0.1.0">
+    <description>by lines</description>
+    <command><![CDATA[
+        #set $width = len(str($input.dataset.metadata.data_lines))
+        #if $skip_comment_lines:
+            #set $skip = $input.dataset.metadata.comment_lines 
+        #else
+            #set $skip = 0
+        #end if 
+        #set $offset = $skip + 1
+        awk 'NR > $skip{ print \$0 > (sprintf("%s_%.${width}d","${input.name}",int((NR-${offset})/${lines})*${lines}) ) }' $input
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="tabular" label="Tabular dataset to split"/>
+        <param name="lines" type="integer" value="1000" min="1" label="Number of lines per output dataset"/>
+        <param name="skip_comment_lines" type="boolean" truevalue="yes" falsevalue="no" checked="true" 
+            label="Skip comment lines"/>
+    </inputs>
+    <outputs>
+        <collection name="output_set" type="list" label="${input.name} Split List">
+            <discover_datasets pattern="__name__" ext="tabular" visible="false"/>
+        </collection>
+    </outputs>
+    <tests>
+        <test>
+          <param name="input" value="input.tsv" ftype="tabular"/>
+          <param name="lines" value="20"/>
+          <output_collection name="output_set" type="list">
+              <element name="input.tsv_00">
+                  <assert_contents>
+                      <has_text_matching expression="20\tt\tT" />
+                  </assert_contents>
+              </element>
+              <element name="input.tsv_00">
+                  <assert_contents>
+                      <has_text_matching expression="21\tu\tU" />
+                  </assert_contents>
+              </element>
+          </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+    Splits a tabular dataset into multiple datsets in a dataset collection.  
+    This can be used in a workflow to process datasets in the collection in parallel.
+
+    ]]></help>
+</tool>
