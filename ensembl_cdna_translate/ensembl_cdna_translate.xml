@@ -33,7 +33,7 @@
         #if str($output_choice).find('translation') >= 0:
           | python '$__tool_directory__/ensembl_cdna_translate.py' -i '-' 
             #if $input and str($output_choice).find('transcript_bed') >= 0:
-                --transcripts '$transcript_bed
+                --transcripts '$transcript_bed'
             #end if
             #if str($output_choice).find('translation_bed') >= 0: 
                 --bed '$translation_bed'

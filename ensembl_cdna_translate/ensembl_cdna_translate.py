@@ -29,7 +29,7 @@ max_region = 5000000
 
 
 def ensembl_rest(ext, headers):
-    if True: print >> sys.stderr, "%s" % ext
+    # if True: print >> sys.stderr, "%s" % ext
     r = requests.get(server+ext, headers=headers)
     if r.status_code == 429:
         print >> sys.stderr, "response headers: %s\n" % r.headers
