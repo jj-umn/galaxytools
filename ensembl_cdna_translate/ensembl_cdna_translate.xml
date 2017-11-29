@@ -32,7 +32,7 @@
         #end if
         #if str($output_choice).find('translation') >= 0:
           | python '$__tool_directory__/ensembl_cdna_translate.py' -i '-' 
-            --min_length = $min_length
+            --min_length $min_length
             #if $enzyme:
                 --enzyme '$enzyme'
             #end if
