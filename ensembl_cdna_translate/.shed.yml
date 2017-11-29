@@ -1,0 +1,8 @@
+categories: [Proteomics]
+description: Three-frame translations of Ensembl cDNAs
+homepage_url: https://github.com/Ensembl/ensembl-rest/wiki
+long_description: Retrieves data from the Ensembl REST API to generate three-frame
+  translations of cDNAs.
+name: ensembl_cdna_translate
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/ensembl_cdna_translate
