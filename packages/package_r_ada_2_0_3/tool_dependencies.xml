@@ -10,8 +10,8 @@
                     <repository name="package_r_3_1_2" owner="iuc">
                         <package name="R" version="3.1.2" />
                     </repository>
-                    <package>https://github.com/jj-umn/download_store/blob/master/cran/rpart_4.1-10.tar.gz</package>
-                    <package>https://github.com/jj-umn/download_store/blob/master/cran/ada_2.0-3.tar.gz</package>
+                    <package>https://github.com/jj-umn/download_store/raw/master/cran/rpart_4.1-10.tar.gz</package>
+                    <package>https://github.com/jj-umn/download_store/raw/master/cran/ada_2.0-3.tar.gz</package>
                 </action>
             </actions>
         </install>
