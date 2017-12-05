@@ -10,6 +10,6 @@ long_description: |
 
   https://cran.r-project.org/web/packages/ada/index.html
 name: package_r_ada_2_0_3
-owner: jj
+owner: jjohnson
 remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/packages/package_r_ada_2_0_3
 type: tool_dependency_definition
