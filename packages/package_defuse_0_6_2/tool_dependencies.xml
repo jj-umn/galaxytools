@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="boost" version="1.53.0">
-        <repository name="package_boost_1_53" owner="iuc" prior_installation_required="True" />
+    <package name="boost" version="1.55.0">
+        <repository name="package_boost_1_55" owner="iuc" prior_installation_required="True" />
     </package>
     <package name="defuse" version="0.6.2">
         <install version="1.0">
