@@ -10,8 +10,8 @@
                 <action type="shell_command">git reset --hard 5c13b80f62bcbb8ac4b7d517488be0986b080723</action>
                 <!-- populate the environment variables from the dependent repos -->
                 <action type="set_environment_for_install">
-                    <repository name="package_boost_1_53" owner="iuc" >
-                        <package name="boost" version="1.53.0" />
+                    <repository name="package_boost_1_55" owner="iuc" >
+                        <package name="boost" version="1.55.0" />
                     </repository>
                 </action>
                 <action type="shell_command">export CPLUS_INCLUDE_PATH=$BOOST_ROOT_DIR/include:$CPLUS_INCLUDE_PATH &amp;&amp; cd tools &amp;&amp; make</action>
