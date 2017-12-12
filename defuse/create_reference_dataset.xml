@@ -190,6 +190,7 @@ blat_bin = __BLAT_BIN__
 fatotwobit_bin = __FATOTWOBIT_BIN__
 gmap_bin = __GMAP_BIN__
 gmap_setup_bin = __GMAP_SETUP_BIN__
+gmap_build_bin = __GMAP_BUILD_BIN__
 r_bin = __R_BIN__
 rscript_bin = __RSCRIPT_BIN__
 
@@ -259,6 +260,7 @@ if `grep __BLAT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BLAT_BIN=`whi
 if `grep __FATOTWOBIT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} FATOTWOBIT_BIN=`which faToTwoBit`;then sed -i'.tmp' "s#__FATOTWOBIT_BIN__#\${FATOTWOBIT_BIN}#" $defuse_config; fi
 if `grep __GMAP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BIN=`which gmap`;then sed -i'.tmp' "s#__GMAP_BIN__#\${GMAP_BIN}#" $defuse_config; fi
 if `grep __GMAP_SETUP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_SETUP_BIN=`which gmap_setup`;then sed -i'.tmp' "s#__GMAP_SETUP_BIN__#\${GMAP_SETUP_BIN}#" $defuse_config; fi
+if `grep __GMAP_BUILD_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BUILD_BIN=`which gmap_build`;then sed -i'.tmp' "s#__GMAP_BUILD_BIN__#\${GMAP_BUILD_BIN}#" $defuse_config; fi
 if `grep __GMAP_INDEX_DIR__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_INDEX_DIR=`pwd`/gmap;then sed -i'.tmp' "s#__GMAP_INDEX_DIR__#\${GMAP_INDEX_DIR}#" $defuse_config; fi
 if `grep __R_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} R_BIN=`which R`;then sed -i'.tmp' "s#__R_BIN__#\${R_BIN}#" $defuse_config; fi
 if `grep __RSCRIPT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} RSCRIPT_BIN=`which Rscript`;then sed -i'.tmp' "s#__RSCRIPT_BIN__#\${RSCRIPT_BIN}#" $defuse_config; fi
