@@ -1,12 +1,12 @@
 <tool id="data_manager_defuse_reference" name="DeFuse Reference DataManager" version="1.6.1" tool_type="manage_data">
  <description>create a defuse reference from Ensembl and UCSC sources</description>
- <requirements>
-  <requirement type="package" version="0.6.1">defuse</requirement>
-  <requirement type="package" version="0.1.18">samtools</requirement>
-  <requirement type="package" version="1.0.0">bowtie</requirement>
-  <requirement type="package" version="2013-05-09">gmap</requirement>
-  <requirement type="package" version="latest">kent</requirement>
- </requirements>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <requirements>
+        <expand macro="defuse_requirement" />
+        <expand macro="mapping_requirements" />
+    </requirements>
  <command interpreter="python"> datamanager_create_reference.py 
     --dbkey $genome.ensembl_genome_version 
     --description "$genome.ensembl_prefix $genome.ensembl_genome_version ($genome.ucsc_genome_version)"

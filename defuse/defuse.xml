@@ -626,7 +626,8 @@ ln -s $defuse_out.dataset.extra_files_path  output_dir
 mkdir -p output_dir
 #end if
 ## run defuse.pl
-perl \${DEFUSE_PATH}/scripts/defuse.pl -name "$library_name" -c $defuse_config -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p \$GALAXY_SLOTS
+perl \${DEFUSE_PATH}/scripts/defuse.pl -name "$library_name" -c $defuse_config -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p \$GALAXY_SLOTS;
+exit_code_for_galaxy=\$?;
 ## copy primary results to output datasets
 if [ -e output_dir/log/defuse.log ]; then cp output_dir/log/defuse.log $defuse_log; fi
 ## if [ -e output_dir/results.tsv ]; then cp output_dir/results.tsv $results_tsv; fi
@@ -666,6 +667,7 @@ then
   results2html output_dir/results.filtered.tsv $fusion_reads $fusion_reads.dataset.extra_files_path
 fi
 #end if
+(exit \$exit_code_for_galaxy)
   </configfile>
  </configfiles>
 
