@@ -13,6 +13,7 @@
 """
 
 import argparse
+import re
 import sys
 from time import sleep
 
@@ -25,11 +26,11 @@ import digest
 
 server = "https://rest.ensembl.org"
 ext = "/info/assembly/homo_sapiens?"
-max_region = 5000000
+max_region = 4000000
 
 
 def ensembl_rest(ext, headers):
-    # if True: print >> sys.stderr, "%s" % ext
+    if True: print >> sys.stderr, "%s" % ext
     r = requests.get(server+ext, headers=headers)
     if r.status_code == 429:
         print >> sys.stderr, "response headers: %s\n" % r.headers
@@ -82,7 +83,7 @@ def get_toplevel(species):
     return coord_systems
 
 
-def get_transcripts_bed(species, refseq, start, length,params=None):
+def get_transcripts_bed(species, refseq, start, length, strand='', params=None):
     bed = []
     param = params if params else ''
     req_header = {"Content-Type": "text/x-bed"}
@@ -90,8 +91,8 @@ def get_transcripts_bed(species, refseq, start, length,params=None):
     if not regions or regions[-1] < length:
         regions.append(length)
     for end in regions[1:]:
-        ext = "/overlap/region/%s/%s:%d-%d?feature=transcript;%s"\
-            % (species, refseq, start, end, param)
+        ext = "/overlap/region/%s/%s:%d-%d%s?feature=transcript;%s"\
+            % (species, refseq, start, end, strand, param)
         start = end + 1
         r = ensembl_rest(ext, req_header)
         if r.text:
@@ -115,8 +116,17 @@ def get_cds(id,params=None):
     return get_seq(id, 'cds',params=params)
 
 
+def get_transcript_haplotypes(species,transcript):
+    ext = "/transcript_haplotypes/%s/%s?aligned_sequences=1" % (species,transcript)
+    req_header = {"Content-Type" : "application/json"}
+    r = ensembl_rest(ext, req_header)
+    decoded = r.json()
+
+
 def bed_from_line(line):
     fields = line.rstrip('\r\n').split('\t')
+    if len(fields) < 12:
+        return None
     (chrom, chromStart, chromEnd, name, score, strand,
      thickStart, thickEnd, itemRgb,
      blockCount, blockSizes, blockStarts) = fields[0:12]
@@ -127,6 +137,15 @@ def bed_from_line(line):
                          blockCount=blockCount,
                          blockSizes=blockSizes.rstrip(','),
                          blockStarts=blockStarts.rstrip(','))
+    if len(fields) == 20:
+        bed_entry.second_name = fields[12]
+        bed_entry.cds_start_status = fields[13]
+        bed_entry.cds_end_status = fields[14]
+        bed_entry.exon_frames = fields[15]
+        bed_entry.biotype = fields[16]
+        bed_entry.gene_name = fields[17]
+        bed_entry.second_gene_name = fields[18]
+        bed_entry.gene_type = fields[19]
     return bed_entry
 
 
@@ -157,6 +176,14 @@ class BedEntry(object):
             self.blockStarts = [int(x) for x in blockStarts]
         else:
             self.blockStarts = blockStarts
+        self.second_name = None
+        self.cds_start_status = None
+        self.cds_end_status = None
+        self.exon_frames = None
+        self.biotype = None
+        self.gene_name = None
+        self.second_gene_name = None
+        self.gene_type = None
         self.seq = None
         self.pep = None
 
@@ -246,6 +273,9 @@ def __main__():
         '-s', '--species', default='human',
         help='Ensembl Species to retrieve')
     parser.add_argument(
+        '-R', '--regions', action='append', default=[],
+        help='Restrict Ensembl retrieval to regions e.g.: X,2:20000-25000,3:100-500+')
+    parser.add_argument(
         '-B', '--biotypes', action='append', default=[],
         help='Restrict Ensembl biotypes to retrieve')
     parser.add_argument(
@@ -294,6 +324,22 @@ def __main__():
     # print >> sys.stderr, "args biotypes: %s" % biotypea
     biotypes = ';'.join(['biotype=%s' % bt.strip() for biotype in args.biotypes for bt in biotype.split(',') if  bt.strip()]) 
     # print >> sys.stderr, "biotypes: %s" % biotypes
+
+    selected_regions = dict() # chrom:(start,end)
+    region_pat = '^([^:]+)(?::(\d*)(?:-(\d+)([+-])?)?)?'
+    if args.regions:
+        for entry in args.regions:
+           if not entry:
+               continue
+           regs = [x.strip() for x in entry.split(',') if x.strip()]
+           for reg in regs:
+               m = re.match(region_pat,reg)
+               if m:
+                   (chrom,start,end,strand) = m.groups()
+                   if chrom:
+                       if chrom not in selected_regions:
+                           selected_regions[chrom] = []
+                       selected_regions[chrom].append([start,end,strand])
 
     translations = dict()  # start : end : seq
 
@@ -364,11 +410,44 @@ def __main__():
                     aa_start = aa_end + 1
         return translate_count
 
+    def translate_region(species,ref,start,stop,strand):
+        translation_count = 0
+        regions = range(start, stop, max_region)
+        if not regions or regions[-1] < stop:
+            regions.append(stop)
+        for end in regions[1:]:
+            bedlines = get_transcripts_bed(species, ref, start, end, strand=strand, params=biotypes)
+            if args.verbose or args.debug:
+                print >> sys.stderr,\
+                    "%s\t%s\tstart: %d\tend: %d\tcDNA transcripts:%d"\
+                    % (species, ref, start, end, len(bedlines))
+            # start, end, seq
+            for i, bedline in enumerate(bedlines):
+                try:
+                    bed = bed_from_line(bedline)\
+                        if any([not args.raw, fa_wtr, bed_wtr])\
+                        else None
+                    if tx_wtr:
+                        tx_wtr.write(bedline if args.raw else str(bed))
+                        tx_wtr.write("\n")
+                        tx_wtr.flush()
+                    if bed:
+                        translation_count += translate_bed(bed)
+                except Exception as e:
+                    print >> sys.stderr,\
+                        "BED error (%s) : %s\n" % (e, bedline)
+            start = end + 1
+        return translation_count
+
     if input_rdr:
         translation_count = 0
         for i, bedline in enumerate(input_rdr):
             try:
                 bed = bed_from_line(bedline)
+                if bed is None:
+                    continue
+                if bed.biotype and biotypea and bed.biotype not in biotypea:
+                    continue
                 translation_count += translate_bed(bed)
             except:
                 print >> sys.stderr, "BED format error: %s\n" % bedline
@@ -378,48 +457,38 @@ def __main__():
     else:
         coord_systems = get_toplevel(species)
         if 'chromosome' in coord_systems:
+            ref_lengths = dict()
             for ref in sorted(coord_systems['chromosome'].keys()):
                 length = coord_systems['chromosome'][ref]
+                ref_lengths[ref] = length
                 if not any([tx_wtr, fa_wtr, bed_wtr]):
                     print >> sys.stderr,\
                         "%s\t%s\tlength: %d" % (species, ref, length)
-                    continue
-                if args.debug:
-                    print >> sys.stderr,\
-                        "Retrieving transcripts: %s\t%s\tlength: %d"\
-                        % (species, ref, length)
+            if selected_regions:
                 translation_count = 0
+                for ref in sorted(selected_regions.keys()):
+                    if ref in ref_lengths:
+                        for reg in selected_regions[ref]:
+                            (_start,_stop,_strand) = reg
+                            start = int(_start) if _start else 0
+                            stop = int(_stop) if _stop else ref_lengths[ref]
+                            strand = '' if not _strand else ':1' if _strand == '+' else  ':-1'
+                            translation_count += translate_region(species,ref,start,stop,strand)
+            else:
+                strand = ''
                 start = 0
-                regions = range(start, length, max_region)
-                if not regions or regions[-1] < length:
-                    regions.append(length)
-                for end in regions[1:]:
-                    bedlines = get_transcripts_bed(species, ref, start, end, params=biotypes)
-                    if args.verbose or args.debug:
+                for ref in sorted(ref_lengths.keys()):
+                    length = ref_lengths[ref]
+                    translation_count = 0
+                    if args.debug:
                         print >> sys.stderr,\
-                            "%s\t%s\tstart: %d\tend: %d\tcDNA transcripts:%d"\
-                            % (species, ref, start, end, len(bedlines))
-                    # start, end, seq
-                    for i, bedline in enumerate(bedlines):
-                        try:
-                            bed = bed_from_line(bedline)\
-                                if any([not args.raw, fa_wtr, bed_wtr])\
-                                else None
-                            if tx_wtr:
-                                tx_wtr.write(bedline if args.raw else str(bed))
-                                tx_wtr.write("\n")
-                                tx_wtr.flush()
-                            if bed:
-                                translation_count += translate_bed(bed)
-                        except Exception as e:
-                            print >> sys.stderr,\
-                                "BED error (%s) : %s\n" % (e, bedline)
-                    start = end + 1
-
-                if args.debug or (args.verbose and any([fa_wtr, bed_wtr])):
-                    print >> sys.stderr,\
-                        "%s\t%s\tlength: %d\tcDNA translations:%d"\
-                        % (species, ref, length, translation_count)
+                            "Retrieving transcripts: %s\t%s\tlength: %d"\
+                            % (species, ref, length)
+                    translation_count += translate_region(species,ref,start,length,strand)
+                    if args.debug or (args.verbose and any([fa_wtr, bed_wtr])):
+                        print >> sys.stderr,\
+                            "%s\t%s\tlength: %d\tcDNA translations:%d"\
+                            % (species, ref, length, translation_count)
 
 
 if __name__ == "__main__":
