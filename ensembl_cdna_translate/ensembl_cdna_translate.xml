@@ -6,6 +6,7 @@
     <requirements>
         <requirement type="package" version="0.4.10">requests-cache</requirement>
         <requirement type="package" version="1.62">biopython</requirement>
+        <requirement type="package" version="3.1.4">twobitreader</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />
@@ -38,11 +39,17 @@
         #end if
         #if str($output_choice).find('translation') >= 0:
           | python '$__tool_directory__/ensembl_cdna_translate.py' -i '-' 
-            --min_length $min_length
-            #if $enzyme:
-                --enzyme '$enzyme'
+            #if $ref.ref_source == 'cached':
+                --twobit='$ref.ref_loc.fields.path'
+            #elif $ref.ref_source == 'history':
+                --twobit='$ref.ref_file'
             #end if
-            #if $input and str($output_choice).find('transcript_bed') >= 0:
+            --min_length $translations.min_length
+            #if $translations.enzyme:
+                --enzyme '$translations.enzyme'
+            #end if
+            $translations.translate_all
+            #if $features.feature_src == 'history_bed' and str($output_choice).find('transcript_bed') >= 0:
                 --transcripts '$transcript_bed'
             #end if
             #if str($output_choice).find('translation_bed') >= 0: 
@@ -51,11 +58,10 @@
             #if str($output_choice).find('translation_fasta') >= 0: 
                 --fasta '$translation_fasta'
             #end if
-            ###if $features.biotypes:
-            ##    --biotypes '$features.biotypes'
-            ###end if
+            #if $features.biotypes:
+                --biotypes '$features.biotypes'
+            #end if
         #end if
-       
     ]]></command>
     <inputs>
         <param name="species" type="text" value="" label="Ensembl species" >
@@ -87,40 +93,54 @@
                 </param>
             </when>
         </conditional>
-        <!--
-        <conditional name="translations">
+        <conditional name="ref">
+            <param name="ref_source" type="select" label="Source for Genomic Sequence Data">
+                <option value="cached">Locally cached twobit</option>
+                <option value="history">History dataset twobit</option>
+                <option value="ensembl_rest">Retrieve sequences from Ensembl (Slow and only for Ensembl Transcripts)</option>
+            </param>
+            <when value="cached">
+                <param name="ref_loc" type="select" label="Select reference 2bit file">
+                    <options from_data_table="twobit" />
+                </param>
+            </when>
+            <when value="history">
+                <param name="ref_file" type="data" format="twobit" label="reference 2bit file" />
+            </when>
+            <when value="ensembl_rest"/>
         </conditional>
-        -->
-
-
-        <param name="translate_all" type="boolean" truevalue="--all" falsevalue="" checked="false" 
-            label="Report all translations (Default is non reference protein sequences)"/>
+        <section name="translations" expanded="false" title="Translation  Options">
+            <param name="min_length" type="integer" value="10" min="1" label="Minimum length of protein translation to report"/>
+            <param name="translate_all" type="boolean" truevalue="--all" falsevalue="" checked="false" 
+                label="Report all translations (Default is non reference protein sequences)"/>
+            <param name="enzyme" type="select" optional="true" label="Digest enzyme" 
+                 help="Remove frags that are in a reference protein">
+                <option value="trypsin">trypsin:       ([KR](?=[^P]))|((?&lt;=W)K(?=P))|((?&lt;=M)R(?=P))</option>
+            </param>
+        </section>
         <param name="output_choice" type="select" multiple="true" display="checkboxes" label="Outputs">
             <option value="transcript_bed">transcripts.bed</option>
             <option value="translation_bed">translation.bed</option>
             <option value="translation_fasta">translation.fasta</option>
         </param>
-        <param name="min_length" type="integer" value="7" min="1" label="Minimum length of protein translation to report"/>
-        <param name="enzyme" type="select" optional="true" label="Digest enzyme" 
-             help="Remove frags that are in a reference protein">
-            <option value="trypsin">trypsin:       ([KR](?=[^P]))|((?&lt;=W)K(?=P))|((?&lt;=M)R(?=P))</option>
-        </param>
     </inputs>
     <outputs>
-        <data name="transcript_bed" format="bed" label="Ensembl $species transcripts.bed">
+        <data name="transcript_bed" format="bed" label="Ensembl ${species} transcripts.bed">
             <filter>'transcript_bed' in output_choice</filter>
         </data>
-        <data name="translation_bed" format="bed" label="Ensembl $species translation.bed">
+        <data name="translation_bed" format="bed" label="Ensembl ${species} translation.bed">
             <filter>'translation_bed' in output_choice</filter>
         </data>
-        <data name="translation_fasta" format="fasta" label="Ensembl $species translation.fasta">
+        <data name="translation_fasta" format="fasta" label="Ensembl ${species} translation.fasta">
             <filter>'translation_fasta' in output_choice</filter>
         </data>
     </outputs>
     <tests>
         <test>
             <param name="species" value="human"/>
+            <param name="feature_src" value="history_bed"/>
             <param name="input" value="human_transcripts.bed" ftype="bed"/>
+            <param name="ref_source" value="ensembl_rest"/>
             <param name="output_choice" value="translation_bed,translation_fasta"/>
             <output name="translation_bed">
                 <assert_contents>
