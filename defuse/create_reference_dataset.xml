@@ -1,4 +1,4 @@
-<tool id="create_defuse_reference" name="Create DeFuse Reference" version="@DEFUSE_VERSION@.1">
+<tool id="create_defuse_reference" name="Create DeFuse Reference" version="@DEFUSE_VERSION@.2">
  <description>create a defuse reference from Ensembl and UCSC sources</description>
     <macros>
         <import>macros.xml</import>

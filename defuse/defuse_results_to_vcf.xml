@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<tool id="defuse_results_to_vcf" name="Defuse Results to VCF" version="0.6.1">
+<tool id="defuse_results_to_vcf" name="Defuse Results to VCF" version="@DEFUSE_VERSION@.2">
   <description>generate a VCF from a DeFuse Results file</description>
-  <requirements>
-    <requirement type="package" version="0.6.1">defuse</requirement>
-  </requirements>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
   <command interpreter="python">defuse_results_to_vcf.py  --input $defuse_results --reference ${defuse_results.metadata.dbkey} --output $vcf
   </command>
   <inputs>

@@ -1,4 +1,4 @@
-<tool id="defuse" name="DeFuse" version="@DEFUSE_VERSION@.1">
+<tool id="defuse" name="DeFuse" version="@DEFUSE_VERSION@.2">
     <description>identify fusion transcripts</description>
     <macros>
         <import>macros.xml</import>
