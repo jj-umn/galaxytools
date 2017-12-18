@@ -15,6 +15,9 @@
     <package name="blat" version="35x1">
         <repository name="package_blat_35x1" owner="iuc" />
     </package>
+    <package name="faToTwoBit" version="35x1">
+        <repository name="package_fatotwobit_35x1" owner="iuc" />
+    </package>
     <package name="R" version="3.1.2">
         <repository name="package_r_3_1_2" owner="iuc" />
     </package>

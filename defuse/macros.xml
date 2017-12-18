@@ -8,6 +8,7 @@
             <requirement type="package" version="1.0.0">bowtie</requirement>
             <requirement type="package" version="2013-05-09">gmap</requirement>
             <requirement type="package" version="35x1">blat</requirement>
+            <requirement type="package" version="35x1">faToTwoBit</requirement>
     </xml>
     <xml name="r_requirements">
             <requirement type="package" version="3.1.2">R</requirement>

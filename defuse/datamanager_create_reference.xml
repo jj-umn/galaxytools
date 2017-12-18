@@ -112,11 +112,11 @@
     <when value="user_specified">
       <param name="ensembl_organism" type="text" value="" label="Ensembl Organism Name" help="Examples: homo_sapiens, mus_musculus, rattus_norvegicus"/>
       <param name="ensembl_prefix" type="text" value="" label="Ensembl Organism prefix" help="Examples: Homo_sapiens, Mus_musculus, Rattus_norvegicus"/>
-      <param name="ensembl_genome_version" type="text" value="" label="Ensembl Genome Version" help="Examples: GRCh37, GRCm38, Rnor_5.0"/>
-      <param name="ensembl_version" type="integer" value="" label="Ensembl Release Version" help="Example: 71"/>
+      <param name="ensembl_genome_version" type="text" value="" label="Ensembl Genome Version" help="Examples: GRCh38, GRCh37, GRCm38, Rnor_5.0"/>
+      <param name="ensembl_version" type="integer" value="" label="Ensembl Release Version" help="Example: 86"/>
       <param name="ncbi_organism" type="text" value="" label="NCBI Organism Name" help="Examples: Homo_sapiens, Mus_musculus, Rattus_norvegicus"/>
       <param name="ncbi_prefix" type="text" value="" label="NCBI Organism Unigene prefix" help="Examples: Hs, Mm, Rn"/>
-      <param name="ucsc_genome_version" type="text" value="" label="UCSC Genome Version" help="Examples: hg19, mm10, rn5"/>
+      <param name="ucsc_genome_version" type="text" value="" label="UCSC Genome Version" help="Examples: hg38, hg19, mm10, rn5"/>
       <param name="chromosomes" type="text" value="" label="Chromosomes for Ensembl genome build" >
        <help>  Examples: 
          Homo_sapiens: 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,X,Y,MT
