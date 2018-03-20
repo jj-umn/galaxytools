@@ -6,7 +6,9 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $output_list = str($output_formats).split(',')
-        mga $input $multiple_species > mga_output
+        #for $input in $inputs
+            mga ${input} $multiple_species >> mga_output
+        #end for
         #if 'tsv' in $output_list or 'bed' in $output_list:
             && python '$__tool_directory__/convert_mga.py' -v mga_output
             #if 'tsv' in $output_list
@@ -18,7 +20,7 @@
         #end if
     ]]></command>
     <inputs>
-        <param name="input" type="data" format="fasta" label="prokaryote DNA sequences"/>
+        <param name="inputs" type="data" format="fasta" multiple="true" label="prokaryote DNA sequences"/>
         <param name="multiple_species" type="boolean" truevalue="-m" falsevalue="-s" checked="true" 
                label="MetaGenomic - Sequences are from multiple organisms" />
         <param name="output_formats" type="select" multiple="true" display="checkboxes" label="output formats">
@@ -48,7 +50,7 @@
     </outputs>
     <tests>
         <test>
-            <param name="input" value="metasequences.fasta" ftype="fasta"/>
+            <param name="inputs" value="metasequences.fasta" ftype="fasta"/>
             <param name="multiple_species" value="True"/>
             <param name="output_formats" value="txt,tsv,bed"/>
             <output name="mga_txt" value="m_mga.txt"/> 
