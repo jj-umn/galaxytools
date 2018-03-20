@@ -2,6 +2,7 @@
     <description>gene-finding program for prokaryote and phage</description>
     <requirements>
         <requirement type="package">metagene_annotator</requirement>
+        <requirement type="package">python</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         mga $input $multiple_species > mga_output
