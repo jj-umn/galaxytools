@@ -1,4 +1,4 @@
-<tool id="metagene_annotator" name="MetaGeneAnnotator" version="0.1.0">
+<tool id="metagene_annotator" name="MetaGeneAnnotator" version="0.1.1">
     <description>gene-finding program for prokaryote and phage</description>
     <requirements>
         <requirement type="package">metagene_annotator</requirement>
@@ -6,8 +6,9 @@
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
         #set $output_list = str($output_formats).split(',')
-        #for $input in $inputs
-            mga ${input} $multiple_species >> mga_output
+        touch mga_output
+        #for $input in $inputs:
+            && mga ${input} $multiple_species >> mga_output
         #end for
         #if 'tsv' in $output_list or 'bed' in $output_list:
             && python '$__tool_directory__/convert_mga.py' -v mga_output
@@ -58,7 +59,13 @@
             <output name="mga_bed" value="m_mga.bed"/> 
         </test>
         <test>
-            <param name="input" value="metasequences.fasta" ftype="fasta"/>
+            <param name="inputs" value="metasequences.fasta" ftype="fasta"/>
+            <param name="multiple_species" value="False"/>
+            <param name="output_formats" value="bed"/>
+            <output name="mga_bed" value="m_mga.bed"/> 
+        </test>
+        <test>
+            <param name="inputs" value="metasequences1.fasta,metasequences2.fasta" ftype="fasta"/>
             <param name="multiple_species" value="False"/>
             <param name="output_formats" value="bed"/>
             <output name="mga_bed" value="m_mga.bed"/> 
