@@ -1,0 +1,215 @@
+<tool id="beta_plus" name="BETA-plus: Binding and Expression Target prediction and motif analysis" version="0.1.0">
+  <description>Predict the factors (TFs or CRs) direct target genes by combining the binding and expression data, then do motif analysis on target regions</description>
+  <macros>
+    <import>beta_macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <command>
+  BETA plus 
+  #include source=$common_opts#
+  #include source=$genome_opts#
+  #include source=$ref_genome_seq_opts#
+  #include source=$extended_opts#
+  --mn $motifs
+  &amp;> $log &amp;&amp;
+  mkdir -p $motifresult.extra_files_path  &amp;&amp;
+  cp BETA_OUTPUT/motifresult/betamotif.html $motifresult  &amp;&amp;
+  cp BETA_OUTPUT/motifresult/*.js $motifresult.extra_files_path &amp;&amp;
+  cp BETA_OUTPUT/motifresult/*.css $motifresult.extra_files_path &amp;&amp;
+  cp -r BETA_OUTPUT/motifresult/img $motifresult.extra_files_path
+
+  </command>
+  <inputs>
+    <expand macro="common_params" />
+    <expand macro="genome_params" />
+    <expand macro="refGenomeSourceConditional" />
+    <expand macro="extended_params" />
+    <param name="motifs" type="float" value="10" optional="true" label="Motifs to retrieve" 
+           help="a number between 0 and 1 as the p-value cutoff or an integer larger than 1 as the number of motifs">
+        <validator type="in_range" max="20000" min="0" message="A float between 0 and 1 or an integer greater than 1" />
+    </param>
+  </inputs>
+  <expand macro="stdio" />
+  <outputs>
+    <data format="txt" name="log" label="Log of BETA plus"/>
+    <data format="pdf" name="functionoutput" label="BETA functional prediction on ${peakfile.name}" from_work_dir="BETA_OUTPUT/NA_function_prediction.pdf"/>
+    <data format="tabular" name="uptargetsoutput" label="BETA direct targets prediction on up regulated genes" from_work_dir="BETA_OUTPUT/NA_uptarget.txt"/>
+    <data format="tabular" name="downtargetsoutput" label="BETA direct targets prediction on down regulated genes" from_work_dir="BETA_OUTPUT/NA_downtarget.txt"/>
+    <data format="bed" name="uptargetpeaks" label="BETA Uptarget associated peaks" from_work_dir="BETA_OUTPUT/NA_uptarget_associate_peaks.bed"/>
+    <data format="bed" name="downtargetpeaks" label="BETA Downtarget associated peaks" from_work_dir="BETA_OUTPUT/NA_downtarget_associate_peaks.bed"/>
+    <data format="txt" name="upmotifs" label="BETA Motifs in up-target regions" from_work_dir="BETA_OUTPUT/motifresult/UP_MOTIFS.txt" />
+    <data format="txt" name="up_non_motifs" label="BETA Motifs in up-target regions versus non-target regions" from_work_dir="BETA_OUTPUT/motifresult/UP_NON_MOTIFS.txt" />
+    <data format="txt" name="downmotifs" label="BETA Motifs in down-target regions" from_work_dir="BETA_OUTPUT/motifresult/DOWN_MOTIFS.txt" />
+    <data format="txt" name="down_non_motifs" label="BETA Motifs in down-target regions versus non-target regions" from_work_dir="BETA_OUTPUT/motifresult/DOWN_NON_MOTIFS.txt" />
+    <data format="txt" name="differentialmotifs" label="BETA Motifs up-target regions versus down-target regions" from_work_dir="BETA_OUTPUT/motifresult/DIFFERENTIAL_MOTIF_UP_DOWN.txt" />
+    <data format="html" name="motifresult" label="BETA Motif analysis on target regions"/>
+  </outputs>
+  <tests>
+    <test>
+      <param name='peakfile' value="peaks.bed" ftype="bed" dbkey="hg19"/>
+      <param name="distance" value="100000"/>
+      <param name="peaknumber" value="10000"/>
+      <param name="genomeName" value="hg19"/>
+      <param name='exprefile' value="diff_expr.xls" ftype="tabular" dbkey="hg19"/>
+      <param name="kind" value="LIM"/>
+      <param name="expreinfo" type="text" value="2,5,7"/>
+      <param name="gname2" value="Refseq"/>
+      <param name="diff_fdr" value="1.0"/>
+      <param name="diff_amount" value="0.5"/>
+      <param name="method" value="score"/>
+      <output name="log">
+        <assert_contents>
+            <has_text_matching expression="Finished" />
+        </assert_contents>
+      </output>
+      <output name="uptargetsoutput">
+        <assert_contents>
+            <has_text_matching expression="NM_001002231" />
+        </assert_contents>
+      </output>
+      <output name="downtargetsoutput">
+        <assert_contents>
+            <has_text_matching expression="NM_001280" />
+        </assert_contents>
+      </output>
+      <output name="differentialmotifs">
+        <assert_contents>
+            <has_text_matching expression="CDX1\tHomeodomain Family" />
+        </assert_contents>
+      </output>
+    </test>
+  </tests>
+ <help>
+** BETA plus **
+
+@EXTERNAL_DOCUMENTATION@
+
+@CITATION_SECTION@
+
+This tool annotates the given intervals and scores with genome
+features such as gene body. 
+Predicts Direct targets of TF and the active/repressive function
+prediction.  Does motif analysis at targets region as well. 
+It's the major module in CEAS package
+which is written by Hyunjin Gene Shin, published in Bioinformatics
+(pubmed id:19689956).
+
+.. class:: warningmark
+
+**NEED IMPROVEMENT**
+
+-----
+
+**Parameters**
+
+- **PEAKFILE file** contains peaks for the experiment in a bed
+  format file. Normally, it's produced by the peak calling tool. It's
+  required.
+- **EXPREFILE file** contains the differentially expressed genes in a tab 
+  delimited text file. It's required.
+- **Kind** The kind of your expression file format, LIM for LIMMA standard 
+  output with Microarray, CUF for Cuffdiffs standard output with RNA-seq, 
+  BSF for BETA specific format, and O for other formats.
+- **genome** hg19 for human and mm9 for mouse. Others, don't set this parameter.
+- **genomereference** Genome reference data with fasta format
+- **gname2** If this switch is on, gene or transcript IDs in files given 
+  through -e will be considered as official gene symbols, DEFAULT=FALSE
+- **EXPREINFO** is the columns info of the geneID, up/down status and statistcal
+  values column of your expression data,NOTE: use a comma as an connector. 
+  for example: 2,5,7 means geneID in the 2nd column, Tscore in 5th column 
+  and FDR in 7 column.
+- **REFERENCE** is the refgene info file downloaded from UCSC genome browser.
+  It is a tab delimited text file with gene annotation with refseq and gene symbol.
+  Input this file only if your genome is neither hg19 nor mm9.
+  profiling
+- **OUTPUT** to specify the output files directory
+- **bl** Whether or not to use CTCF boundary file to get the contributed peaks
+- **BOUNDARYFILE** is the file with reasonable boundaries if --bl is on and genome
+  is neither hg19 nor mm9.
+- **NAME** specify the name of the output files.
+- **DISTANCE** specify the distance wich peaks within it will be considered.
+- **DIFF_FDR** specify the differential genes by the 3rd column in file input
+  via -e, genes with less than this value will be considered as the differentially
+  changed genes.
+- **DIFF_AMOUNT** specify the differential genes the top #(DIFF_AMOUNT) ranked by
+  the 3rd column in file input via -e, genes ranked in the top # will be considered
+  as the differentially expressed genes.
+- **CUTOFF** specify a cutoff of ks-test in the function prediction part
+
+
+-----
+
+**Script parameter list of BETA plus**
+
+::
+
+  -h, --help            show this help message and exit
+  -p PEAKFILE, --peakfile PEAKFILE
+                        The bed format of peaks binding sites. (BETA support 3
+                        or 5 columns bed format, CHROM, START, END (NAME,
+                        SCORE))
+  -e EXPREFILE, --diff_expr EXPREFILE
+                        The differential expression file get from limma for
+                        MicroArray ddata and cuffdiff for RNAseq data
+  -k {LIM,CUF,BSF,O}, --kind {LIM,CUF,BSF,O}
+                        The kind of your expression file,this is required,it
+                        can be LIM, CUF, BSF, O. LIM for LIMMA standard
+                        format. CUF for CUFDIFF standard format, BSF for BETA
+                        specific format and O for other formats, if is 'O',
+                        columns infor required via --info
+  -g {hg19,mm9}, --genome {hg19,mm9}
+                        Specify your species, hg19, mm9
+  --gs GENOMEREFERNCE	GenomeReference file with fasta format
+  --gname2              If this switch is on, gene or transcript IDs in files
+                        given through -e will be considered as official gene
+                        symbols, DEFAULT=FALSE
+  --info EXPREINFO      Specify the geneID, up/down status and statistcal
+                        values column of your expression data,NOTE: use a
+                        comma as an connector. for example: 2,5,7 means geneID
+                        in the 2nd column, Tscore in 5th column and FDR in 7
+                        column DEFAULT:2,5,7 for LIMMA; 2,10,13 for Cuffdiff
+                        and 1,2,3 for BETA specific format
+  -r REFERENCE, --reference REFERENCE
+                        The refgene info file downloaded from UCSC genome
+                        browser.input this file only if your genome is neither
+                        hg19 nor mm9
+  -o OUTPUT, --output OUTPUT
+                        The directory to store all the output files, if you
+                        don't set this, files will be output into the current
+                        directory
+  --bl                  Whether or not use CTCF boundary to filter peaks
+                        around a gene, DEFAULT=FALSE
+  --bf BOUNDARYFILE     CTCF conserved peaks bed file, use this only when you
+                        set --bl and the genome is neither hg19 nor mm9
+  --pn PEAKNUMBER       The number of peaks you want to consider,
+                        DEFAULT=10000
+  --method {score,distance}
+                        Define the method to do the TF/CR function prediction,
+                        score for regulatory potential, distance for the
+                        distance to the proximal binding peak. DEFAULT:SCORE
+  -n NAME, --name NAME  This argument is used to name the result file.If not
+                        set, the peakfile name will be used instead
+  -d DISTANCE, --distance DISTANCE
+                        Set a number which unit is 'base'. It will get peaks
+                        within this distance from gene TSS. default:100000
+                        (100kb)
+  --df DIFF_FDR         Input a number 0~1 as a threshold to pick out the most
+                        significant differential expressed genes by FDR,
+                        DEFAULT = 1, that is select all the genes
+  --da DIFF_AMOUNT      Get the most significant differential expressed genes
+                        by the percentage(0-1) or number(larger than 1)Input a
+                        number between 0-1, the rank based on fdr for example,
+                        2000, so that the script will only consider top 2000
+                        genes as the differentially expressed genes. DEFAULT =
+                        0.5, that is select top 50 percent genes of up and
+                        down seprately. NOTE: if you want to use diff_fdr,
+                        please set this parameter to 1, otherwise it will get
+                        the intersection of these two parameters
+  -c CUTOFF, --cutoff CUTOFF
+                        Input a number between 0~1 as a threshold to select
+                        the closer target gene list(up regulate or down
+                        regulate or both) with the p value was called by one
+                        side ks-test, DEFAULT = 0.001
+
+  </help>
+</tool>

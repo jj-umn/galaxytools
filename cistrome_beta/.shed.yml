@@ -1,0 +1,26 @@
+categories:
+- Sequence Analysis
+description: Cistrome BETA
+long_description: |
+
+  Binding and Expression Target Analysis (BETA) is 
+  a software package that integrates ChIP-seq of 
+  transcription factors or chromatin regulators 
+  with differential gene expression data to 
+  infer direct target genes. 
+  BETA has three functions 
+    (1) to predict whether the factor has 
+    activating or repressive function; 
+    (2) to infer the factor's target genes; 
+    (3) to identify the motif of the factor and its 
+    collaborators which might modulate the factor's 
+    activating or repressive function.
+
+  http://cistrome.org/BETA/index.html
+
+  doi: 10.1038/nprot.2013.150
+
+name: cistrome_beta
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/cistrome_beta
+type: unrestricted
