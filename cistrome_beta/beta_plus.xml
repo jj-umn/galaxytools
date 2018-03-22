@@ -1,4 +1,4 @@
-<tool id="beta_plus" name="BETA-plus: Binding and Expression Target prediction and motif analysis" version="0.1.0">
+<tool id="beta_plus" name="BETA-plus: Binding and Expression Target prediction and motif analysis" version="@VERSION@.0">
     <description>Predict the factors (TFs or CRs) direct target genes by combining the binding and expression data, then do motif analysis on target regions</description>
     <macros>
         <import>beta_macros.xml</import>

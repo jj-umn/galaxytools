@@ -1,4 +1,4 @@
-<tool id="beta_minus" name="BETA-minus: Targets prediction with binding only" version="0.1.0">
+<tool id="beta_minus" name="BETA-minus: Targets prediction with binding only" version="@VERSION@.0">
     <description>Predict the factors (TFs or CRs) direct target genes by only binding data</description>
     <macros>
         <import>beta_macros.xml</import>

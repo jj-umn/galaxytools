@@ -1,4 +1,4 @@
-<tool id="beta_basic" name="BETA-basic: Binding and Expression Target Analysis" version="0.1.0">
+<tool id="beta_basic" name="BETA-basic: Binding and Expression Target Analysis" version="@VERSION@.0">
     <description>Predict the factors (TFs or CRs) direct target genes by combining the binding and expression data</description>
     <macros>
         <import>beta_macros.xml</import>
