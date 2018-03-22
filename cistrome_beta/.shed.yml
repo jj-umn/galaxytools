@@ -1,3 +1,5 @@
+name: cistrome_beta
+owner: jjohnson
 categories:
 - Sequence Analysis
 description: Cistrome BETA
@@ -20,7 +22,6 @@ long_description: |
 
   doi: 10.1038/nprot.2013.150
 
-name: cistrome_beta
-owner: jjohnson
+homepage_url: http://cistrome.org/BETA/
 remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/cistrome_beta
 type: unrestricted
