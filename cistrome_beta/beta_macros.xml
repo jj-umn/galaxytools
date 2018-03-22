@@ -163,6 +163,9 @@
             --gname2"
         #end if
     </template>
+    <template name="write_log">
+        | tee $log | grep 'total time' > /dev/null
+    </template>
 
     <token name="@EXTERNAL_DOCUMENTATION@">
 

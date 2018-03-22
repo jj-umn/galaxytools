@@ -12,12 +12,12 @@
         #include source=$ref_genome_seq_opts#
         #include source=$extended_opts#
         --mn $motifs
-        &> $log &&
-        mkdir -p $motifresult.extra_files_path    &&
-        cp BETA_OUTPUT/motifresult/betamotif.html $motifresult    &&
-        cp BETA_OUTPUT/motifresult/*.js $motifresult.extra_files_path &&
-        cp BETA_OUTPUT/motifresult/*.css $motifresult.extra_files_path &&
-        cp -r BETA_OUTPUT/motifresult/img $motifresult.extra_files_path
+        #include source=$write_log#
+        && mkdir -p $motifresult.extra_files_path
+        && cp BETA_OUTPUT/motifresult/betamotif.html $motifresult
+        && cp BETA_OUTPUT/motifresult/*.js $motifresult.extra_files_path
+        && cp BETA_OUTPUT/motifresult/*.css $motifresult.extra_files_path
+        && cp -r BETA_OUTPUT/motifresult/img $motifresult.extra_files_path
     ]]></command>
     <inputs>
         <expand macro="common_params" />

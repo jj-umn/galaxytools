@@ -9,7 +9,7 @@
         BETA minus 
         #include source=$common_opts#
         #include source=$genome_opts#
-        &> $log
+        #include source=$write_log#
     ]]></command>
     <inputs>
         <expand macro="common_params" />

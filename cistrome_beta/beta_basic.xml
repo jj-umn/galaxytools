@@ -10,7 +10,7 @@
         #include source=$common_opts#
         #include source=$genome_opts#
         #include source=$extended_opts#
-        &> $log
+        #include source=$write_log#
     ]]></command>
     <inputs>
         <expand macro="common_params" />
@@ -45,12 +45,12 @@
             </output>
             <output name="uptargetsoutput">
                 <assert_contents>
-                    <has_text_matching expression="chr19\t4675243\t4723855\tNM_139159\t1.1.*\t-\tDPP" />
+                    <has_text_matching expression="chr19\t47990890\t48018515\tNR_038457\t4.*\t-\tNAPA" />
                 </assert_contents>
             </output>
             <output name="uptargetpeaks">
                 <assert_contents>
-                    <has_text_matching expression="chr19\t4723422\t4724314\tregion_9\tNM_139159\tDPP9\t13\t0.6.*" />
+                    <has_text_matching expression="chr19\t47950633\t47951639\tNR_038457\tNAPA\t-67379\t0.04\d+" />
                 </assert_contents>
             </output>
         </test>
