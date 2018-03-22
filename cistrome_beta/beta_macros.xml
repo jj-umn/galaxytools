@@ -1,183 +1,187 @@
 
 <macros>
-  <macro name="requirements">
-    <requirements>
-      <requirement type="package" version="1.0.7">beta</requirement>
-    </requirements>
-  </macro>
+    <macro name="requirements">
+        <requirements>
+            <requirement type="package" version="1.0.7">beta</requirement>
+        </requirements>
+    </macro>
 
-  <macro name="stdio">
-    <stdio>
-        <exit_code range=":-1"  level="fatal" description="Error: Cannot open file" />
-        <exit_code range="1:"  level="fatal" description="Error" />
-    </stdio>
-  </macro>
+    <macro name="stdio">
+        <stdio>
+                <exit_code range=":-1"    level="fatal" description="Error: Cannot open file" />
+                <exit_code range="1:"    level="fatal" description="Error" />
+        </stdio>
+    </macro>
 
-  <macro name="common_params">
-    <param format="bed" name="peakfile" type="data" label="BED file for Peaks">
-      <validator type="unspecified_build" />
-    </param>
-    <param name="output_dir" type="hidden" label="Name for the output files" value="BETA_OUTPUT"/>
-    <param name="name" type="hidden" label="Name for the output files" value="NA"/>
-    <param name="distance" type="integer" label="the distance from gene TSS within which peaks will be selected" value="100000">
-        <validator type="in_range" max="20000000" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 20000000" />
-    </param>
-    <param name="peaknumber" type="integer" label="Peaks considered to contribute to the genes" value="10000">
-        <validator type="in_range" max="200000" min="100" message="The Relative distance is out of range, the parameter has to be between 100 to 10000" />
-    </param>
-  </macro>
+    <macro name="common_params">
+        <param format="bed" name="peakfile" type="data" label="BED file for Peaks">
+            <validator type="unspecified_build" />
+        </param>
+        <param name="output_dir" type="hidden" label="Name for the output files" value="BETA_OUTPUT"/>
+        <param name="name" type="hidden" label="Name for the output files" value="NA"/>
+        <param name="distance" type="integer" label="the distance from gene TSS within which peaks will be selected" value="100000">
+            <validator type="in_range" max="20000000" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 20000000" />
+        </param>
+        <param name="peaknumber" type="integer" label="Peaks considered to contribute to the genes" value="10000">
+            <validator type="in_range" max="200000" min="100" message="The Relative distance is out of range, the parameter has to be between 100 to 10000" />
+        </param>
+    </macro>
 
-  <macro name="boundary">
+    <macro name="boundary">
         <conditional name="boundary">
-          <param name="boundaryLimit" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Use CTCF boundary to filter peaks around a gene"/>
-          <when value="no"/>
-          <when value="yes">
-            <yield />
-          </when>
+            <param name="boundaryLimit" type="boolean" truevalue="yes" falsevalue="no" checked="false" label="Use CTCF boundary to filter peaks around a gene"/>
+            <when value="no"/>
+            <when value="yes">
+                <yield />
+            </when>
         </conditional>
-  </macro>
+    </macro>
 
-  <macro name="genome_params">
-    <conditional name="refGenome">
-      <param name="genomeName" type="select" label="genome reference">
-        <option value="hg19">hg19 (built-in)</option>
-        <option value="mm9">mm9 (built-in)</option>
-        <option value="other">other</option>
-      </param>
-      <when value="hg19">
-        <expand macro="boundary" />
-      </when>
-      <when value="mm9">
-        <expand macro="boundary" />
-      </when>
-      <when value="other">
-        <param name="refseq" type="data" format="tabular" label="UCSC Refseq Genes (From UCSC Table Browser)"
-         help="Columns: name,chrom,strand,txStart,txEnd,name"/>
-        <expand macro="boundary">
-            <param name="bl_bed" type="data" format="bed" label="BED format boundary file"/>
-        </expand>
-      </when>
-    </conditional>
-  </macro>
-
-  <macro name="refGenomeSourceConditional">
-    <conditional name="refGenomeSource">
-      <param name="genomeSource" type="select" label="Use a built in reference genome or own from your history" help="Genome Reference Fasta sequence">
-        <option value="cached" selected="True">Use a built-in genome</option>
-        <option value="history">Use a genome from history</option>
-      </param>
-      <when value="cached">
-        <param name="all_fasta_source" type="select" label="Source FASTA Sequence">
-            <options from_data_table="all_fasta"/>
-        </param>
-      </when>
-      <when value="history">
-        <param name="ownFile" type="data" format="fasta" metadata_name="dbkey" label="Select the reference genome" />
-      </when>  <!-- history -->
-    </conditional>  <!-- refGenomeSource -->
-  </macro>
-
-  <macro name="extended_params">
-    <param format="txt" name="exprefile" type="data" label="TEXT file for differential expression data">
-        <validator type="unspecified_build" />
-    </param>
-    <conditional name="expression">
-        <param name="kind" type="select" label="Expression FIle Type" help="Preset columns for Cuffdiff, LIMMA, and BETA Specific Format">
-            <option value="CUF">RNA-seq data with Cuffdiff default format</option>
-            <option value="LIM">MicroArray data with LIMMA default format</option>
-            <option value="BSF">BETA Specific Format</option>
-            <option value="O">Other tools processed data with BETA specific format</option>
-        </param>
-        <when value="CUF">
-            <param name="expreinfo" type="text" value="2,10,13" label="Column number of the geneid, regulate status and statistics value"/>
-        </when>
-        <when value="LIM">
-            <param name="expreinfo" type="text" value="2,5,7" label="Column number of the geneid, regulate status and statistics value"/>
-        </when>
-        <when value="BSF">
-            <param name="expreinfo" type="text" value="1,2,3" label="Column number of the geneid, regulate status and statistics value"/>
-        </when>
-        <when value="O">
-            <param name="expreinfo" type="text" value="" label="Column number of the geneid, regulate status and statistics value is required">
-                <validator type="regex" message="Enter column numbers:geneid,test_stat,value">^\d+,\d+,\d+$</validator>
+    <macro name="genome_params">
+        <conditional name="refGenome">
+            <param name="genomeName" type="select" label="genome reference">
+                <option value="hg19">hg19 (built-in)</option>
+                <option value="mm9">mm9 (built-in)</option>
+                <option value="other">other</option>
             </param>
-        </when>
-    </conditional>
-    <param name="gname2" type="select" label="TRUE if gene ID in expression file identified by official gene symbol">
-        <option value="Refseq">Refseq</option>
-        <option value="Gene_Symbol">Gene Symbol</option>
-    </param>
-    <param name="diff_fdr" type="float" label="get the most significant expression differentially changed genes by this cutoff based on fdr or pvalue" value="1.0">
-        <validator type="in_range" max="1.0" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 1.0" />
-    </param>
-    <param name="diff_amount" type="float" label="get the most significant expression differentially changed genes by amount" value="0.5">
-        <validator type="in_range" max="20000" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 20000" />
-    </param>
-    <param name="method" type="select" label="method to do the TF/CR function prediction" optional="true">
-        <option value="score">regulatory potential</option>
-        <option value="distance">distance to the nearest peak</option>
-    </param>
+            <when value="hg19">
+                <expand macro="boundary" />
+            </when>
+            <when value="mm9">
+                <expand macro="boundary" />
+            </when>
+            <when value="other">
+                <param name="refseq" type="data" format="tabular" label="UCSC Refseq Genes (From UCSC Table Browser)"
+                 help="Columns: name,chrom,strand,txStart,txEnd,name"/>
+                <expand macro="boundary">
+                <param name="bl_bed" type="data" format="bed" label="BED format boundary file"/>
+                </expand>
+            </when>
+        </conditional>
+    </macro>
 
-  </macro>
+    <macro name="refGenomeSourceConditional">
+        <conditional name="refGenomeSource">
+            <param name="genomeSource" type="select" label="Use a built in reference genome or one from your history" help="Genome Reference Fasta sequence">
+                <option value="cached" selected="True">Use a built-in genome</option>
+                <option value="history">Use a genome from history</option>
+            </param>
+            <when value="cached">
+                <param name="all_fasta_source" type="select" label="Source FASTA Sequence">
+                    <options from_data_table="all_fasta"/>
+                </param>
+            </when>
+            <when value="history">
+                <param name="ownFile" type="data" format="fasta" label="Select the reference genome" />
+            </when>    <!-- history -->
+        </conditional>    <!-- refGenomeSource -->
+    </macro>
 
-  <template name="common_opts">
-  -p "$peakfile" 
-  -d $distance --pn $peaknumber -o $output_dir -n $name
-  </template>
+    <macro name="extended_params">
+        <param format="txt" name="exprefile" type="data" label="TEXT file for differential expression data">
+            <validator type="unspecified_build" />
+        </param>
+        <conditional name="expression">
+            <param name="kind" type="select" label="Expression FIle Type" help="Preset columns for Cuffdiff, LIMMA, and BETA Specific Format">
+                <option value="CUF">RNA-seq data with Cuffdiff default format</option>
+                <option value="LIM">MicroArray data with LIMMA default format</option>
+                <option value="BSF">BETA Specific Format</option>
+                <option value="O">Other tools processed data with BETA specific format</option>
+            </param>
+            <when value="CUF">
+                <param name="expreinfo" type="text" value="2,10,13" label="Column number of the geneid, regulate status and statistics value"/>
+            </when>
+            <when value="LIM">
+                <param name="expreinfo" type="text" value="2,5,7" label="Column number of the geneid, regulate status and statistics value"/>
+            </when>
+            <when value="BSF">
+                <param name="expreinfo" type="text" value="1,2,3" label="Column number of the geneid, regulate status and statistics value"/>
+            </when>
+            <when value="O">
+                <param name="expreinfo" type="text" value="" label="Column number of the geneid, regulate status and statistics value is required">
+                    <validator type="regex" message="Enter column numbers:geneid,test_stat,value">^\d+,\d+,\d+$</validator>
+                </param>
+            </when>
+        </conditional>
+        <param name="gname2" type="select" label="TRUE if gene ID in expression file identified by official gene symbol">
+            <option value="Refseq">Refseq</option>
+            <option value="Gene_Symbol">Gene Symbol</option>
+        </param>
+        <param name="diff_fdr" type="float" label="get the most significant expression differentially changed genes by this cutoff based on fdr or pvalue" value="1.0">
+            <validator type="in_range" max="1.0" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 1.0" />
+        </param>
+        <param name="diff_amount" type="float" label="get the most significant expression differentially changed genes by amount" value="0.5">
+            <validator type="in_range" max="20000" min="0" message="The Relative distance is out of range, the parameter has to be between 0 to 20000" />
+        </param>
+        <param name="method" type="select" label="method to do the TF/CR function prediction" optional="true">
+            <option value="score">regulatory potential</option>
+            <option value="distance">distance to the nearest peak</option>
+        </param>
+    </macro>
 
-  <template name="genome_opts">
-#if $refGenome.genomeName == 'hg19':
-  -g $refGenome.genomeName
-  ## -r \$BETA_LIB_PATH/BETA/references/hg19.refseq
-  #if $refGenome.boundary.boundaryLimit: 
-    --bl
-    ## --bf \$BETA_LIB_PATH/BETA/references/hg19_CTCF_bound.bed
-  #end if
-#elif $refGenome.genomeName == 'mm9':
-  -g $refGenome.genomeName
-  ## -r \$BETA_LIB_PATH/BETA/references/mm9.refseq
-  #if $refGenome.boundary.boundaryLimit: 
-    --bl
-    ## --bf \$BETA_LIB_PATH/BETA/references/mm9_CTCF_bound.bed
-  #end if
-#else
-  -r  $refGenome.refseq
-  #if $refGenome.boundary.boundaryLimit: 
-    --bl 
-    --bf $refGenome.boundary.bl_bed
-  #end if
-#end if
-  </template>
-  <template name="ref_genome_seq_opts">
-#if $refGenomeSource.genomeSource == 'cached':
-  --gs $refGenomeSource.all_fasta_source.fields.path
-#else
-  --gs $refGenomeSource.ownFile
-#end if
-  </template>
+    <template name="common_opts">
+        -p "$peakfile" 
+        -d $distance --pn $peaknumber -o $output_dir -n $name
+    </template>
 
-  <template name="extended_opts">
-  -e "$exprefile"
-  -k $expression.kind --info $expression.expreinfo --method $method
-  --da $diff_amount --df $diff_fdr -c 1
-#if $gname2 == "Gene_Symbol":
-  --gname2"
-#end if
-  </template>
+    <template name="genome_opts">
+        #if $refGenome.genomeName == 'hg19':
+            -g $refGenome.genomeName
+            ## -r \$BETA_LIB_PATH/BETA/references/hg19.refseq
+            #if $refGenome.boundary.boundaryLimit: 
+                --bl
+                ## --bf \$BETA_LIB_PATH/BETA/references/hg19_CTCF_bound.bed
+            #end if
+        #elif $refGenome.genomeName == 'mm9':
+            -g $refGenome.genomeName
+            ## -r \$BETA_LIB_PATH/BETA/references/mm9.refseq
+            #if $refGenome.boundary.boundaryLimit: 
+                --bl
+                ## --bf \$BETA_LIB_PATH/BETA/references/mm9_CTCF_bound.bed
+            #end if
+        #else
+            -r    $refGenome.refseq
+            #if $refGenome.boundary.boundaryLimit: 
+                --bl 
+                --bf $refGenome.boundary.bl_bed
+            #end if
+        #end if
+    </template>
+    <template name="ref_genome_seq_opts">
+        #if $refGenomeSource.genomeSource == 'cached':
+            --gs $refGenomeSource.all_fasta_source.fields.path
+        #else
+            --gs $refGenomeSource.ownFile
+        #end if
+    </template>
 
-  <token name="@EXTERNAL_DOCUMENTATION@">
+    <template name="extended_opts">
+        -e "$exprefile"
+        -k $expression.kind --info $expression.expreinfo --method $method
+        --da $diff_amount --df $diff_fdr -c 1
+        #if $gname2 == "Gene_Symbol":
+            --gname2"
+        #end if
+    </template>
+
+    <token name="@EXTERNAL_DOCUMENTATION@">
 
 For details about this application, please go to:
-        http://cistrome.org/BETA/index.html
+                http://cistrome.org/BETA/index.html
 
-  </token>
-  <token name="@CITATION_SECTION@">------
+    </token>
+    <token name="@CITATION_SECTION@">
 
 **Citation**
 
 For the underlying tool, please cite the following publication:
 Wang, S., Sun, H., Ma, J., Zang, C., Wang, C., Wang, J., Tang Q, Meyer CA, Zhang Y, Liu, X. S. (2013). Target analysis by integration of transcriptome and ChIP-seq data with BETA. Nature protocols, 8(12), 2502-2515. 
 PMID: 24263090
-  </token>
+    </token>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1038/nprot.2013.150</citation>
+        </citations>
+    </xml>
 </macros>
 

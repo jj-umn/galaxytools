@@ -1,49 +1,49 @@
 <tool id="beta_minus" name="BETA-minus: Targets prediction with binding only" version="0.1.0">
-  <description>Predict the factors (TFs or CRs) direct target genes by only binding data</description>
-  <macros>
-    <import>beta_macros.xml</import>
-  </macros>
-  <expand macro="requirements" />
-  <command>
-  BETA minus 
-  #include source=$common_opts#
-  #include source=$genome_opts#
-  &amp;> $log
-  </command>
-  <inputs>
-    <expand macro="common_params" />
-    <expand macro="genome_params" />
-  </inputs>
-  <expand macro="stdio" />
-  <outputs>
-    <data format="txt" name="log" label="Log of BETA minus"/>
-    <data format="tabular" name="targetsoutput" label="BETA predicted Targets" from_work_dir="BETA_OUTPUT/NA_targets.txt"/>
-    <data format="tabular" name="targetpeaks" label="BETA Target gene's associated peaks" from_work_dir="BETA_OUTPUT/NA_targets_associated_peaks.txt"/>
-  </outputs>
-  <tests>
-    <test>
-      <param name='peakfile' value="peaks.bed" ftype="bed" dbkey="hg19"/>
-      <param name="distance" value="100000"/>
-      <param name="peaknumber" value="10000"/>
-      <param name="genomeName" value="hg19"/>
-      <output name="log">
-        <assert_contents>
-            <has_text_matching expression="Finished" />
-        </assert_contents>
-      </output>
-      <output name="targetsoutput">
-        <assert_contents>
-            <has_text_matching expression="chr19\t4675243\t4723855\tNM_139159\t1.1.*\t-\tDPP" />
-        </assert_contents>
-      </output>
-      <output name="targetpeaks">
-        <assert_contents>
-            <has_text_matching expression="chr19\t4723422\t4724314\tregion_9\tNM_139159\tDPP9\t13\t0.6.*" />
-        </assert_contents>
-      </output>
-    </test>
-  </tests>
- <help>
+    <description>Predict the factors (TFs or CRs) direct target genes by only binding data</description>
+    <macros>
+        <import>beta_macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <expand macro="stdio" />
+    <command><![CDATA[
+        BETA minus 
+        #include source=$common_opts#
+        #include source=$genome_opts#
+        &> $log
+    ]]></command>
+    <inputs>
+        <expand macro="common_params" />
+        <expand macro="genome_params" />
+    </inputs>
+    <outputs>
+        <data format="txt" name="log" label="Log of BETA minus"/>
+        <data format="tabular" name="targetsoutput" label="BETA predicted Targets" from_work_dir="BETA_OUTPUT/NA_targets.txt"/>
+        <data format="tabular" name="targetpeaks" label="BETA Target gene's associated peaks" from_work_dir="BETA_OUTPUT/NA_targets_associated_peaks.txt"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name='peakfile' value="peaks.bed" ftype="bed" dbkey="hg19"/>
+            <param name="distance" value="100000"/>
+            <param name="peaknumber" value="10000"/>
+            <param name="genomeName" value="hg19"/>
+            <output name="log">
+                <assert_contents>
+                        <has_text_matching expression="Finished" />
+                </assert_contents>
+            </output>
+            <output name="targetsoutput">
+                <assert_contents>
+                        <has_text_matching expression="chr19\t4675243\t4723855\tNM_139159\t1.1.*\t-\tDPP" />
+                </assert_contents>
+            </output>
+            <output name="targetpeaks">
+                <assert_contents>
+                        <has_text_matching expression="chr19\t4723422\t4724314\tregion_9\tNM_139159\tDPP9\t13\t0.6.*" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+ <help><![CDATA[
 ** BETA minus **
 
 @EXTERNAL_DOCUMENTATION@
@@ -64,13 +64,13 @@ which is written by Hyunjin Gene Shin, published in Bioinformatics
 **Parameters**
 
 - **PEAKFILE file** contains peaks for the experiment in a bed
-  format file. Normally, it's produced by the peak calling tool. It's
-  required.
+    format file. Normally, it's produced by the peak calling tool. It's
+    required.
 - **genome** hg19 for human and mm9 for mouse. Others, don't set this parameter.
 - **REFERENCE** is the refgene info file downloaded from UCSC genome browser.
-  It is a tab delimited text file with gene annotation with refseq and gene symbol.
-  Input this file only if your genome is neither hg19 nor mm9.
-  profiling
+    It is a tab delimited text file with gene annotation with refseq and gene symbol.
+    Input this file only if your genome is neither hg19 nor mm9.
+    profiling
 - **OUTPUT** to specify the output files directory
 - **bl** Whether or not to use CTCF boundary file to get the contributed peaks
 - **NAME** specify the name of the output files.
@@ -83,29 +83,29 @@ which is written by Hyunjin Gene Shin, published in Bioinformatics
 
 ::
 
-  -h, --help            show this help message and exit
-  -p PEAKFILE, --peakfile PEAKFILE
-                        The bed format of peaks binding sites. 
-                        BETA supports 3 or 5 columns bed format: CHROM, START, END [NAME, SCORE]
-  -g {hg19,mm9}, --genome {hg19,mm9}
-                        Specify your species, {hg19, mm9}
-  -r REFERENCE, --reference REFERENCE
-                        the refgene info file downloaded from UCSC genome
-                        browser.input this file only if your genome is neither
-                        hg19 nor mm9
-  -o OUTPUT, --output OUTPUT
-                        the directory to store all the output files, if you
-                        don't set this, files will be output into the current
-                        directory
-  --bl                  whether or not use CTCF boundary to filter peaks
-                        around a gene, DEFAULT=FALSE
-  --pn PEAKNUMBER       the number of peaks you want to consider, DEFAULT=10000
-  -n NAME, --name NAME  this argument is used to name the result file.If not
-                        set, the peakfile name will be used instead
-  -d DISTANCE, --distance DISTANCE
-                        Set a number which unit is 'base'. It will get peaks
-                        within this distance from gene TSS. default:100000 (100kb)
+    -h, --help                        show this help message and exit
+    -p PEAKFILE, --peakfile PEAKFILE
+                                                The bed format of peaks binding sites. 
+                                                BETA supports 3 or 5 columns bed format: CHROM, START, END [NAME, SCORE]
+    -g {hg19,mm9}, --genome {hg19,mm9}
+                                                Specify your species, {hg19, mm9}
+    -r REFERENCE, --reference REFERENCE
+                                                the refgene info file downloaded from UCSC genome
+                                                browser.input this file only if your genome is neither
+                                                hg19 nor mm9
+    -o OUTPUT, --output OUTPUT
+                                                the directory to store all the output files, if you
+                                                don't set this, files will be output into the current
+                                                directory
+    --bl                                    whether or not use CTCF boundary to filter peaks
+                                                around a gene, DEFAULT=FALSE
+    --pn PEAKNUMBER             the number of peaks you want to consider, DEFAULT=10000
+    -n NAME, --name NAME    this argument is used to name the result file.If not
+                                                set, the peakfile name will be used instead
+    -d DISTANCE, --distance DISTANCE
+                                                Set a number which unit is 'base'. It will get peaks
+                                                within this distance from gene TSS. default:100000 (100kb)
 
-  </help>
-
+    ]]></help>
+    <expand macro="citations" />
 </tool>
