@@ -1,0 +1,13 @@
+categories:
+- Sequence Analysis
+- Data Conversion
+description: gffutils converts a gtf or gff3 to sqlite
+long_description: |
+  gffutils loads GFF3 or GTF format annotation files into a sqlite3 database, 
+  allowing much more complex manipulation of hierarchical features 
+  (e.g., genes, transcripts, and exons) than is possible with plain-text methods alone.
+name: gffutils
+owner: jjohnson
+homepage_url: https://github.com/daler/gffutils
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/gffutils
+type: unrestricted

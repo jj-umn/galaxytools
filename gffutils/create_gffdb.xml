@@ -1,0 +1,27 @@
+<tool id="create_gffdb" name="Create GFF DB for GTF or GFF3" version="0.1.0">
+    <description>gffutils sqlite db</description>
+    <requirements>
+        <requirement type="package">gffutils</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python '$__tool_directory__/create_gffdb.py' '$input' '$output'
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="gtf,gff3" label="GTF or GFF3 Annotation"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="sqlite" label="${tool.name} ${input.name}.sqlite" />
+    </outputs>
+    <tests>
+        <test>
+            <param name="input" ftype="gtf" value="GRCm38.gtf"/>
+            <output name="output" file="GRCm38.gtf.sqlite" ftype="sqlite" compare="sim_size" delta="5000" />
+        </test>
+        <test>
+            <param name="input" ftype="gff3" value="GRCm38.gff3"/>
+            <output name="output" file="GRCm38.gff3.sqlite" ftype="sqlite" compare="sim_size" delta="5000" />
+        </test>
+    </tests>
+    <help><![CDATA[
+    ]]></help>
+</tool>

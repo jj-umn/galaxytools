@@ -1,0 +1,25 @@
+##gff-version   3
+##sequence-region   1 1 195471971
+##sequence-region   10 1 130694993
+##sequence-region   11 1 122082543
+##sequence-region   12 1 120129022
+##sequence-region   13 1 120421639
+##sequence-region   14 1 124902244
+##sequence-region   15 1 104043685
+##sequence-region   16 1 98207768
+##sequence-region   17 1 94987271
+1	ensembl_havana	gene	3999557	4409241	.	-	.	ID=gene:ENSMUSG00000025900;Name=Rp1;biotype=protein_coding;description=retinitis pigmentosa 1 (human) [Source:MGI Symbol%3BAcc:MGI:1341105];gene_id=ENSMUSG00000025900;havana_gene=OTTMUSG00000049985;havana_version=3;logic_name=ensembl_havana_gene;version=11
+1	ensembl_havana	mRNA	3999557	4409241	.	-	.	ID=transcript:ENSMUST00000208660;Parent=gene:ENSMUSG00000025900;Name=Rp1-003;biotype=protein_coding;havana_transcript=OTTMUST00000145515;havana_version=1;tag=basic;transcript_id=ENSMUST00000208660;version=1
+1	ensembl_havana	aberrant_processed_transcript	4290846	4409241	.	-	.	ID=transcript:ENSMUST00000208793;Parent=gene:ENSMUSG00000025900;Name=Rp1-002;biotype=retained_intron;havana_transcript=OTTMUST00000127194;havana_version=2;transcript_id=ENSMUST00000208793;version=1
+1	ensembl_havana	mRNA	4344146	4360314	.	-	.	ID=transcript:ENSMUST00000027032;Parent=gene:ENSMUSG00000025900;Name=Rp1-001;biotype=protein_coding;ccdsid=CCDS14804.1;havana_transcript=OTTMUST00000127195;havana_version=2;tag=basic;transcript_id=ENSMUST00000027032;transcript_support_level=1;version=5
+2	ensembl_havana	gene	180024987	180035465	.	+	.	ID=gene:ENSMUSG00000039108;Name=Lsm14b;biotype=protein_coding;description=LSM family member 14B [Source:MGI Symbol%3BAcc:MGI:3040677];gene_id=ENSMUSG00000039108;havana_gene=OTTMUSG00000016234;havana_version=3;logic_name=ensembl_havana_gene;version=14
+2	ensembl_havana	mRNA	180024987	180035461	.	+	.	ID=transcript:ENSMUST00000055485;Parent=gene:ENSMUSG00000039108;Name=Lsm14b-001;biotype=protein_coding;ccdsid=CCDS17165.2;havana_transcript=OTTMUST00000038901;havana_version=2;tag=basic;transcript_id=ENSMUST00000055485;transcript_support_level=1;version=11
+2	ensembl_havana	mRNA	180026398	180035465	.	+	.	ID=transcript:ENSMUST00000058764;Parent=gene:ENSMUSG00000039108;Name=Lsm14b-002;biotype=protein_coding;havana_transcript=OTTMUST00000038902;havana_version=2;tag=basic;transcript_id=ENSMUST00000058764;transcript_support_level=1;version=5
+2	ensembl_havana	processed_transcript	180027909	180033810	.	+	.	ID=transcript:ENSMUST00000140257;Parent=gene:ENSMUSG00000039108;Name=Lsm14b-003;biotype=processed_transcript;havana_transcript=OTTMUST00000038903;havana_version=1;transcript_id=ENSMUST00000140257;transcript_support_level=5;version=1
+11	ensembl_havana	gene	4873951	4894200	.	+	.	ID=gene:ENSMUSG00000034285;Name=Nipsnap1;biotype=protein_coding;description=nipsnap homolog 1 (C. elegans) [Source:MGI Symbol%3BAcc:MGI:1278344];gene_id=ENSMUSG00000034285;havana_gene=OTTMUSG00000005074;havana_version=3;logic_name=ensembl_havana_gene;version=15
+11	ensembl_havana	mRNA	4873951	4894200	.	+	.	ID=transcript:ENSMUST00000038570;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-001;biotype=protein_coding;ccdsid=CCDS24392.1;havana_transcript=OTTMUST00000011320;havana_version=1;tag=basic;transcript_id=ENSMUST00000038570;transcript_support_level=1;version=8
+11	ensembl_havana	NMD_transcript_variant	4873999	4893617	.	+	.	ID=transcript:ENSMUST00000136552;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-002;biotype=nonsense_mediated_decay;havana_transcript=OTTMUST00000011321;havana_version=2;transcript_id=ENSMUST00000136552;transcript_support_level=1;version=7
+11	ensembl_havana	processed_transcript	4874005	4884404	.	+	.	ID=transcript:ENSMUST00000135405;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-006;biotype=processed_transcript;havana_transcript=OTTMUST00000061468;havana_version=1;transcript_id=ENSMUST00000135405;transcript_support_level=2;version=7
+11	ensembl_havana	mRNA	4883194	4889131	.	+	.	ID=transcript:ENSMUST00000139737;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-003;biotype=protein_coding;havana_transcript=OTTMUST00000011322;havana_version=2;transcript_id=ENSMUST00000139737;transcript_support_level=5;version=1
+11	ensembl_havana	processed_transcript	4883206	4889973	.	+	.	ID=transcript:ENSMUST00000149603;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-004;biotype=processed_transcript;havana_transcript=OTTMUST00000011323;havana_version=1;transcript_id=ENSMUST00000149603;transcript_support_level=3;version=7
+11	ensembl_havana	processed_transcript	4883264	4884116	.	+	.	ID=transcript:ENSMUST00000141269;Parent=gene:ENSMUSG00000034285;Name=Nipsnap1-005;biotype=processed_transcript;havana_transcript=OTTMUST00000011324;havana_version=1;transcript_id=ENSMUST00000141269;transcript_support_level=3;version=1
