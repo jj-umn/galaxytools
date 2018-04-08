@@ -1,6 +1,6 @@
 categories:
 - Sequence Analysis
-- Data Conversion
+- Convert Formats
 description: gffutils converts a gtf or gff3 to sqlite
 long_description: |
   gffutils loads GFF3 or GTF format annotation files into a sqlite3 database, 
