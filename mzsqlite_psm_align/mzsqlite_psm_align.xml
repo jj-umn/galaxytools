@@ -62,7 +62,7 @@
         </param>
     </inputs>
     <outputs>
-        <data name="prosam" format="pro.sam">
+        <data name="prosam" format="sam">
             <filter>'prosam' in output_formats</filter>
         </data>
         <data name="probam" format="pro.bam">
