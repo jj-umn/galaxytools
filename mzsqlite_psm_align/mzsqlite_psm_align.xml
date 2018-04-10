@@ -37,7 +37,7 @@
     ]]></command>
     <inputs>
         <param name="mzsqlitedb" type="data" format="mz.sqlite" label="mz.sqlite databse"/>
-        <param name="genomicdb" type="data" format="mz.sqlite" label="mz.sqlite databse"/>
+        <param name="genomicdb" type="data" format="sqlite" label="genomic mapping sqlite databse"/>
         <conditional name="ref">
             <param name="ref_source" type="select" label="Source for Genomic Sequence Data">
                 <option value="cached">Locally cached twobit</option>
