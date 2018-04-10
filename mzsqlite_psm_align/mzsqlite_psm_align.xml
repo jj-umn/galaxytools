@@ -7,6 +7,10 @@
         <requirement type="package">gffutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
+        #if $readlignments:
+            ln -s -f '${$readlignments}' 'input.bam' &&
+            ln -s -f '${$readlignments.metadata.bam_index}' 'input.bam.bai' &&
+        #end if
         python '$__tool_directory__/mzsqlite_psm_align.py'  
             #if $ref.ref_source == 'cached':
                 --twobit='$ref.ref_loc.fields.path'
@@ -17,7 +21,7 @@
                 --gffutils_file '$gffutilsdb'
             #end if
             #if $readlignments:
-                --reads_bam '$readlignments'
+                --reads_bam 'input.bam'
             #end if
             #if 'probed' in str($output_formats).split(','):
                --probed '$probed'
@@ -62,13 +66,13 @@
         </param>
     </inputs>
     <outputs>
-        <data name="prosam" format="sam">
+        <data name="prosam" format="sam" label="pro.SAM on ${on_string}">
             <filter>'prosam' in output_formats</filter>
         </data>
-        <data name="probam" format="pro.bam">
+        <data name="probam" format="bam" label="pro.Bam on ${on_string}">
             <filter>'probam' in output_formats</filter>
         </data>
-        <data name="probed" format="pro.bed">
+        <data name="probed" format="bed" label="pro.Bed on ${on_string}">
             <filter>'probed' in output_formats</filter>
         </data>
     </outputs>

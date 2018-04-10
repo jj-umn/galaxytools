@@ -409,7 +409,7 @@ def __main__():
         '-r', '--reads_bam', default=None,
         help='reads alignment bam path')
     parser.add_argument(
-        '-g', '--gffutils_file', default=None,
+        '-g', '--gffutils_sqlite', default=None,
         help='gffutils GTF sqlite DB')
     parser.add_argument(
         '-B', '--probed', default=None,
@@ -443,9 +443,9 @@ def __main__():
 
     probed = open(args.probed,'w') if args.probed else sys.stdout
     
-    gff_cursor = get_connection(args.gffutils_file).cursor() if args.gffutils_file else None
+    gff_cursor = get_connection(args.gffutils_sqlite).cursor() if args.gffutils_sqlite else None
     map_cursor = get_connection(args.genomic_mapping_sqlite).cursor()
-    mz_cursor = get_connection(args.mzsqlite_file).cursor()
+    mz_cursor = get_connection(args.mzsqlite).cursor()
 
     unmapped_accs = set()
     timings = dict()
@@ -656,7 +656,8 @@ def __main__():
                     add_time('GENOMIC_POS_QUERY',te - ts)
                 except:
                     unmapped_accs.add(acc)
-                    print('Unmapped: %s' % acc, file=sys.stderr)
+                    if args.debug:
+                        print('Unmapped: %s' % acc, file=sys.stderr)
             return len(locations)
         return -1
         
@@ -729,7 +730,8 @@ def __main__():
                     bases.append(list(set([c[i] for c in aa_codon_map[aa]])))
                 else:
                     bases.append([b for b, cnt in reversed(sorted(pileup[idx + i]['bases'].iteritems(), key=lambda (k,v): (v,k)))])
-                print('%s' % bases)
+                if args.debug:
+                    print('%s' % bases,file=sys.stderr)
             for b0 in bases[0]:
                 if b0 not in aa_na_map[aa]:
                     continue
@@ -812,7 +814,7 @@ def __main__():
     'XG' : 'A', #Peptide type
     'XU' : 'Z', #URI
     """
-    psm_cursor = get_connection(args.mzsqlite_file).cursor()
+    psm_cursor = get_connection(args.mzsqlite).cursor()
     ts = time()
     psms = psm_cursor.execute(PSM_QUERY)
     te = time()   
