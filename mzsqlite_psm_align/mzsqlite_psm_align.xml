@@ -19,13 +19,13 @@
             #if $readlignments:
                 --reads_bam '$readlignments'
             #end if
-            #if 'probed' in $output_formats:
+            #if 'probed' in str($output_formats).split(','):
                --probed '$probed'
             #end if
-            #if 'prosam' in $output_formats:
+            #if 'prosam' in str($output_formats).split(','):
                --prosam '$prosam'
             #end if
-            #if 'probam' in $output_formats:
+            #if 'probam' in str($output_formats).split(','):
                --probam '$probam'
             #end if
             #if $genomicref:
