@@ -18,7 +18,7 @@
                 --twobit='$ref.ref_file'
             #end if
             #if $gffutilsdb:
-                --gffutils_file '$gffutilsdb'
+                --gffutils_sqlite '$gffutilsdb'
             #end if
             #if $readlignments:
                 --reads_bam 'input.bam'
