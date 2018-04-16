@@ -1,13 +1,21 @@
-<tool id="create_gffdb" name="Create GFF DB for GTF or GFF3" version="0.1.0">
-    <description>gffutils sqlite db</description>
+<tool id="create_gffdb" name="Create gffutils SQLite DB" version="0.1.0">
+    <description>for GTF or GFF3</description>
     <requirements>
         <requirement type="package">gffutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__/create_gffdb.py' '$input' '$output'
+        python '$__tool_directory__/create_gffdb.py' $create_introns '$input' '$output'
     ]]></command>
     <inputs>
         <param name="input" type="data" format="gtf,gff3" label="GTF or GFF3 Annotation"/>
+        <param name="create_introns" type="boolean" truevalue="--create_introns" falsevalue="" checked="false" 
+             label="create intron features"/>
+        <param name="disable_infer_transcripts" type="boolean" truevalue="--disable_infer_transcripts" falsevalue="" checked="true" 
+             label="disable_infer_transcripts (True for Ensmbl GTF)"
+             help="Can be more than 100 times slower if this is false"/>
+        <param name="disable_infer_genes" type="boolean" truevalue="--disable_infer_genes" falsevalue="" checked="true" 
+             label="disable_infer_transcripts (True for Ensmbl GTF)"
+             help="Can be more than 100 times slower if this is false"/>
     </inputs>
     <outputs>
         <data name="output" format="sqlite" label="${tool.name} ${input.name}.sqlite" />
@@ -23,5 +31,7 @@
         </test>
     </tests>
     <help><![CDATA[
+Creates a SQLite database for a GTF or GFF3 feature file.   
+http://daler.github.io/gffutils/index.html
     ]]></help>
 </tool>
