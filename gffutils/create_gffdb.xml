@@ -4,7 +4,7 @@
         <requirement type="package">gffutils</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        python '$__tool_directory__/create_gffdb.py' $create_introns '$input' '$output'
+        python '$__tool_directory__/create_gffdb.py' $disable_infer_transcripts $disable_infer_genes $create_introns '$input' '$output'
     ]]></command>
     <inputs>
         <param name="input" type="data" format="gtf,gff3" label="GTF or GFF3 Annotation"/>
