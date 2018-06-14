@@ -152,98 +152,112 @@ def __main__():
     try:
         parse_input = parse_tabular if options.format == 'tabular' else parse_snpeff_vcf
         for tid,pos1,ref,alt,dp,freq in parse_input():
+            if options.debug: print >> sys.stderr, "%s\t%d\t%s\t%s\t%d\t%f" % (tid,pos1,ref,alt,dp,freq)
             if not tid:
                 continue
             if options.min_depth and dp is not None and dp < options.min_depth:
                 continue
             if options.min_freq and freq is not None and freq < options.min_freq:
                 continue
-            ## transcript_id, pos, ref, alt, dp, dpr
-            tx = ens_ref.get_gtf_transcript(tid)
-            if not tx:
-                continue
-            coding = ens_ref.transcript_is_coding(tid)
-            if not coding:
-                continue
-            frame_shift = len(ref) != len(alt)
-            cds = ens_ref.get_cds(tid)
-            pos0 = pos1 - 1 # zero based position
-            spos = pos0 if tx.gene.strand else pos0 + len(ref) - 1
-            alt_seq = alt if tx.gene.strand else reverse_complement(alt)
-            ref_seq = ref if tx.gene.strand else reverse_complement(ref)
-            cds_pos = ens_ref.genome_to_cds_pos(tid, spos)
-            alt_cds = cds[:cds_pos] + alt_seq + cds[cds_pos+len(ref):] if cds_pos+len(ref) < len(cds) else '' 
-            offset = 0
-            if tx.gene.strand:
-                for i in range(min(len(ref),len(alt))):
-                    if ref[i] == alt[i]:
-                        offset = i
-                    else:
-                        break
-            else:
-                for i in range(-1,-min(len(ref),len(alt)) -1,-1):
-                    if ref[i] == alt[i]:
-                        offset = i
-                    else:
-                        break
-            refpep = translate(cds[:len(cds)/3*3])
-            pep = translate(alt_cds[:len(alt_cds)/3*3])
-            peplen = len(pep)
-            aa_pos = (cds_pos + offset) / 3
-            if aa_pos >= len(pep):
-                print >> sys.stderr, "aa_pos %d >= peptide length %d : %s %d %s %s\n" % (aa_pos,len(pep),tid,pos1,ref,alt)
-                continue
-            if frame_shift:
-                #find stop_codons
-                nstops = 0
-                stop_codons = []
-                for i in range(aa_pos,peplen):
-                    if refpep[i] != pep[i]:
-                        aa_pos = i
-                        break
-                for i in range(aa_pos,peplen):
-                    if pep[i] == '*':
-                        nstops += 1
-                        stop_codons.append("%s-%s%s" % (alt_cds[i*3-1],alt_cds[i*3:i*3+3],"-%s" % alt_cds[i*3+4] if len(alt_cds) > i*3 else ''))
-                        if nstops > options.readthrough:
-                            reported_peptide = pep[aa_pos:i+1]
-                            reported_stop_codon = ','.join(stop_codons)
+            try:
+                ## transcript_id, pos, ref, alt, dp, dpr
+                tx = ens_ref.get_gtf_transcript(tid)
+                if not tx and tid.find('.') > 0:
+                    tid = tid.split('.')[0]
+                    tx = ens_ref.get_gtf_transcript(tid)
+                if not tx:
+                    continue
+                if options.debug: print >> sys.stderr, "%s" % (tx)
+                coding = ens_ref.transcript_is_coding(tid)
+                if not coding:
+                    continue
+                frame_shift = len(ref) != len(alt)
+                cds = ens_ref.get_cds(tid)
+                if options.debug or not cds: print >> sys.stderr, "cds:\n%s" % (cds)
+                pos0 = pos1 - 1 # zero based position
+                spos = pos0 if tx.gene.strand else pos0 + len(ref) - 1
+                alt_seq = alt if tx.gene.strand else reverse_complement(alt)
+                ref_seq = ref if tx.gene.strand else reverse_complement(ref)
+                cds_pos = ens_ref.genome_to_cds_pos(tid, spos)
+                if options.debug: print >> sys.stderr, "cds_pos: %s" % (str(cds_pos))
+                alt_cds = cds[:cds_pos] + alt_seq + cds[cds_pos+len(ref):] if cds_pos+len(ref) < len(cds) else '' 
+                offset = 0
+                if tx.gene.strand:
+                    for i in range(min(len(ref),len(alt))):
+                        if ref[i] == alt[i]:
+                            offset = i
+                        else:
                             break
-            else:
-                reported_stop_codon = "%s-%s" % (alt_cds[peplen*3-4],alt_cds[peplen*3-3:peplen*3])
-                reported_peptide = "%s_%s_%s" % (pep[max(aa_pos-options.leading_aa,0):aa_pos],
-                                                 pep[aa_pos],
-                                                 pep[aa_pos+1:min(aa_pos+1+options.trailing_aa,len(pep))])
-            cs_pos = aa_pos * 3
-            aa_pos = (cds_pos + offset) / 3
-            ref_codon = cds[cs_pos:cs_pos+3]
-            ref_aa = translate(ref_codon)
-            alt_codon = alt_cds[cs_pos:cs_pos+3]
-            alt_aa = translate(alt_codon)
-            gene = tx.gene.names[0]
-            report_fields = [tx.gene.names[0],
-             '%s:%d %s' % (tx.gene.contig,pos1,'+' if tx.gene.strand else '-'),
-             ref_seq,
-             alt_seq,
-             "%1.2f" % freq if freq is not None else '',
-             str(dp),
-             "%s|%s" % (tx.gene.gene_id,tx.cdna_id),
-             "%d" % (aa_pos + 1),
-             "%s%d%s" % (ref_aa,aa_pos + 1,alt_aa),
-             "%d" % len(pep),
-             reported_stop_codon,
-             reported_peptide
-             ]
-            if options.debug:
-                report_fields.append("%d %d %d %d  %s  %s" % (cds_pos, offset, cs_pos,aa_pos,ref_codon,alt_codon))
-            outputFile.write('\t'.join(report_fields))
-            if options.debug:
-                print >> sys.stderr, "%s %s\n%s\n%s\n%s %s" % (
-                         cds[cs_pos-6:cs_pos], cds[cs_pos:cs_pos+15],
-                         translate(cds[cs_pos-6:cs_pos+15]),
-                         translate(alt_cds[cs_pos-6:cs_pos+15]),
-                         alt_cds[cs_pos-6:cs_pos], alt_cds[cs_pos:cs_pos+15])
-            outputFile.write('\n')
+                else:
+                    for i in range(-1,-min(len(ref),len(alt)) -1,-1):
+                        if ref[i] == alt[i]:
+                            offset = i
+                        else:
+                            break
+                refpep = translate(cds[:len(cds)/3*3])
+                pep = translate(alt_cds[:len(alt_cds)/3*3])
+                peplen = len(pep)
+                aa_pos = (cds_pos + offset) / 3
+                reported_stop_codon = ''
+                if aa_pos >= len(pep):
+                    print >> sys.stderr, "aa_pos %d >= peptide length %d : %s %d %s %s" % (aa_pos,len(pep),tid,pos1,ref,alt)
+                    continue
+                if frame_shift:
+                    #find stop_codons
+                    nstops = 0
+                    stop_codons = []
+                    for i in range(aa_pos,peplen):
+                        if refpep[i] != pep[i]:
+                            aa_pos = i
+                            break
+                    reported_peptide = pep[aa_pos:]
+                    for i in range(aa_pos,peplen):
+                        if pep[i] == '*':
+                            nstops += 1
+                            stop_codons.append("%s-%s%s" % (alt_cds[i*3-1],alt_cds[i*3:i*3+3],"-%s" % alt_cds[i*3+4] if len(alt_cds) > i*3 else ''))
+                            if nstops > options.readthrough:
+                                reported_peptide = pep[aa_pos:i+1]
+                                reported_stop_codon = ','.join(stop_codons)
+                                break
+                else:
+                    reported_stop_codon = "%s-%s" % (alt_cds[peplen*3-4],alt_cds[peplen*3-3:peplen*3])
+                    reported_peptide = "%s_%s_%s" % (pep[max(aa_pos-options.leading_aa,0):aa_pos],
+                                                     pep[aa_pos],
+                                                     pep[aa_pos+1:min(aa_pos+1+options.trailing_aa,len(pep))])
+                cs_pos = aa_pos * 3
+                aa_pos = (cds_pos + offset) / 3
+                ref_codon = cds[cs_pos:cs_pos+3]
+                ref_aa = translate(ref_codon)
+                alt_codon = alt_cds[cs_pos:cs_pos+3]
+                alt_aa = translate(alt_codon)
+                gene = tx.gene.names[0]
+                report_fields = [tx.gene.names[0],
+                 '%s:%d %s' % (tx.gene.contig,pos1,'+' if tx.gene.strand else '-'),
+                 ref_seq,
+                 alt_seq,
+                 "%1.2f" % freq if freq is not None else '',
+                 str(dp),
+                 "%s|%s" % (tx.gene.gene_id,tx.cdna_id),
+                 "%d" % (aa_pos + 1),
+                 "%s%d%s" % (ref_aa,aa_pos + 1,alt_aa),
+                 "%d" % len(pep),
+                 reported_stop_codon,
+                 reported_peptide,
+                 tx.get_transcript_type_name()
+                 ]
+                if options.debug:
+                    report_fields.append("%d %d %d %d  %s  %s" % (cds_pos, offset, cs_pos,aa_pos,ref_codon,alt_codon))
+                outputFile.write('\t'.join(report_fields))
+                if options.debug:
+                    print >> sys.stderr, "%s %s\n%s\n%s\n%s %s" % (
+                             cds[cs_pos-6:cs_pos], cds[cs_pos:cs_pos+15],
+                             translate(cds[cs_pos-6:cs_pos+15]),
+                             translate(alt_cds[cs_pos-6:cs_pos+15]),
+                             alt_cds[cs_pos-6:cs_pos], alt_cds[cs_pos:cs_pos+15])
+                outputFile.write('\n')
+            except Exception, e:
+                print >> sys.stderr, "failed: %s" % e
+                print >> sys.stderr, "%s\t%d\t%s\t%s\t%d\t%f\t%s" % (tid,pos1,ref,alt,dp,freq,e)
     except Exception, e:
         print >> sys.stderr, "failed: %s" % e
         exit(1)
