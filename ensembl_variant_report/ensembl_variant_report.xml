@@ -79,13 +79,17 @@
         </conditional>
         <param name="gtf_file" type="data" format="gtf" label="Ensembl GTF file"/>
         <section name="filter" expanded="false" title="Filter Options">
-            <param name="min_depth" type="integer" value="" optional="true" min="0" label="Minimum Read Depth to report"/>
-            <param name="min_freq" type="float" value="" optional="true" min="0.0" max="1.0" label="Minimum Alt frequency to report"/>
+            <param name="min_depth" type="integer" value="" optional="true" min="0" label="Minimum Read Depth to report" 
+                   help="If a value is entered, ignore variants with DP INFO field less than this value"/>
+            <param name="min_freq" type="float" value="" optional="true" min="0.0" max="1.0" label="Minimum Alt frequency to report"
+                   help="If a value is entered, ignore variant alleles where its DPR count divided the sum of DPR is less than this value"/>
         </section>
         <section name="report" expanded="false" title="Report Options">
-            <param name="readthrough" type="integer" value="" optional="true" min="0" max="4" label="Number of readthrough stop codons to display"/>
-            <param name="leading_aa" type="integer" value="" optional="true" min="0" label="Number of Amino Acids prior to variant to display"/>
-            <param name="trailing_aa" type="integer" value="" optional="true" min="0" label="Number of Amino Acids following the variant to display"/>
+            <param name="readthrough" type="integer" value="0" optional="true" min="0" max="4" label="Number of readthrough stop codons to display"/>
+            <param name="leading_aa" type="integer" value="10" optional="true" min="0" label="Number of Amino Acids prior to variant to display"
+                   help="Ignored for frame shifts"/>
+            <param name="trailing_aa" type="integer" value="10" optional="true" min="0" label="Number of Amino Acids following the variant to display"
+                   help="Ignored for frame shifts"/>
         </section>
         
     </inputs>
@@ -99,7 +103,7 @@
             <param name="ref_source" value="history"/>
             <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
             <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
-            <output name="output_file">
+            <output name="output">
                 <assert_contents>
                     <has_text text="MGGQ_A_SASNSFSRLH" />
                     <not_has_text text="*REDHAAGPEA" />
@@ -112,7 +116,7 @@
             <param name="ref_source" value="history"/>
             <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
             <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
-            <output name="output_file">
+            <output name="output">
                 <assert_contents>
                     <has_text text="MGGQ_A_SASNSFSRLH" />
                     <not_has_text text="*REDHAAGPEA" />
@@ -126,7 +130,7 @@
             <param name="ref_file" value="GRCh38_X.2bit" ftype="twobit"/>
             <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
             <param name="readthrough" value="1"/>
-            <output name="output_file">
+            <output name="output">
                 <assert_contents>
                     <has_text text="MGGQ_A_SASNSFSRLH" />
                     <has_text text="*REDHAAGPEA" />
@@ -141,7 +145,7 @@
             <param name="gtf_file" value="GRCh38_X.83.gtf" ftype="gtf"/>
             <param name="min_depth" value="100"/>
             <param name="min_freq" value=".80"/>
-            <output name="output_file">
+            <output name="output">
                 <assert_contents>
                     <has_text text="EQLDAGVRYL_E_LRIAHMLEGS" />
                     <not_has_text text="EYDILVAEET_V_GEPWEDGFEA" />
@@ -160,7 +164,7 @@
             <param name="transcript_column" value="7"/>
             <param name="dp_column" value="8"/>
             <param name="dpr_column" value="9"/>
-            <output name="output_file">
+            <output name="output">
                 <assert_contents>
                     <has_text text="MGGQ_A_SASNSFSRLH" />
                     <not_has_text text="*REDHAAGPEA" />
@@ -174,6 +178,7 @@ Allows readthrough of stop codons, and reports the stop codons.
 
 Input can be a snpEff vcf file using either ANN or EFF annotations.
 Alternatively, the input can be a tabular file that has columns:
+
   - pos
   - ref
   - alt

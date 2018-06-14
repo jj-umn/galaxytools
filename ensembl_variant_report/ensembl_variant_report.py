@@ -113,13 +113,15 @@ def __main__():
                 alt_list = alts.split(',')
                 pos = int(pos)
                 qual = float(qual)
+                dp = None
+                dpr = None
                 for info_item in info.split(';'):
                     if info_item.find('=') < 0: continue
                     (key, val) = info_item.split('=', 1)
                     if key == 'DP':
                         dp = int(val)
                     if key == 'DPR':
-                        dpr = dpr = [int(x) for x in val.split(',')]
+                        dpr = [int(x) for x in val.split(',')]
                     if key in ['EFF','ANN']:
                         for effect in val.split(','):
                             if options.debug: print >> sys.stderr, "\n%s" % (effect.split('|'))
