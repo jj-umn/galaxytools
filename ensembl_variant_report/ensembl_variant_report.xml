@@ -94,7 +94,12 @@
         
     </inputs>
     <outputs>
-        <data name="output" format="tabular" />
+        <data name="output" format="tabular" >
+            <actions>
+                <action name="column_names" type="metadata" 
+                 default="Gene,Ref_location,Ref_seq,Var_seq,Frequency,DP,Ensemble_Gene_transcript,AA_pos,AA_var,Protein_len,Stop_Codon,Variant_Peptide,Transcipt_type"/>
+            </actions>
+        </data>
     </outputs>
     <tests>
         <test>

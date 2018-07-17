@@ -96,7 +96,7 @@ def __main__():
             dp = int(fields[di])
             dpr = [int(x) for x in fields[fi].split(',')]
             for i,alt in enumerate(alts.split(',')):
-                freq = float(dp[i+1])/float(sum(dp)) if dp else \
+                freq = float(dpr[i+1])/float(dp) if dp and dpr else \
                     float(dpr[i+1])/float(sum(dpr)) if dpr else None
                 yield (transcript,pos,ref,alt,dp,freq)
 
@@ -132,7 +132,7 @@ def __main__():
                                 (eff, effs) = effect.rstrip(')').split('(')
                                 (impact, functional_class, codon_change, aa_change, aa_len, gene_name, biotype, coding, transcript, exon, alt) = effs.split('|')[0:11]
                             i = alt_list.index(alt) if alt in alt_list else 0
-                            freq = float(dp[i+1])/float(sum(dp)) if dp else \
+                            freq = float(dpr[i+1])/float(dp) if dp and dpr else \
                                 float(dpr[i+1])/float(sum(dpr)) if dpr else None
                             yield (transcript,pos,ref,alt,dp,freq)
 
