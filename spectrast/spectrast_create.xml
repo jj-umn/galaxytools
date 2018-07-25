@@ -1,0 +1,70 @@
+<tool id="specrast_create" name="SpectraST Create" version="@VERSION@.0">
+    <description>Spectral Library from Search Results</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <command detect_errors="exit_code"><![CDATA[
+        ## Need to symlink to data using name with extension that spectrast recognizes 
+        #import re
+        ## pepxml datasets
+        #set $input_files = []
+        #for $px in $pepxml_files:
+            #set $input_name = $re.sub('[.]?pep[.]?xml$','',$re.sub('[ ]','_',$input.display_name.split('/')[-1])) + '.pep.xml' 
+            #silent $input_files.append($input_name)
+            ln -s -f '${px}' '${input_name}' &&
+        #end for
+        #set $input_names = ' '.join($input_files)
+        python $__tool_directory__/link_scan_datasets.py
+            #for spectrum_file in spectrum_files:
+                -n '$spectrum_file.display_name' -f '$spectrum_file'
+            #end for
+            $input_names &&
+        python $__tool_directory__/spectrast_params.py 
+           --mode=create
+           #if $spectrastParams:
+               '$spectrastParams'
+           #end if
+           '$spectrast_params' -o spectrast_create.params &&
+        mkdir -p libdir &&
+        spectrast -cFspectrast_create.params -cN'libdir/library' $input_names &&
+        mkdir -p '$output.files_path' &&
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
+    ]]></command>
+    <configfiles>
+        <configfile name="spectrast_params"><![CDATA[#slurp
+]]>
+@LIBRARY_CREATE_OPTIONS@
+@LIBRARY_IMPORT_OPTIONS@
+        </configfile>
+    </configfiles>
+    <inputs>
+        <param name="pepxml_files" multiple="true" type="data" format="pepxml,peptideprophet_pepxml,interprophet_pepxml" label="PepXML Files to use in library generation" help=""/>
+        <param name="spectrum_files" multiple="true" type="data" format="mzxml" label="Data files containing spectra referred to in pepxml files" help=""/>
+        <param name="spectrastParams" type="data" format="txt" optional="true" label="SpectraST param file" help=""/>
+        <expand macro="library_create_options"/>
+        <expand macro="library_import_options"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt" label="spectrast.log" from_work_dir="spectrast.log"/>
+        <data name="params" format="txt" label="spectrast_create.params" from_work_dir="spectrast_create.params"/>
+        <expand macro="library_create_outputs"/>
+        <data name="output" format="splib" label="libary.splib" />
+    </outputs>
+    <tests>
+        <test>
+        </test>
+    </tests>
+    <help><![CDATA[
+**Create Libraries from Sequence Search Results**
+
+Note: As per TPP convention, the spectrum query must be named:
+<mzXML file name>.<start scan>.<end scan>.<charge>
+in the .pepXML file, so that SpectraST knows where to find the corresponding experimental spectrum. (If the .pepXML file is created with TPP tools, this should not be an issue.)
+
+SpectraST can create a spectral library from a .pepXML file, which contains peptide identifications from a previous shotgun proteomics experiment. For this purpose, it is preferable that the .pepXML has been processed with PeptideProphet and/or iProphet, such that all the search hits have probabilities assigned. (iProphet probabilities are used over PeptideProphet ones if both are present.)
+
+When importing from a .pepXML file, SpectraST scans through the .pepXML file for confident identifications, and attempts to extract the corresponding experimental spectra from .mzXML files. 
+    ]]></help>
+    <expand macro="citations" />
+</tool>

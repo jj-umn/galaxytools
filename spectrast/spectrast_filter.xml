@@ -1,0 +1,55 @@
+<tool id="spectrast_filter" name="SpectraST Filter" version="@VERSION@.0">
+    <description>Filter and Manipulate Spectral Libraries</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/spectrast_params.py 
+           --mode=filter
+           #if $spectrastParams:
+               '$spectrastParams'
+           #end if
+           '$spectrast_params' -o spectrast_create.params &&
+        mkdir -p libdir &&
+        spectrast -cFspectrast_create.params -cN'libdir/library' 
+        #for $splib_file in $splib_files:
+            ${splib_file.extra_files_path}/library.splib
+        #end for
+        &&
+        mkdir -p '$output.files_path' &&
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
+]]>
+    </command>
+    <configfiles>
+        <configfile name="spectrast_params"><![CDATA[#slurp
+]]>
+@LIBRARY_CREATE_OPTIONS@
+@LIBRARY_MANIPULATION_OPTIONS
+        </configfile>
+    </configfiles>
+    <inputs>
+        <param name="splib_files" multiple="true" type="data" format="splib" label="Spectral Libraries to operate on" help=""/>
+        <param name="spectrastParams" type="data" format="txt" optional="true" label="SpectraST param file" help=""/>
+        <expand macro="library_create_options"/>
+        <expand macro="library_manipulation_options"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt" label="spectrast.log" from_work_dir="spectrast.log"/>
+        <data name="params" format="txt" label="spectrast_create.params" from_work_dir="spectrast_create.params"/>
+        <expand macro="library_create_outputs"/>
+        <data format="splib" name="output"/>
+    </outputs>
+    <tests>
+        <test>
+        </test>
+    </tests>
+    <help>
+<![CDATA[
+**What it does**
+
+Filter and Manipulate Spectral Libraries
+
+]]>
+    </help>
+</tool>

@@ -1,5 +1,5 @@
 <tool id="spectrast_import" name="SpectraST Import" version="@VERSION@.0">
-    <description>Spectral Library</description>
+    <description>Spectral Library from ms2, msp, or hlf</description>
     <macros>
         <import>macros.xml</import>
     </macros>
@@ -10,12 +10,16 @@
         #set $ext = '.' + str($input.extension)
         #set $input_name = $re.sub('[.](ms2|msp|hlf)$','',$input.display_name.split('/')[-1]) + $ext
         ln -s '$input' '$input_name' &&
+        mkdir -p libdir &&
+        spectrast -cN'libdir/library' '$input_name' | tee '$output' &&
         mkdir -p '$output.files_path' &&
-        spectrast -cN'${output.files_path}/library' '$input_name' | tee '$output'
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
     ]]></command>
     <inputs>
         <param name="input" type="data" format="ms2,msp,hlf" label="Spectral library ms2, msp, or hlf" 
              help="BiblioSpec .ms2,  NIST .msp,  or X!Hunter .hlf"/>
+        <param name="bin" type="boolean" truevalue="" falsevalue="-c_BIN!" checked="true" 
+            label="Write library in binary format, which enables quicker search."/>
     </inputs>
     <outputs>
         <data name="output" format="splib"/>

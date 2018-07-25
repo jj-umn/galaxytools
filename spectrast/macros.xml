@@ -6,6 +6,596 @@
             <yield/>
         </requirements>
     </xml>
+    <token name="@LIBRARY_CREATE_OPTIONS@">
+outputFileName = ${output.extra_files_path}/library.splib
+#if $library_create.removeDecoyProteins is not None:
+removeDecoyProteins = $library_create.removeDecoyProteins
+#end if
+#if str($library_create.useProbTable) != 'None':
+useProbTable = $library_create.useProbTable
+#end if
+#if str($library_create.useProteinList) != 'None':
+useProteinList = $library_create.useProteinList
+#end if
+#if str($library_create.printMRMTable) != 'None':
+printMRMTable =  
+#end if
+#if str($library_create.writeMgfFile) != 'None':
+writeMgfFile = $library_create.writeMgfFile
+#end if
+## #if str($library_create.writeDtaFiles) != 'None':
+## writeDtaFiles = $library_create.writeDtaFiles
+## #end if
+#if str($library_create.writePAIdent) != 'None':
+writePAIdent = $library_create.writePAIdent
+#end if
+    </token>
+    <xml name="library_create_outputs">
+        <data name="library_pai" format="tabular" label="library.pai" from_work_dir="outdir/library.pai">
+            <filter>library_create['writePAIdent'] == 'true'</filter>
+        </data>
+        <data name="library_mrm" format="tabular" label="library.mrm" from_work_dir="outdir/library.mrm">
+            <filter>library_create['printMRMTable'] == 'true'</filter>
+        </data>
+        <data name="library_mgf" format="mgf" label="library.mgf" from_work_dir="outdir/library.mgf">
+            <filter>library_create['writeMgfFile'] == 'true'</filter>
+        </data>
+        <!--
+        <data name="library_mgf" format="dta" label="library.mgf" from_work_dir="outdir/library.mrm">
+            <filter>library_create['writeDtaFiles'] == 'true'</filter>
+        </data>
+        -->
+    </xml>
+    <xml name="library_create_options">
+        <section name="library_create" expanded="false" title="Library Create Options">
+            <param name="removeDecoyProteins"  type="text" value="" optional="true" label="removeDecoyProteins Default: true" >
+                <help> Remove spectra of decoys, for which proteins have names starting with this prefix. Also remove decoy proteins from Protein field for peptides mapped to both target and decoy sequences.
+                </help>
+            </param>
+
+            <param name="useProbTable" type="data" format="tabular" optional="true" label="Peptide ion probability table">
+                <help><![CDATA[
+    Only those peptide ions included in the table will be imported, and their probability adjusted optionally.
+    A probability table is a text file with one peptide ion in the format AC[160]DEFGHIK/2 per line. If a probability is supplied following the peptide ion separated by a tab, it will be used to replace the original probability of that library entry. 
+                ]]></help>
+            </param>
+            <param name="useProteinList" type="data" format="tabular" optional="true" label="Protein list">
+                <help><![CDATA[
+                    Only those peptide ions associated with proteins in the list will be imported.
+                    A protein list is a text file with one protein identifier per line. 
+                    If a number X is supplied following the protein separated by a tab, 
+                    then at most X peptide ions associated with that protein will be imported. 
+                    Peptides with more replicates are favored. 
+                ]]></help>
+            </param>
+            <param name="printMRMTable"  type="select" optional="true" label="printMRMTable Default: false" >
+                <help> Write library in binary format, which enables quicker search.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="writeMgfFile"  type="select" optional="true" label="writeMgfFile Default: false" >
+                <help> Write all library spectra as one .mgf file
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <!--
+            <param name="writeDtaFiles"  type="select" optional="true" label="writeDtaFiles Default: false" >
+                <help> Write library in binary format, which enables quicker search.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            -->
+            <param name="writePAIdent"  type="select" optional="true" label="writePAIdent Default: false" >
+                <help> 
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+        </section>
+    </xml>
+    <token name="@LIBRARY_IMPORT_OPTIONS@">
+#if $library_import.minimumProbabilityToInclude is not None:
+minimumProbabilityToInclude = $library_import.minimumProbabilityToInclude
+#end if
+#if $library_import.maximumFDRToInclude is not None:
+maximumFDRToInclude = $library_import.maximumFDRToInclude
+#end if
+#if $library_import.setFragmentation is not None:
+setFragmentation = $library_import.setFragmentation
+#end if
+#if $library_import.setDeamidatedNXST is not None:
+setDeamidatedNXST = $library_import.setDeamidatedNXST
+#end if
+#if $library_import.addMzXMLFileToDatasetName is not None:
+addMzXMLFileToDatasetName = $library_import.addMzXMLFileToDatasetName
+#end if
+#if $library_import.centroidPeaks is not None:
+centroidPeaks = $library_import.centroidPeaks
+#end if
+#if $library_import.rawSpectraNoiseThreshold is not None:
+rawSpectraNoiseThreshold = $library_import.rawSpectraNoiseThreshold
+#end if
+#if $library_import.rawSpectraMaxDynamicRange is not None:
+rawSpectraMaxDynamicRange = $library_import.rawSpectraMaxDynamicRange
+#end if
+#if $library_import.minimumNumAAToInclude is not None:
+minimumNumAAToInclude = $library_import.minimumNumAAToInclude
+#end if
+#if $library_import.minimumNumPeaksToInclude is not None:
+minimumNumPeaksToInclude = $library_import.minimumNumPeaksToInclude
+#end if
+#if $library_import.skipRawAnnotation is not None:
+skipRawAnnotation = $library_import.skipRawAnnotation
+#end if
+#if $library_import.minimumDeltaCnToInclude is not None:
+minimumDeltaCnToInclude = $library_import.minimumDeltaCnToInclude
+#end if
+#if $library_import.maximumMassDiffToInclude is not None:
+maximumMassDiffToInclude = $library_import.maximumMassDiffToInclude
+#end if
+#if $library_import.bracketSpectra is not None:
+bracketSpectra = $library_import.bracketSpectra
+#end if
+#if $library_import.mergeBracket is not None:
+mergeBracket = $library_import.mergeBracket
+#end if
+#if str($library_import.normalizeRTWithLandmarks) != 'None':
+normalizeRTWithLandmarks = $library_import.normalizeRTWithLandmarks
+#end if
+#if $library_import.normalizeRTLinearRegression is not None:
+normalizeRTLinearRegression = $library_import.normalizeRTLinearRegression
+#end if
+    </token>
+    <xml name="library_import_options">
+        <section name="library_import" expanded="false" title="Library Import Options">
+            <param name="minimumProbabilityToInclude" type="float" value="" min="0.0" max="1.0" optional="true" 
+                label="minimumProbabilityToInclude" 
+                help="Include all spectra identified with probability no less than this in the library. Default is 0.9"/>
+            <param name="maximumFDRToInclude" type="float" value="" min="0.0" optional="true" 
+                label="maximumFDRToInclude for pepXML import" 
+                help="(Only for pepXML import) Include spectra with global FDR no greater than this in the library. Default is 999.0"/>
+            <param name="setFragmentation" type="select" label="Set the fragmentation type of all spectra, overriding existing information">
+                <option value="dataset" selected="true">Search Single Spectrum file and output results as a dataset</option>
+                <option value="collection">Search Multiple Spectrum files and output results as a collection</option>
+            </param>
+            <param name="setFragmentation" type="select" optional="true" label="Set the fragmentation type of all spectra, overriding existing information" >
+                <help>Default is off (determined from the data files).
+                      Examples: CID, ETD, CID-QTOF, HCD. The latter two are treated as high-mass accuracy spectra.
+                </help>
+                <option value="ETD">ETD spectra</option>
+                <option value="CID-QTOF">CID-QTOF spectra</option>
+                <option value="HCD">HCD spectra</option>
+            </param>
+            <param name="setDeamidatedNXST"  type="select" optional="true" label="setDeamidatedNXST Default: false" >
+                <help> Set all asparagines (N) in the motif NX(S/T) as deamidated (N[115]),
+                       and all asparagines not in the motif NX(S/T) as unmodified.
+                       Use for glycocaptured peptides.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="addMzXMLFileToDatasetName"  type="select" optional="true" label="addMzXMLFileToDatasetName Default: false" >
+                <help> Add the originating mzXML file name to the dataset identifier.
+                       Good for keeping track of the MS run in which the peptide is observed.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="centroidPeaks"  type="select" optional="true" label="centroidPeaks Default: false" >
+                <help> Centroid peaks as raw spectra are imported.
+                       Designed mostly for Q-TOF spectra in profile mode.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="rawSpectraNoiseThreshold" type="float" value="" min="0.0" optional="true" 
+                label="rawSpectraNoiseThreshold" 
+                help="Absolute noise filter. Remove noise peaks with intensity below this in imported spectra. Default is 0.0"/>
+            <param name="rawSpectraMaxDynamicRange" type="float" value="" min="1.0" optional="true" 
+                label="rawSpectraMaxDynamicRange" 
+                help="Relative noise filter. Filter out noise peaks with intensity below 1/range of that of the highest peak.  Default is 100000.0"/>
+            <param name="minimumNumAAToInclude" type="integer" value="" optional="true" min="1"
+                label="minimumNumAAToInclude" 
+                help="Exclude spectra of peptide IDs shorter than this number of amino acids. Default is 6"/>
+            <param name="minimumNumPeaksToInclude" type="integer" value="" optional="true" min="1"
+                label="minimumNumPeaksToInclude" 
+                help="Exclude spectra with fewer than this number of peaks. Default is 10"/>
+            <param name="skipRawAnnotation"  type="select" optional="true" label="skipRawAnnotation Default: false" >
+                <help> Skip the annotation of raw spectra as they are imported.
+                       Annotation is quite slow and might be impractical if the number of imported spectra is enormous.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="minimumDeltaCnToInclude" type="float" value="" min="0.0" optional="true" 
+                label="minimumDeltaCnToInclude" 
+                help="(Only for pepXML import) Exclude spectra with deltaCn smaller than this. Useful for excluding spectra with indiscriminate modification sites. Default is 0.0"/>
+            <param name="maximumMassDiffToInclude" type="float" value="" min="0.0" optional="true" 
+                label="maximumMassDiffToInclude" 
+                help="(Only for pepXML import) Exclude spectra with precursor mass difference (absolute value) greater than this numbers of  Daltons. Default is 9999.0"/>
+            <param name="bracketSpectra"  type="select" optional="true" label="bracketSpectra Default: false" >
+                <help> (Only for pepXML import)
+                       Bracket import: for each confident ID, also search neighboring scans for repeated scans to import.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="mergeBracket"  type="select" optional="true" label="mergeBracket Default: false" >
+                <help> (Only for pepXML import)
+                       Merge bracketed spectra: merge repeated scans of a bracket into one consensus spectrum for import.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="normalizeRTWithLandmarks" type="data" format="tabular" optional="true" 
+                label="normalizeRTWithLandmarks Use landmark peptides to normalize retention times to iRTs."
+                help="A TAB-delimited table with two columns: peptide sequence and iRT" />
+            <param name="normalizeRTLinearRegression"  type="select" optional="true" label="normalizeRTLinearRegression Default: false" >
+                <help> Regress the real RTs of landmark peptides (i.e. assume they form a straight line).
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+        </section>
+    </xml>
+
+    <token name="@LIBRARY_MANIPULATION_OPTIONS@">
+#if $library_manipulation.filterCriteria is not None:
+filterCriteria = $library_manipulation.filterCriteria
+#end if
+#if $library_manipulation.combineAction is not None:
+combineAction = $library_manipulation.combineAction
+#end if
+#if $library_manipulation.build.buildAction != 'NONE':
+buildAction = $library_manipulation.build.buildAction
+#if $library_manipulation.build.buildAction in ['BEST_REPLICATE','CONSENSUS']:
+#if $library_manipulation.build.build_bc_action.minimumNumReplicates is not None:
+minimumNumReplicates = $library_manipulation.build.build_bc_action.minimumNumReplicates
+#end if
+#if $library_manipulation.build.build_bc_action.removeDissimilarReplicates is not None:
+removeDissimilarReplicates = $library_manipulation.build.build_bc_action.removeDissimilarReplicates
+#end if
+#if $library_manipulation.build.build_bc_action.peakQuorum is not None:
+peakQuorum = $library_manipulation.build.build_bc_action.peakQuorum
+#end if
+#if $library_manipulation.build.build_bc_action.maximumNumPeaksUsed is not None:
+maximumNumPeaksUsed = $library_manipulation.build.build_bc_action.maximumNumPeaksUsed
+#end if
+#if $library_manipulation.build.build_bc_action.maximumNumReplicates is not None:
+maximumNumReplicates = $library_manipulation.build.build_bc_action.maximumNumReplicates
+#end if
+#if $library_manipulation.build.build_bc_action.maximumNumPeaksKept is not None:
+maximumNumPeaksKept = $library_manipulation.build.build_bc_action.maximumNumPeaksKept
+#end if
+#if $library_manipulation.build.build_bc_action.replicateWeight is not None:
+replicateWeight = $library_manipulation.build.build_bc_action.replicateWeight
+#end if
+#if $library_manipulation.build.build_bc_action.recordRawSpectra is not None:
+recordRawSpectra = $library_manipulation.build.build_bc_action.recordRawSpectra
+#end if
+#end if
+#if $library_manipulation.build.buildAction == 'DECOY':
+#if $library_manipulation.build.build_d_action.decoyConcatenate is not None:
+decoyConcatenate = $library_manipulation.build.build_d_action.decoyConcatenate
+#end if
+#if $library_manipulation.build.build_d_action.decoySizeRatio is not None:
+decoySizeRatio = $library_manipulation.build.build_d_action.decoySizeRatio
+#end if
+#if $library_manipulation.build.build_d_action.decoyPrecursorSwap is not None:
+decoyPrecursorSwap = $library_manipulation.build.build_d_action.decoyPrecursorSwap
+#end if
+#end if
+#if $library_manipulation.build.buildAction == 'USER_SPECIFIED_MODS':
+#if $library_manipulation.build.build_m_action.allowableModTokens is not None:
+allowableModTokens = $library_manipulation.build.build_m_action.allowableModTokens
+#end if
+#end if
+#if $library_manipulation.build.buildAction == 'QUALITY_FILTER':
+#if $library_manipulation.build.build_q_action.minimumNumReplicates is not None:
+minimumNumReplicates = $library_manipulation.build.build_q_action.minimumNumReplicates
+#end if
+#if $library_manipulation.build.build_q_action.qualityLevelRemove is not None:
+qualityLevelRemove = $library_manipulation.build.build_q_action.qualityLevelRemove
+#end if
+#if $library_manipulation.build.build_q_action.qualityLevelMark is not None:
+qualityLevelMark = $library_manipulation.build.build_q_action.qualityLevelMark
+#end if
+#if $library_manipulation.build.build_q_action.qualityPenalizeSingletons is not None:
+qualityPenalizeSingletons = $library_manipulation.build.build_q_action.qualityPenalizeSingletons
+#end if
+#if $library_manipulation.build.build_q_action.qualityImmuneProbThreshold is not None:
+qualityImmuneProbThreshold = $library_manipulation.build.build_q_action.qualityImmuneProbThreshold
+#end if
+#if $library_manipulation.build.build_q_action.qualityImmuneMultipleEngines is not None:
+qualityImmuneMultipleEngines = $library_manipulation.build.build_q_action.qualityImmuneMultipleEngines
+#end if
+#end if
+#end if
+#if $library_manipulation.reduceSpectra is not None:
+reduceSpectra = $library_manipulation.reduceSpectra
+#end if
+#if $library_manipulation.minimumNumPeaksToInclude is not None:
+minimumNumPeaksToInclude = $library_manipulation.minimumNumPeaksToInclude
+#end if
+#if $library_manipulation.minimumMRMQ3MZ is not None:
+minimumMRMQ3MZ = $library_manipulation.minimumMRMQ3MZ
+#end if
+#if $library_manipulation.maximumMRMQ3MZ is not None:
+maximumMRMQ3MZ = $library_manipulation.maximumMRMQ3MZ
+#end if
+#if $library_manipulation.db.refresh == 'yes':
+refreshDatabase = $library_manipulation.db.refreshDatabase
+#if $library_manipulation.db.refreshDeleteUnmapped is not None:
+refreshDeleteUnmapped = $library_manipulation.db.refreshDeleteUnmapped
+#end if
+#if $library_manipulation.db.refreshDeleteMultimapped is not None:
+refreshDeleteMultimapped = $library_manipulation.db.refreshDeleteMultimapped
+#end if
+#if $library_manipulation.db.refreshTrypticOnly is not None:
+refreshTrypticOnly = $library_manipulation.db.refreshTrypticOnly
+#end if
+#end if
+    </token>
+    <xml name="library_build_bc_opts">
+        <section name="build_bc_action" expanded="false" title="Consensus/Best-Replicate Library Creation Build Options">
+           <param name="minimumNumReplicates" type="integer" value="" optional="true" min="1"
+                label="minimumNumReplicates"
+                help="Minimum number of replicates required for each library entry. Peptide ions with fewer than this numer of replicates will be excluded from library when creating consensus library. Default is 1"/>
+            <param name="removeDissimilarReplicates"  type="select" optional="true" label="removeDissimilarReplicates Default: true" >
+                <help> Remove dissimilar replicates before creating consensus spectrum.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="peakQuorum" type="float" value="" min="0.0" max="1.0" optional="true" 
+                label="peakQuorum" 
+                help="Specify peak quorum: the fraction of all replicates required to contain a certain peak. Peaks not present in enough replicates will be deleted. Default is 0.6"/>
+           <param name="maximumNumPeaksUsed" type="integer" value="" optional="true" min="1"
+                label="maximumNumPeaksUsed"
+                help="Maximum number of peaks in each replicate to be considered in creating consensus. Only the most intense number of peaks by intensity will be considered.  Default is 300"/>
+           <param name="maximumNumReplicates" type="integer" value="" optional="true" min="1"
+                label="maximumNumReplicates"
+                help="Maximum number of replicates used to build consensus spectrum.  Default is 100"/>
+           <param name="maximumNumPeaksKept" type="integer" value="" optional="true" min="1"
+                label="maximumNumPeaksKept"
+                help="De-noise single spectra by keeping only this number of the most intense peaks.  Will not affect consensus spectra of more than one replicate.  Default is 150"/>
+            <param name="replicateWeight"  type="select" optional="true" label="replicateWeight  Default: signal-to-noise ratio"  >
+                <help> How to combine peptides from multiple files
+                </help>
+                <option value="NONE">NONE</option>
+                <option value="SN">Use a measure of signal-to-noise ratio as the weight.</option>
+                <option value="XCORR">Use a function of the SEQUEST xcorr score as the weight.</option>
+                <option value="PROB">Use a function of the PeptideProphet probability as the weight.</option>
+                <option value="INTP">Use the sqrt of precursor intensity</option>
+            </param>
+            <param name="recordRawSpectra"  type="select" optional="true" label="recordRawSpectra Default: false" >
+                <help> Record all raw spectra (in the format file.scan.scan) used in build the consensus in the Comment line.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+        </section>
+    </xml>
+    <xml name="library_build_d_opts">
+        <section name="build_d_action" expanded="false" title="Decoy Library Creation Build Options">
+            <param name="decoyConcatenate"  type="select" optional="true" label="decoyConcatenate Default: false" >
+                <help> Concatenate real and decoy libraries.	Default is false: library consisting of only decoy spectra is created. 
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="decoySizeRatio" type="integer" value="" optional="true" min="1"
+                label="decoySizeRatio"
+                help="Specify the (decoy / real) size ratio. Default is 1"/>
+            <param name="decoyPrecursorSwap"  type="select" optional="true" label="decoyPrecursorSwap Default: false" >
+                <help> Use a modified form of the precursor swap method for generating decoys.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+        </section>
+    </xml>
+    <xml name="library_build_m_opts">
+        <section name="build_m_action" expanded="false" title="Usr Mods Library Creation Build Options">
+            <param name="allowableModTokens" type="text" value="" optional="true" label="allowableModTokens">
+                <help><![CDATA[
+                 Specify the set(s) of modifications allowed in semi-empirical spectrum generation.
+                ]]></help>
+            </param>
+        </section>
+    </xml>
+    <xml name="quality_level_opts">
+                <option value="0">0: No filter.</option>
+                <option value="1">1: Remove/mark impure spectra.</option>
+                <option value="2">2: Also remove/mark spectra with a spectrally similar counterpart in the library that is better.</option>
+                <option value="3">3: Also remove/mark inquorate entries (defined with minimumNumReplicates) that share no peptide sub-sequences with any other entries in the library. </option>
+                <option value="4">4: Also remove/mark all singleton entries.</option>
+                <option value="5">5: Also remove/mark all inquorate entries (defined with minimumNumReplicates).</option>
+    </xml>
+    <xml name="library_build_q_opts">
+        <section name="build_q_action" expanded="false" title="Quality Filter Library Creation Build Options">
+           <param name="minimumNumReplicates" type="integer" value="" optional="true" min="1"
+                label="minimumNumReplicates"
+                help="Replicate quorum. Its value affects behavior of quality filter. Default is 1"/>
+            <param name="qualityLevelRemove"  type="select" optional="true" label="qualityLevelRemove Default: 2" >
+                <help> Specify the removal stringency of the quality filter
+                </help>
+                <expand macro="quality_level_opts"/>
+            </param>
+            <param name="qualityLevelMark"  type="select" optional="true" label="qualityLevelMark Default: 5" >
+                <help> Specify the removal stringency of the quality filter
+                </help>
+                <expand macro="quality_level_opts"/>
+            </param>
+            <param name="qualityPenalizeSingletons"  type="select" optional="true" label="qualityPenalizeSingletons Default: true" >
+                <help> Apply stricter thresholds to singleton spectra during quality filters.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="qualityImmuneProbThreshold" type="float" value="" min="0.0" max="1.0" optional="true" 
+                label="qualityImmuneProbThreshold" 
+                help="Specify a probability above which library spectra are immune to quality filters. Default is 0.999"/>
+            <param name="qualityImmuneMultipleEngines"  type="select" optional="true" label="qualityImmuneMultipleEngines Default: true" >
+                <help> Make spectra identified by multiple sequence search engines immune to quality filters.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+        </section>
+    </xml>
+    <xml name="library_manipulation_options">
+        <section name="library_manipulation" expanded="false" title="Library Manipulation Options">
+            <!-- filterCriteria -->
+
+            <param name="filterCriteria" type="text" value="" optional="true" label="filterCriteria">
+                <help><![CDATA[
+                 Filter library by criteria. Keep only those entries satisfying the predicate.
+                 The preicate should in the form "<attr> <op> <value>".
+                 <attr> can refer to any of the fields and any comment entries.
+                 <op> can be ==, !=, <, >, <=, >=, =~ and !~.
+                 Multiple predicates can be separated by either & (AND logic) or | (OR logic), but not both.
+                ]]></help>
+                <validator type="regex" message=""><![CDATA[^\S+ (==|!=|<|>|<=|>=|=~|!~) \S+(( & \S+ (==|!=|<|>|<=|>=|=~|!~) \S+)|( [|]  \S+ (==|!=|<|>|<=|>=|=~|!~) \S+ ))*$]]></validator>
+            </param>
+            <param name="combineAction"  type="select" optional="true" label="combineAction Default: Union" >
+                <help> How to combine peptides from multiple files
+                </help>
+                <option value="UNION">Union (default). Include all the peptide ions in all the files.</option>
+                <option value="INTERSECT">Intersection. Only include peptide ions that are present in all the files.</option>
+                <option value="SUBTRACT">Subtraction. Only include peptide ions in the first file that are not present in any of the other files.</option>
+                <option value="SUBTRACT_HOMOLOGS">Subtraction of homologs. Only include peptide ions in the first file that do not have any homologs with similar m/z in any of the other files.</option>
+                <option value="APPEND">Appending. Each peptide ion is added from only one library: the first one in the command line that contains that peptide ion. </option>
+            </param>
+            <conditional name="build">
+                <param name="buildAction"  type="select" label="buildAction" >
+                    <help> How to built representative spectra instead of including all.
+                    </help>
+                    <option value="NONE" selected="true">Default: no build action - all spectra will be included as is.</option>
+                    <option value="BEST_REPLICATE">Best replicate. Pick the best replicate of each peptide ion.</option>
+                    <option value="CONSENSUS">Consensus. Create the consensus spectrum of all replicate spectra of each peptide ion.</option>
+                    <option value="QUALITY_FILTER">Quality filter. Apply quality filters to library.</option>
+                    <option value="DECOY">Decoy. Generate decoy spectra.</option>
+                    <option value="SORT_BY_NREPS">Sort by descending number of replicates (tie-breaking by probability).</option>
+                    <option value="USER_SPECIFIED_MODS">User-specified modifications. Generate semi-empirical spectra. (allowableModTokens required)</option>
+                    <option value="SIMILARITY_CLUSTERING">Semi-empirical. Generate semi-empirical spectra.</option>
+                    <option value="SEMI_EMPIRICAL_SPLIB">Clustering by spectral similarity. </option>
+                </param>
+                <when value="NONE"/>
+                <when value="BEST_REPLICATE">
+                    <expand macro="library_build_bc_opts"/>
+                </when>
+                <when value="CONSENSUS">
+                    <expand macro="library_build_bc_opts"/>
+                </when>
+                <when value="QUALITY_FILTER">
+                    <expand macro="library_build_q_opts"/>
+                </when>
+                <when value="DECOY">
+                    <expand macro="library_build_d_opts"/>
+                </when>
+                <when value="SORT_BY_NREPS"/>
+                <when value="USER_SPECIFIED_MODS">
+                    <expand macro="library_build_m_opts"/>
+                </when>
+                <when value="SIMILARITY_CLUSTERING"/>
+                <when value="SEMI_EMPIRICAL_SPLIB"/>
+            </conditional>
+            <param name="reduceSpectra" type="integer" value="" optional="true" min="0"
+                label="reduceSpectra"
+                help="Produce reduced spectra of at most this number of peaks, based on rules prioritizing desirable SRM transitions.  Default is 0 (keep entire spectrum)"/>
+            <param name="reannotatePeaks"  type="select" optional="true" label="reannotatePeaks Default: false" >
+                <help> Re-annotate peaks.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="minimumNumPeaksToInclude" type="integer" value="" optional="true" min="1"
+                label="minimumNumPeaksToInclude"
+                help="Exclude spectra with fewer than this number of peaks.  Default is 10"/>
+            <param name="minimumMRMQ3MZ" type="integer" value="" optional="true" min="1"
+                label="minimumMRMQ3MZ"
+                help="Specify the lower m/z limit for Q3 in SRM table generation.  Default is 200."/>
+            <param name="maximumMRMQ3MZ" type="integer" value="" optional="true" min="1"
+                label="maximumMRMQ3MZ"
+                help="Specify the upper m/z limit for Q3 in SRM table generation.  Default is 1400."/>
+            <conditional name="db">
+                <param name="refresh"  type="select" label="Refresh protein mappings against the FASTA database">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </param>
+                <when value="no"/>
+                <when value="yes">
+                    <param name="refreshDatabase" type="data" format="fasta" label="Protein FASTA datadase"/>
+                    <param name="refreshDeleteUnmapped"  type="select" optional="true" label="refreshDeleteUnmapped Default: false" >
+                        <help> Delete entries whose peptide sequences do not map to any protein during refreshing.
+                        </help>
+                        <option value="false">false</option>
+                        <option value="true">true</option>
+                    </param>
+                    <param name="refreshDeleteMultimapped"  type="select" optional="true" label="refreshDeleteMultimapped Default: false" >
+                        <help> Delete entries whose peptide sequences map to multiple proteins during refreshing.
+                        </help>
+                        <option value="false">false</option>
+                        <option value="true">true</option>
+                    </param>
+                    <param name="refreshTrypticOnly"  type="select" optional="true" label="refreshTrypticOnly Default: false" >
+                        <help> Only map peptide to protein when the peptide is tryptic in that protein.
+                        </help>
+                        <option value="false">false</option>
+                        <option value="true">true</option>
+                    </param>
+                </when>
+            </conditional>
+        </section>
+    </xml>
+    <token name="@LIBRARY_UNIDENTIFIED_OPTIONS@">
+#if $library_unidentified.unidentifiedClusterIndividualRun is not None:
+unidentifiedClusterIndividualRun = $library_unidentified.unidentifiedClusterIndividualRun
+#end if
+#if $library_unidentified.unidentifiedClusterMinimumDot is not None:
+unidentifiedClusterMinimumDot = $library_unidentified.unidentifiedClusterMinimumDot
+#end if
+#if $library_unidentified.unidentifiedRemoveSinglyCharged is not None:
+unidentifiedRemoveSinglyCharged = $library_unidentified.unidentifiedRemoveSinglyCharged
+#end if
+#if $library_unidentified.unidentifiedMinimumNumPeaksToInclude is not None:
+unidentifiedMinimumNumPeaksToInclude = $library_unidentified.unidentifiedMinimumNumPeaksToInclude
+#end if
+#if $library_unidentified.unidentifiedSingletonXreaThreshold is not None:
+unidentifiedSingletonXreaThreshold = $library_unidentified.unidentifiedSingletonXreaThreshold
+#end if
+    </token>
+    <xml name="library_unidentified_options">
+        <section name="library_unidentified" expanded="false" title="Library Clustering Unidentified Options">
+            <param name="unidentifiedClusterIndividualRun"  type="select" optional="true" label="unidentifiedClusterIndividualRun Default: false" >
+                <help> Merge neighboring spectra in each run as they are imported from data (mz(X)ML) files.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="unidentifiedClusterMinimumDot" type="float" value="" min="0.0" max="1.0" optional="true" 
+                label="unidentifiedClusterMinimumDot" 
+                help="Specify minimum dot products for two spectra to be clustered. Default is 0.7"/>
+
+            <param name="unidentifiedRemoveSinglyCharged"  type="select" optional="true" label="unidentifiedRemoveSinglyCharged Default: true" >
+                <help> Remove spectra that appear to be from singly charged precursors.
+                </help>
+                <option value="false">false</option>
+                <option value="true">true</option>
+            </param>
+            <param name="unidentifiedMinimumNumPeaksToInclude" type="integer" value="" optional="true" min="1"
+                label="unidentifiedMinimumNumPeaksToInclude"
+                help="Remove spectra that have fewer than this number of peaks.  Default is 35"/>
+            <param name="unidentifiedSingletonXreaThreshold" type="float" value="" min="0.0" max="1.0" optional="true" 
+                label="unidentifiedSingletonXreaThreshold" 
+                help="Apply an Xrea (quality measure) filter to singleton spectra after clustering. Only those with Xrea at least this theshold are kept.  Default is 0.6"/>
+        </section>
+    </xml>
+
     <xml name="citations">
         <citations>
             <citation type="doi">10.1002/pmic.200600625</citation>
