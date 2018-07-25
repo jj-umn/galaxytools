@@ -1,5 +1,5 @@
 <tool id="spectrast_filter" name="SpectraST Filter" version="@VERSION@.0">
-    <description>Filter and Manipulate Spectral Libraries</description>
+    <description>and Manipulate Spectral Libraries</description>
     <macros>
         <import>macros.xml</import>
     </macros>

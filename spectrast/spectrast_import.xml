@@ -1,5 +1,5 @@
 <tool id="spectrast_import" name="SpectraST Import" version="@VERSION@.0">
-    <description>Spectral Library from ms2, msp, or hlf</description>
+    <description>to Spectral Library from ms2, msp, or hlf</description>
     <macros>
         <import>macros.xml</import>
     </macros>

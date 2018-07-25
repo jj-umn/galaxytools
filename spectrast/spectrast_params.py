@@ -203,7 +203,7 @@ def __main__():
         'param_files', nargs='*',
         help='A SpectraST search.params files')
     parser.add_argument(
-        '-m', '--mode', choices=['search','create','filter'],
+        '-m', '--mode', choices=['search', 'create', 'filter'],
         help='')
     parser.add_argument(
         '-o', '--output',
@@ -215,7 +215,8 @@ def __main__():
 
     optpat = re.compile('^([a-z]\w+)\s*[=:]\s*([^=]+)$')
 
-    valid_opts = search_opts if args.mode == 'search' else create_opts if args.mode == 'create' else filter_opts
+    valid_opts = search_opts if args.mode == 'search'\
+        else create_opts if args.mode == 'create' else filter_opts
     valid_params = dict()
 
     # Collect all valid_params
@@ -247,9 +248,9 @@ def __main__():
     # Write valid_params
     for valid_opt in valid_opts:
         if valid_opt in valid_params:
-            print('%s = %s' % (valid_opt, valid_params[valid_opt]), file=output_wtr)
+            print('%s = %s' % (valid_opt, valid_params[valid_opt]),
+                  file=output_wtr)
 
 
 if __name__ == "__main__":
     __main__()
-
