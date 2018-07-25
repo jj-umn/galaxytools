@@ -10,13 +10,13 @@
         ## pepxml datasets
         #set $input_files = []
         #for $px in $pepxml_files:
-            #set $input_name = $re.sub('[.]?pep[.]?xml$','',$re.sub('[ ]','_',$input.display_name.split('/')[-1])) + '.pep.xml' 
+            #set $input_name = $re.sub('[.]?pep[.]?xml$', '' ,$re.sub('[ ]', '_', $px.display_name.split('/')[-1])) + '.pep.xml' 
             #silent $input_files.append($input_name)
             ln -s -f '${px}' '${input_name}' &&
         #end for
         #set $input_names = ' '.join($input_files)
         python $__tool_directory__/link_scan_datasets.py
-            #for spectrum_file in spectrum_files:
+            #for $spectrum_file in $spectrum_files:
                 -n '$spectrum_file.display_name' -f '$spectrum_file'
             #end for
             $input_names &&
@@ -26,10 +26,11 @@
                '$spectrastParams'
            #end if
            '$spectrast_params' -o spectrast_create.params &&
-        mkdir -p libdir &&
-        spectrast -cFspectrast_create.params -cN'libdir/library' $input_names &&
+        mkdir -p outdir &&
+        spectrast -cFspectrast_create.params -cN'outdir/library' $input_names &&
+        find * &&
         mkdir -p '$output.files_path' &&
-        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/\${i} ]; then cp -p outdir/\${i} '$output.files_path'; fi; done
     ]]></command>
     <configfiles>
         <configfile name="spectrast_params"><![CDATA[#slurp

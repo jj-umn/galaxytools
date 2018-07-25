@@ -13,7 +13,7 @@
         mkdir -p libdir &&
         spectrast -cN'libdir/library' '$input_name' | tee '$output' &&
         mkdir -p '$output.files_path' &&
-        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/\${i} ]; then cp -p outdir/\${i} '$output.files_path'; fi; done
     ]]></command>
     <inputs>
         <param name="input" type="data" format="ms2,msp,hlf" label="Spectral library ms2, msp, or hlf" 

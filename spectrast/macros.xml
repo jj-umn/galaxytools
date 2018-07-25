@@ -8,7 +8,7 @@
     </xml>
     <token name="@LIBRARY_CREATE_OPTIONS@">
 outputFileName = ${output.extra_files_path}/library.splib
-#if $library_create.removeDecoyProteins is not None:
+#if str($library_create.removeDecoyProteins) != '':
 removeDecoyProteins = $library_create.removeDecoyProteins
 #end if
 #if str($library_create.useProbTable) != 'None':
@@ -17,21 +17,21 @@ useProbTable = $library_create.useProbTable
 #if str($library_create.useProteinList) != 'None':
 useProteinList = $library_create.useProteinList
 #end if
-#if str($library_create.printMRMTable) != 'None':
-printMRMTable =  
+#if str($library_create.printMRMTable) in ['true']:
+printMRMTable = DEFAULT
 #end if
-#if str($library_create.writeMgfFile) != 'None':
+#if str($library_create.writeMgfFile) in ['true','false']:
 writeMgfFile = $library_create.writeMgfFile
 #end if
-## #if str($library_create.writeDtaFiles) != 'None':
+## #if str($library_create.writeDtaFiles) in ['true','false']:
 ## writeDtaFiles = $library_create.writeDtaFiles
 ## #end if
-#if str($library_create.writePAIdent) != 'None':
+#if str($library_create.writePAIdent) in ['true','false']:
 writePAIdent = $library_create.writePAIdent
 #end if
     </token>
     <xml name="library_create_outputs">
-        <data name="library_pai" format="tabular" label="library.pai" from_work_dir="outdir/library.pai">
+        <data name="library_pai" format="tabular" label="library.PAIdent" from_work_dir="outdir/library.PAIdent">
             <filter>library_create['writePAIdent'] == 'true'</filter>
         </data>
         <data name="library_mrm" format="tabular" label="library.mrm" from_work_dir="outdir/library.mrm">
@@ -97,55 +97,55 @@ writePAIdent = $library_create.writePAIdent
         </section>
     </xml>
     <token name="@LIBRARY_IMPORT_OPTIONS@">
-#if $library_import.minimumProbabilityToInclude is not None:
+#if str($library_import.minimumProbabilityToInclude) != '':
 minimumProbabilityToInclude = $library_import.minimumProbabilityToInclude
 #end if
-#if $library_import.maximumFDRToInclude is not None:
+#if str($library_import.maximumFDRToInclude) != '':
 maximumFDRToInclude = $library_import.maximumFDRToInclude
 #end if
-#if $library_import.setFragmentation is not None:
+#if str($library_import.setFragmentation) != 'None':
 setFragmentation = $library_import.setFragmentation
 #end if
-#if $library_import.setDeamidatedNXST is not None:
+#if str($library_import.setDeamidatedNXST) != 'None':
 setDeamidatedNXST = $library_import.setDeamidatedNXST
 #end if
-#if $library_import.addMzXMLFileToDatasetName is not None:
+#if str($library_import.addMzXMLFileToDatasetName) != 'None':
 addMzXMLFileToDatasetName = $library_import.addMzXMLFileToDatasetName
 #end if
-#if $library_import.centroidPeaks is not None:
+#if str($library_import.centroidPeaks) != 'None':
 centroidPeaks = $library_import.centroidPeaks
 #end if
-#if $library_import.rawSpectraNoiseThreshold is not None:
+#if str($library_import.rawSpectraNoiseThreshold) != '':
 rawSpectraNoiseThreshold = $library_import.rawSpectraNoiseThreshold
 #end if
-#if $library_import.rawSpectraMaxDynamicRange is not None:
+#if str($library_import.rawSpectraMaxDynamicRange) != '':
 rawSpectraMaxDynamicRange = $library_import.rawSpectraMaxDynamicRange
 #end if
-#if $library_import.minimumNumAAToInclude is not None:
+#if str($library_import.minimumNumAAToInclude) != '':
 minimumNumAAToInclude = $library_import.minimumNumAAToInclude
 #end if
-#if $library_import.minimumNumPeaksToInclude is not None:
+#if str($library_import.minimumNumPeaksToInclude) != '':
 minimumNumPeaksToInclude = $library_import.minimumNumPeaksToInclude
 #end if
-#if $library_import.skipRawAnnotation is not None:
+#if str($library_import.skipRawAnnotation) != 'None':
 skipRawAnnotation = $library_import.skipRawAnnotation
 #end if
-#if $library_import.minimumDeltaCnToInclude is not None:
+#if str($library_import.minimumDeltaCnToInclude) != '':
 minimumDeltaCnToInclude = $library_import.minimumDeltaCnToInclude
 #end if
-#if $library_import.maximumMassDiffToInclude is not None:
+#if str($library_import.maximumMassDiffToInclude) != '':
 maximumMassDiffToInclude = $library_import.maximumMassDiffToInclude
 #end if
-#if $library_import.bracketSpectra is not None:
+#if str($library_import.bracketSpectra) != 'None':
 bracketSpectra = $library_import.bracketSpectra
 #end if
-#if $library_import.mergeBracket is not None:
+#if str($library_import.mergeBracket) != 'None':
 mergeBracket = $library_import.mergeBracket
 #end if
 #if str($library_import.normalizeRTWithLandmarks) != 'None':
 normalizeRTWithLandmarks = $library_import.normalizeRTWithLandmarks
 #end if
-#if $library_import.normalizeRTLinearRegression is not None:
+#if str($library_import.normalizeRTLinearRegression) != 'None':
 normalizeRTLinearRegression = $library_import.normalizeRTLinearRegression
 #end if
     </token>
@@ -157,10 +157,6 @@ normalizeRTLinearRegression = $library_import.normalizeRTLinearRegression
             <param name="maximumFDRToInclude" type="float" value="" min="0.0" optional="true" 
                 label="maximumFDRToInclude for pepXML import" 
                 help="(Only for pepXML import) Include spectra with global FDR no greater than this in the library. Default is 999.0"/>
-            <param name="setFragmentation" type="select" label="Set the fragmentation type of all spectra, overriding existing information">
-                <option value="dataset" selected="true">Search Single Spectrum file and output results as a dataset</option>
-                <option value="collection">Search Multiple Spectrum files and output results as a collection</option>
-            </param>
             <param name="setFragmentation" type="select" optional="true" label="Set the fragmentation type of all spectra, overriding existing information" >
                 <help>Default is off (determined from the data files).
                       Examples: CID, ETD, CID-QTOF, HCD. The latter two are treated as high-mass accuracy spectra.
@@ -243,98 +239,101 @@ normalizeRTLinearRegression = $library_import.normalizeRTLinearRegression
     </xml>
 
     <token name="@LIBRARY_MANIPULATION_OPTIONS@">
-#if $library_manipulation.filterCriteria is not None:
+#if str($library_manipulation.filterCriteria) != '':
 filterCriteria = $library_manipulation.filterCriteria
 #end if
-#if $library_manipulation.combineAction is not None:
+#if str($library_manipulation.combineAction) != 'None':
 combineAction = $library_manipulation.combineAction
 #end if
 #if $library_manipulation.build.buildAction != 'NONE':
 buildAction = $library_manipulation.build.buildAction
 #if $library_manipulation.build.buildAction in ['BEST_REPLICATE','CONSENSUS']:
-#if $library_manipulation.build.build_bc_action.minimumNumReplicates is not None:
+#if str($library_manipulation.build.build_bc_action.minimumNumReplicates) != '':
 minimumNumReplicates = $library_manipulation.build.build_bc_action.minimumNumReplicates
 #end if
-#if $library_manipulation.build.build_bc_action.removeDissimilarReplicates is not None:
+#if str($library_manipulation.build.build_bc_action.removeDissimilarReplicates) in ['true','false']:
 removeDissimilarReplicates = $library_manipulation.build.build_bc_action.removeDissimilarReplicates
 #end if
-#if $library_manipulation.build.build_bc_action.peakQuorum is not None:
+#if str($library_manipulation.build.build_bc_action.peakQuorum) != '':
 peakQuorum = $library_manipulation.build.build_bc_action.peakQuorum
 #end if
-#if $library_manipulation.build.build_bc_action.maximumNumPeaksUsed is not None:
+#if str($library_manipulation.build.build_bc_action.maximumNumPeaksUsed) != '':
 maximumNumPeaksUsed = $library_manipulation.build.build_bc_action.maximumNumPeaksUsed
 #end if
-#if $library_manipulation.build.build_bc_action.maximumNumReplicates is not None:
+#if str($library_manipulation.build.build_bc_action.maximumNumReplicates) != '':
 maximumNumReplicates = $library_manipulation.build.build_bc_action.maximumNumReplicates
 #end if
-#if $library_manipulation.build.build_bc_action.maximumNumPeaksKept is not None:
+#if str($library_manipulation.build.build_bc_action.maximumNumPeaksKept) != '':
 maximumNumPeaksKept = $library_manipulation.build.build_bc_action.maximumNumPeaksKept
 #end if
-#if $library_manipulation.build.build_bc_action.replicateWeight is not None:
+#if str($library_manipulation.build.build_bc_action.replicateWeight) != 'None':
 replicateWeight = $library_manipulation.build.build_bc_action.replicateWeight
 #end if
-#if $library_manipulation.build.build_bc_action.recordRawSpectra is not None:
+#if str($library_manipulation.build.build_bc_action.recordRawSpectra) in ['true','false']:
 recordRawSpectra = $library_manipulation.build.build_bc_action.recordRawSpectra
 #end if
 #end if
 #if $library_manipulation.build.buildAction == 'DECOY':
-#if $library_manipulation.build.build_d_action.decoyConcatenate is not None:
+#if str($library_manipulation.build.build_d_action.decoyConcatenate) in ['true','false']:
 decoyConcatenate = $library_manipulation.build.build_d_action.decoyConcatenate
 #end if
-#if $library_manipulation.build.build_d_action.decoySizeRatio is not None:
+#if str($library_manipulation.build.build_d_action.decoySizeRatio) != '':
 decoySizeRatio = $library_manipulation.build.build_d_action.decoySizeRatio
 #end if
-#if $library_manipulation.build.build_d_action.decoyPrecursorSwap is not None:
+#if str($library_manipulation.build.build_d_action.decoyPrecursorSwap) in ['true','false']:
 decoyPrecursorSwap = $library_manipulation.build.build_d_action.decoyPrecursorSwap
 #end if
 #end if
 #if $library_manipulation.build.buildAction == 'USER_SPECIFIED_MODS':
-#if $library_manipulation.build.build_m_action.allowableModTokens is not None:
+#if str($library_manipulation.build.build_m_action.allowableModTokens) != '':
 allowableModTokens = $library_manipulation.build.build_m_action.allowableModTokens
 #end if
 #end if
 #if $library_manipulation.build.buildAction == 'QUALITY_FILTER':
-#if $library_manipulation.build.build_q_action.minimumNumReplicates is not None:
+#if str($library_manipulation.build.build_q_action.minimumNumReplicates) != '':
 minimumNumReplicates = $library_manipulation.build.build_q_action.minimumNumReplicates
 #end if
-#if $library_manipulation.build.build_q_action.qualityLevelRemove is not None:
+#if str($library_manipulation.build.build_q_action.qualityLevelRemove) != '':
 qualityLevelRemove = $library_manipulation.build.build_q_action.qualityLevelRemove
 #end if
-#if $library_manipulation.build.build_q_action.qualityLevelMark is not None:
+#if str($library_manipulation.build.build_q_action.qualityLevelMark) != '':
 qualityLevelMark = $library_manipulation.build.build_q_action.qualityLevelMark
 #end if
-#if $library_manipulation.build.build_q_action.qualityPenalizeSingletons is not None:
+#if str($library_manipulation.build.build_q_action.qualityPenalizeSingletons) in ['true','false']:
 qualityPenalizeSingletons = $library_manipulation.build.build_q_action.qualityPenalizeSingletons
 #end if
-#if $library_manipulation.build.build_q_action.qualityImmuneProbThreshold is not None:
+#if str($library_manipulation.build.build_q_action.qualityImmuneProbThreshold) != '':
 qualityImmuneProbThreshold = $library_manipulation.build.build_q_action.qualityImmuneProbThreshold
 #end if
-#if $library_manipulation.build.build_q_action.qualityImmuneMultipleEngines is not None:
+#if str($library_manipulation.build.build_q_action.qualityImmuneMultipleEngines) in ['true','false']:
 qualityImmuneMultipleEngines = $library_manipulation.build.build_q_action.qualityImmuneMultipleEngines
 #end if
 #end if
 #end if
-#if $library_manipulation.reduceSpectra is not None:
+#if str($library_manipulation.reduceSpectra) != '':
 reduceSpectra = $library_manipulation.reduceSpectra
 #end if
-#if $library_manipulation.minimumNumPeaksToInclude is not None:
+#if str($library_manipulation.reannotatePeaks) in ['true','false']:
+reannotatePeaks = $library_manipulation.reannotatePeaks
+#end if
+#if str($library_manipulation.minimumNumPeaksToInclude) != '':
 minimumNumPeaksToInclude = $library_manipulation.minimumNumPeaksToInclude
 #end if
-#if $library_manipulation.minimumMRMQ3MZ is not None:
+#if str($library_manipulation.minimumMRMQ3MZ) != '':
 minimumMRMQ3MZ = $library_manipulation.minimumMRMQ3MZ
 #end if
-#if $library_manipulation.maximumMRMQ3MZ is not None:
+#if str($library_manipulation.maximumMRMQ3MZ) != '':
 maximumMRMQ3MZ = $library_manipulation.maximumMRMQ3MZ
 #end if
 #if $library_manipulation.db.refresh == 'yes':
 refreshDatabase = $library_manipulation.db.refreshDatabase
-#if $library_manipulation.db.refreshDeleteUnmapped is not None:
+#if str($library_manipulation.db.refreshDeleteUnmapped) in ['true','false']:
 refreshDeleteUnmapped = $library_manipulation.db.refreshDeleteUnmapped
 #end if
-#if $library_manipulation.db.refreshDeleteMultimapped is not None:
+#if str($library_manipulation.db.refreshDeleteMultimapped) in ['true','false']:
 refreshDeleteMultimapped = $library_manipulation.db.refreshDeleteMultimapped
 #end if
-#if $library_manipulation.db.refreshTrypticOnly is not None:
+#if str($library_manipulation.db.refreshTrypticOnly) in ['true','false']:
 refreshTrypticOnly = $library_manipulation.db.refreshTrypticOnly
 #end if
 #end if
@@ -363,7 +362,7 @@ refreshTrypticOnly = $library_manipulation.db.refreshTrypticOnly
                 label="maximumNumPeaksKept"
                 help="De-noise single spectra by keeping only this number of the most intense peaks.  Will not affect consensus spectra of more than one replicate.  Default is 150"/>
             <param name="replicateWeight"  type="select" optional="true" label="replicateWeight  Default: signal-to-noise ratio"  >
-                <help> How to combine peptides from multiple files
+                <help> Select the type of score to weigh and rank the replicates.
                 </help>
                 <option value="NONE">NONE</option>
                 <option value="SN">Use a measure of signal-to-noise ratio as the weight.</option>
@@ -454,7 +453,7 @@ refreshTrypticOnly = $library_manipulation.db.refreshTrypticOnly
             <param name="filterCriteria" type="text" value="" optional="true" label="filterCriteria">
                 <help><![CDATA[
                  Filter library by criteria. Keep only those entries satisfying the predicate.
-                 The preicate should in the form "<attr> <op> <value>".
+                 The predicate should in the form "<attr> <op> <value>".
                  <attr> can refer to any of the fields and any comment entries.
                  <op> can be ==, !=, <, >, <=, >=, =~ and !~.
                  Multiple predicates can be separated by either & (AND logic) or | (OR logic), but not both.

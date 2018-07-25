@@ -11,21 +11,21 @@
                '$spectrastParams'
            #end if
            '$spectrast_params' -o spectrast_create.params &&
-        mkdir -p libdir &&
-        spectrast -cFspectrast_create.params -cN'libdir/library' 
+        mkdir -p outdir &&
+        spectrast -cFspectrast_create.params -cN'outdir/library' 
         #for $splib_file in $splib_files:
             ${splib_file.extra_files_path}/library.splib
         #end for
         &&
         mkdir -p '$output.files_path' &&
-        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/${i} ]; then cp -p outdir/${i} '$output.files_path'; fi; done
+        for i in library.splib library.sptxt library.spidx library.pepidx; do if [ -e outdir/\${i} ]; then cp -p outdir/\${i} '$output.files_path'; fi; done
 ]]>
     </command>
     <configfiles>
         <configfile name="spectrast_params"><![CDATA[#slurp
 ]]>
 @LIBRARY_CREATE_OPTIONS@
-@LIBRARY_MANIPULATION_OPTIONS
+@LIBRARY_MANIPULATION_OPTIONS@
         </configfile>
     </configfiles>
     <inputs>
