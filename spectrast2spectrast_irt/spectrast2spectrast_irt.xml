@@ -16,7 +16,7 @@
         ## may have to link splib
         mkdir -p outdir &&
         spectrast2spectrast_irt.py
-            --in ${input.extra_file_path}/library.sptxt
+            --in ${input.extra_files_path}/library.sptxt
             --out outdir/library.splib
             #if str($kit) != 'None':
                 --kit "#echo ",".join(str($kit).split(','))#"
