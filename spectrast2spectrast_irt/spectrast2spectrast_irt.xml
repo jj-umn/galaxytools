@@ -18,8 +18,16 @@
         spectrast2spectrast_irt.py
             --in ${input.extra_files_path}/library.sptxt
             --out outdir/library.splib
-            #if str($kit) != 'None':
-                --kit "#echo ",".join(str($kit).split(','))#"
+            #if i$kits.src == 'biognosys_irt':
+                #if str($kits.kit) != 'None':
+                    --kit "#echo ",".join(str($kits.kit).split(','))#"
+                #end if
+            #elif $kits.src == 'history':
+                #set $pep_irts = []
+                #for line in open($kits.irt_file,'r').readlines():
+                    #silent $pep_irts.append(':'.join(line.strip().split('\t')))
+                #end for
+                --kit "#echo ",".join($pep_irts)#"
             #end if
             $applychauvenet
             $precursorlevel
@@ -51,19 +59,31 @@
 
         <param name="rsq_threshold" type="float" value="0.95" label="Specify r-squared threshold to accept linear regression" help="(--rsq_threshold)" />
 
-        <param name="kit" type="select" multiple="True" optional="True" label="Specifiy RT-kit">
-            <option value="LGGNEQVTR:-28.3083">LGGNEQVTR:-28.3083</option>
-            <option value="GAGSSEPVTGLDAK:0.227424">GAGSSEPVTGLDAK:0.227424</option>
-            <option value="VEATFGVDESNAK:13.1078">VEATFGVDESNAK:13.1078</option>
-            <option value="YILAGVENSK:22.3798">YILAGVENSK:22.3798</option>
-            <option value="TPVISGGPYEYR:28.9999">TPVISGGPYEYR:28.9999</option>
-            <option value="TPVITGAPYEYR:33.6311">TPVITGAPYEYR:33.6311</option>
-            <option value="DGLDAASYYAPVR:43.2819">DGLDAASYYAPVR:43.2819</option>
-            <option value="ADVTPADFSEWSK:54.969">ADVTPADFSEWSK:54.969</option>
-            <option value="GTFIIDPGGVIR:71.3819">GTFIIDPGGVIR:71.3819</option>
-            <option value="GTFIIDPAAVIR:86.7152">GTFIIDPAAVIR:86.7152</option>
-            <option value="LFLQFGAQGSPFLK:98.0897">LFLQFGAQGSPFLK:98.0897</option>
-        </param>
+        <conditional name="kits">
+            <param name="src" type="select" label="">
+                <option value="biognosys_irt">Biognosys iRT</option>
+                <option value="history">History dataset (2 columns: peptide iRT)</option>
+            </param>
+            <when value="biognosys_irt">
+                <param name="kit" type="select" multiple="True" optional="True" label="Specifiy RT-kit">
+                    <option value="LGGNEQVTR:-28.3083">LGGNEQVTR:-28.3083</option>
+                    <option value="GAGSSEPVTGLDAK:0.227424">GAGSSEPVTGLDAK:0.227424</option>
+                    <option value="VEATFGVDESNAK:13.1078">VEATFGVDESNAK:13.1078</option>
+                    <option value="YILAGVENSK:22.3798">YILAGVENSK:22.3798</option>
+                    <option value="TPVISGGPYEYR:28.9999">TPVISGGPYEYR:28.9999</option>
+                    <option value="TPVITGAPYEYR:33.6311">TPVITGAPYEYR:33.6311</option>
+                    <option value="DGLDAASYYAPVR:43.2819">DGLDAASYYAPVR:43.2819</option>
+                    <option value="ADVTPADFSEWSK:54.969">ADVTPADFSEWSK:54.969</option>
+                    <option value="GTFIIDPGGVIR:71.3819">GTFIIDPGGVIR:71.3819</option>
+                    <option value="GTFIIDPAAVIR:86.7152">GTFIIDPAAVIR:86.7152</option>
+                    <option value="LFLQFGAQGSPFLK:98.0897">LFLQFGAQGSPFLK:98.0897</option>
+                </param>
+            </when>
+            <when value="history">
+                <param name="irt_file" type="data" format="tabular" label="Peptide iRT table" 
+                   help="2 columns: peptide iRT" />
+            </when>
+        </conditional>
     </inputs>
     <outputs>
         <data name="output_report" format="csv" from_work_dir="outdir/library.csv">
@@ -93,7 +113,27 @@
 <![CDATA[
 **What it does**
 
-Filter from spectraST files to swath input files.
+SpectraST RT Normalizer
+---------------------------------------------------------------------------------------------
+Usage:     spectrast2spectrast_irt.py -i non_consensus_library.[splib/sptxt] -o non_consensus_library_irt.splib
+Input:     SpectraST non_consensus_library.splib in txt format
+Output:    SpectraST non_consensus_library_irt.[splib/pepidx] and regression plots for all runs.
+Argument:  -i [--in]: input file
+           -o [--out]: output file
+           (optional) -k [--kit]: specifiy RT-kit [LGGNEQVTR:-28.3083,GAGSSEPVTGLDAK:0.227424,VEATFGVDESNAK:13.1078,YILAGVENSK:22.3798,TPVISGGPYEYR:28.9999,TPVITGAPYEYR:33.6311,DGLDAASYYAPVR:43.2819,ADVTPADFSEWSK:54.969,GTFIIDPGGVIR:71.3819,GTFIIDPAAVIR:86.7152,LFLQFGAQGSPFLK:98.0897]
+           (optional) -a [--applychauvenet]: should Chavenet's criterion be used to exclude outliers?
+           (optional) -p [--precursorlevel]: should precursors instead of peptides be used for grouping?
+           (optional)    [--spectralevel]: do not merge or group any peptides or precursors (use raw spectra)
+           (optional) -r [--report]: should a csv report be written?
+           (optional) -e [--exclude]: specify peptides from the RT-kit to exclude [run_id1:LGGNEQVTR,run_id2:GAGSSEPVTGLDAK]
+           (optional) -s [--surrogate]: specify surrogate calibrations [broken_run_id1:working_run_id2]
+           (optional) -l [--linearregression]: specify surrogate linear regressions (first number: c, second number: m) [broken_run_id1:1/3]
+           (optional) -t [--rsq_threshold]: specify r-squared threshold to accept linear regression [0.95]
+Important: The splib need to be in txt format!
+           spectrast -c_BIN! -cNnon_consensus.txt non_consensus.bin.splib
+           All runs in your library further need to contain the Biognosys RT-kit peptides.
+Contact:   George Rosenberger <rosenberger@imsb.biol.ethz.ch>
+
 
 
 ]]>
