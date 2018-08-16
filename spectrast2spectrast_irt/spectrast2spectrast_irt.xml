@@ -60,7 +60,7 @@
         <param name="rsq_threshold" type="float" value="0.95" label="Specify r-squared threshold to accept linear regression" help="(--rsq_threshold)" />
 
         <conditional name="kits">
-            <param name="src" type="select" label="">
+            <param name="src" type="select" label="iRT kit selection">
                 <option value="biognosys_irt">Biognosys iRT</option>
                 <option value="history">History dataset (2 columns: peptide iRT)</option>
             </param>
