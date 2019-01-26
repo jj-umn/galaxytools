@@ -62,7 +62,7 @@
         <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
       </param>
       <param name="multi_exon_transcripts_stats" type="select" label="Use multiple exon transcripts for stats calculations" help="should be enabled for very small libraries">
-        <option value="no" select="true">no</option>
+        <option value="no" selected="true">no</option>
         <option value="yes">yes</option>
       </param>
       <param name="covariance_sampling_density" type="float" value="0.01" optional="true" label="covariance_sampling_density">

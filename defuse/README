@@ -61,3 +61,9 @@ The reference dataset setup process has been simplified as of deFuse 0.6.0, and 
 The create_reference_dataset.pl script will download the genome and other source files, and build any derivative files including bowtie indices, gmap indices, and 2bit files. Run the following command. Expect this step to take at least 12 hours.
 create_reference_dataset.pl -c config.txt
 
+
+defuse_trinity_analysis.py - Validating deFuse predictions using Trinity de novo assembled transcripts
+
+DeFuse provides a total fusion sequence of 200-500 nucleotides (nts) around the fusion breakpoint.  This may be insufficient to predict the effect of the fusion on protein production.  To get a view of the full transcript containing the fusion, Trinity de novo transcripts from the RNA-seq data are compared with the deFuse fusion sequences using a subsequence around the deFuse indetified fusion breakpoint.  The Trinity transcriptToOrfs output provides potential proteins from the projected fusion transcript.
+
+

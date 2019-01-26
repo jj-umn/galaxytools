@@ -164,7 +164,7 @@ ncbi_organism = $genome.ncbi_organism
 ncbi_prefix = $genome.ncbi_prefix
 
 # Directory where you want your dataset
-dataset_directory = $config_txt.dataset.extra_files_path
+dataset_directory = $config_txt.extra_files_path
 
 #raw
 # Input genome and gene models
@@ -267,7 +267,7 @@ if `grep __RSCRIPT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} RSCRIPT_BI
 ## copy config to output
 cp $defuse_config $config_txt
 ## make a data_dir  and ln -s the input fastq
-mkdir -p $config_txt.dataset.extra_files_path
+mkdir -p $config_txt.files_path
 ## create_reference_dataset.pl
 perl \${DEFUSE_PATH}/scripts/create_reference_dataset.pl -c $defuse_config 
   </configfile>

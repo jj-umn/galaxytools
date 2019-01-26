@@ -40,19 +40,21 @@
     <data name="output" metadata_source="defuse_results" format="tabular" label="${tool.name} on ${on_string}: Fusion Report"/>
   </outputs>
   <tests>
-    <test>
-      <param name="defuse_results" value="mm10_results.filtered.tsv" ftype="defuse.results.tsv" dbkey="mm10"/>
-      <output name="vcf" file="mm10_results.filtered.vcf"/>
-    </test>
   </tests>
   <help>
 **Defuse Results**
 
 Verifies DeFuse_ fusion predictions in results.tsv with TrinityRNAseq_ assembled transcripts and ORFs.   
 
-This program relies on the header line of the results.tsv to determine which columns to use for analysis.   
+DeFuse provides a total fusion sequence of 200-500 nucleotides (nts) around the fusion breakpoint.  This may be insufficient to predict the effect of the fusion on protein production.  To get a view of the full transcript containing the fusion, Trinity de novo transcripts from the RNA-seq data are compared with the deFuse fusion sequences using a subsequence around the deFuse indetified fusion breakpoint.  The Trinity transcriptToOrfs output provides potential proteins from the projected fusion transcript.  
+
+This program relies on the header line of the deFuse results.tsv to determine which columns to use for analysis.   
 
 .. _DeFuse: http://sourceforge.net/apps/mediawiki/defuse
 .. _TrinityRNAseq: http://trinityrnaseq.github.io/
   </help>
+    <expand macro="citations">
+        <citation type="doi">10.1038/nbt.1883</citation>
+        <citation type="doi">10.1038/s41598-018-36840-z</citation>
+    </expand>
 </tool>
