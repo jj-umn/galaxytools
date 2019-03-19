@@ -116,13 +116,16 @@ def __main__():
                 qual = float(qual)
                 dp = None
                 dpr = None
+                af = None
                 for info_item in info.split(';'):
                     if info_item.find('=') < 0: continue
                     (key, val) = info_item.split('=', 1)
                     if key == 'DP':
                         dp = int(val)
-                    if key == 'DPR':
+                    if key == 'DPR' or key == 'AD':
                         dpr = [int(x) for x in val.split(',')]
+                    if key == 'AF':
+                        af = [float(x) for x in val.split(',')]
                     if key in ['EFF','ANN']:
                         for effect in val.split(','):
                             if options.debug: print >> sys.stderr, "\n%s" % (effect.split('|'))
@@ -132,9 +135,15 @@ def __main__():
                                 (eff, effs) = effect.rstrip(')').split('(')
                                 (impact, functional_class, codon_change, aa_change, aa_len, gene_name, biotype, coding, transcript, exon, alt) = effs.split('|')[0:11]
                             i = alt_list.index(alt) if alt in alt_list else 0
-                            freq = float(dpr[i+1])/float(dp) if dp and dpr else \
-                                float(dpr[i+1])/float(sum(dpr)) if dpr else None
-                            yield (transcript,pos,ref,alt,dp,freq)
+                            if af:
+                                freq = af[i]
+                            elif dpr:
+                                freq = float(dpr[i+1])/float(dp) if dp else \
+                                    float(dpr[i+1])/float(sum(dpr))
+                            else: 
+                                freq = None
+                            if freq:
+                                yield (transcript,pos,ref,alt,dp,freq)
 
 
     #Process gene model
@@ -181,6 +190,8 @@ def __main__():
                 alt_seq = alt if tx.gene.strand else reverse_complement(alt)
                 ref_seq = ref if tx.gene.strand else reverse_complement(ref)
                 cds_pos = ens_ref.genome_to_cds_pos(tid, spos)
+                if cds_pos is None:
+                    continue
                 if options.debug: print >> sys.stderr, "cds_pos: %s" % (str(cds_pos))
                 alt_cds = cds[:cds_pos] + alt_seq + cds[cds_pos+len(ref):] if cds_pos+len(ref) < len(cds) else '' 
                 offset = 0
