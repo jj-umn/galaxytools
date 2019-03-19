@@ -1,4 +1,4 @@
-<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.1.0">
+<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.2.0">
     <requirements>
         <requirement type="package" version="1.40">gtf_to_genes</requirement>
         <requirement type="package" version="3.1.4">twobitreader</requirement>
