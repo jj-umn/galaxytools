@@ -116,6 +116,7 @@ def __main__():
                 qual = float(qual)
                 dp = None
                 dpr = None
+                ao = None
                 af = None
                 for info_item in info.split(';'):
                     if info_item.find('=') < 0: continue
@@ -124,6 +125,8 @@ def __main__():
                         dp = int(val)
                     if key == 'DPR' or key == 'AD':
                         dpr = [int(x) for x in val.split(',')]
+                    if key == 'AO':
+                        ao = [int(x) for x in val.split(',')]
                     if key == 'AF':
                         af = [float(x) for x in val.split(',')]
                     if key in ['EFF','ANN']:
@@ -135,11 +138,14 @@ def __main__():
                                 (eff, effs) = effect.rstrip(')').split('(')
                                 (impact, functional_class, codon_change, aa_change, aa_len, gene_name, biotype, coding, transcript, exon, alt) = effs.split('|')[0:11]
                             i = alt_list.index(alt) if alt in alt_list else 0
-                            if af:
-                                freq = af[i]
+                            if ao:
+                                freq = float(ao[i])/float(dp) if dp else \
+                                    float(dpr[i])/float(sum(ao))
                             elif dpr:
                                 freq = float(dpr[i+1])/float(dp) if dp else \
                                     float(dpr[i+1])/float(sum(dpr))
+                            elif af:
+                                freq = af[i]
                             else: 
                                 freq = None
                             if freq:

@@ -1,4 +1,4 @@
-<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.2.0">
+<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.3.0">
     <requirements>
         <requirement type="package" version="1.40">gtf_to_genes</requirement>
         <requirement type="package" version="3.1.4">twobitreader</requirement>
@@ -97,7 +97,7 @@
         <data name="output" format="tabular" >
             <actions>
                 <action name="column_names" type="metadata" 
-                 default="Gene,Ref_location,Ref_seq,Var_seq,Frequency,DP,Ensemble_Gene_transcript,AA_pos,AA_var,Protein_len,Stop_Codon,Variant_Peptide,Transcipt_type"/>
+                 default="Gene,Ref_location,Ref_seq,Var_seq,Frequency,DP,Ensemble_Gene_transcript,AA_pos,AA_var,Protein_len,Stop_Codon,Variant_Peptide,Transcript_type"/>
             </actions>
         </data>
     </outputs>
@@ -179,17 +179,42 @@
     </tests>
     <help><![CDATA[
 Uses an Essembl GTF and a genome 2bit reference to report variant peptides from snpEff reported missense and frameshift variants.
-Allows readthrough of stop codons, and reports the stop codons.  
+Allows readthrough of stop codons, and reports the stop codons.  Translation readthrough is known to occur with some antibiotics.
+
+The variant peptides can be converted to a fasta file with text and fasta tools, then used as input to epitope binding prediction 
+applications such as netMHC or IEDB.
+
+**Input**
 
 Input can be a snpEff vcf file using either ANN or EFF annotations.
+
 Alternatively, the input can be a tabular file that has columns:
 
-  - pos
-  - ref
-  - alt
+  - genomic_location
+  - reference_bases
+  - variant_bases
   - Ensembl Transcript ID
   - Read Depth (DP)
   - AlleleDepth (DPR)
+
+**Output**
+
+Sample Output ::
+
+  ====== ============= ======= ======= ========= === =============================== ====== ====== =========== =============== ======================= =======================
+  Gene   Ref_location  Ref_seq Var_seq Frequency DP  Ensemble_Gene_transcript        AA_pos AA_var Protein_len Stop_Codon      Variant_Peptide         Transcript_type
+  ====== ============= ======= ======= ========= === =============================== ====== ====== =========== =============== ======================= =======================
+  ACTL8  1:18149510 +  G       T       1.00      12  ENSG00000117148|ENST00000375406 3      A3S    367         G-TGA           MA_S_RTVIIDHGSG         protein_coding
+  BDH2   4:104013796 - A       G       0.47      159 ENSG00000164039|ENST00000511354 70     N70S   91          c-tag           TKKKQIDQFA_S_EVERLDVLFN nonsense_mediated_decay
+  CENPE  4:104061993 - G       C       0.83      6   ENSG00000138778|ENST00000265148 1911   S1911T 2702        G-TAG           LKLERDQLKE_T_LQETKARDLE protein_coding
+  CCHCR1 6:31110391 -  C       G       0.40      65  ENSG00000204536|ENST00000396268 865    S865C  872         C-TAA           QGDNLDRCSS_C_NPQMSS*    protein_coding
+  NPRL3  16:138772 -   CT      CCT     0.58      123 ENSG00000103148|ENST00000399953 489    S489L  569         A-TGA-C,C-TGA-G LGA*TRSHPQCTRSPEP*      protein_coding
+  ====== ============= ======= ======= ========= === =============================== ====== ====== =========== =============== ======================= =======================
+
+The Variant_Peptide column:
+  - misense:  prior amino acids _ variant amino acid _ following amino acids
+  - frameshift: variant amino acids with stop codons indicated by *
+
 
     ]]></help>
     <citations>
