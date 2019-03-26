@@ -5,17 +5,24 @@
     </macros>
     <expand macro="requirements" />
     <command detect_errors="exit_code"><![CDATA[
+        #import os.path
+        #import re
+        #def clean(name)
+            #set $base_name = $os.path.basename($name)
+            #set $name_clean = re.sub('[^\w\-_\.]', '_', $base_name)
+            #return $name_clean
+        #end def
         #if $imgt.library_selector == 'history':
-            #set $libname = $imgt.library.name
+            #set $libname = $re.sub('.gz$','',$clean($imgt.library.name))
             ln -s -f $imgt.library $libname &&
         #end if
         #if str( $fastq_input.fastq_input_selector ) == "paired":
-          #set $fq1 = $fastq_input.fastq_input1.name
+          #set $fq1 = $clean($fastq_input.fastq_input1.name)
           ln -s -f $fastq_input.fastq_input1 $fq1 &&
-          #set $fq2 = $fastq_input.fastq_input2.name
+          #set $fq2 = $clean($fastq_input.fastq_input2.name)
           ln -s -f $fastq_input.fastq_input2 $fq2 &&
         #else:
-          #set $fq1 = $fastq_input.fastq_input1.name
+          #set $fq1 = $clean($fastq_input.fastq_input1.name)
           ln -s -f $fastq_input.fastq_input1 $fq1 &&
         #end if
         mixcr analyze $analyze.pipeline --starting-material $starting_material
