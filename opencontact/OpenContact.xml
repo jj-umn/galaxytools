@@ -1,4 +1,4 @@
-<tool id="OpenContact" name="Open Contact" version="1.1.0" profile="16.01">
+<tool id="OpenContact" name="Open Contact" version="1.1.1" profile="19.01">
     <description>contact mapping for protein-protein interaction</description>
     <requirements>
         <requirement type="package" version="1.1">opencontactcli</requirement>
@@ -11,44 +11,19 @@
         #end if
     ]]></command>
     <inputs>
-        <!--  Use until PQR datatype available -->
-        <param name="proteinA" type="data" format="pdb" label="Protein A"/>
-        <!-- -->
-        <!--  Use when PQR datatype available  
         <param name="proteinA" type="data" format="pdb,pqr" label="Protein A"/>
-        -->
-        <!--  Use until PDB chain_ids metadata -->
-        <param name="proteinA_chain" type="text" value="" label="Protein A chain" >
-            <validator type="regex" message="">[A-Z]</validator>
-        </param>
-        <!-- -->
-        <!-- Use when PDB chain_ids metadata available 
         <param name="proteinA_chain" type="select" label="Protein A chain" >
             <options>
                 <filter type="data_meta" ref="proteinA" key="chain_ids" />
             </options>
         </param>
-        -->
-        <!--  Use until PQR datatype available  -->
-        <param name="proteinB" type="data" format="pdb" label="Protein B" 
-            help="This can be the same as Protein A for intra-protein interactions"/>
-        <!-- -->
-        <!--  Use when PQR datatype available -->
         <param name="proteinB" type="data" format="pdb,pqr" label="Protein B" 
             help="This can be the same as Protein A for intra-protein interactions"/>
-        <!-- -->
-        <!--  Use until PDB chain_ids metadata -->
-        <param name="proteinB_chain" type="text" value="" label="Protein B chain" >
-            <validator type="regex" message="">[A-Z]</validator>
-        </param>
-        <!-- -->
-        <!-- Use when PDB chain_ids metadata available 
         <param name="proteinB_chain" type="select" label="Protein B chain" >
             <options>
                 <filter type="data_meta" ref="proteinB" key="chain_ids" />
             </options>
         </param>
-        -->
         <param name="output_choices" type="select" multiple="true" display="checkboxes" label="Select Outputs" >
             <option value="fineab_pdb" selected="true">fineab.pdb</option>
             <option value="coarseab_pdb" selected="true">coarseab.pdb</option>
