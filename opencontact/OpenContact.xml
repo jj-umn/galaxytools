@@ -1,4 +1,4 @@
-<tool id="OpenContact" name="Open Contact" version="1.1.1" profile="19.01">
+<tool id="OpenContact" name="Open Contact" version="1.1.1" profile="18.09">
     <description>contact mapping for protein-protein interaction</description>
     <requirements>
         <requirement type="package" version="1.1">opencontactcli</requirement>
