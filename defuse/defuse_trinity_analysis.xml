@@ -4,10 +4,8 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-  <stdio>
-    <exit_code range="1:" level="fatal" description="Error" />
-  </stdio>
-  <command interpreter="python">defuse_trinity_analysis.py --input $defuse_results --transcripts $trinity_transcripts --peptides $trinity_orfs 
+  <command detect_errors="default"><![CDATA[
+  python $__tool_directory__/defuse_trinity_analysis.py --input $defuse_results --transcripts $trinity_transcripts --peptides $trinity_orfs 
   --nbases $nbases --min_pep_len $min_pep_len --ticdist $ticdist --readthrough=$readthrough
   #if 'matched' in str($outputs).split(','):
     --matched="$matched_output"
@@ -16,7 +14,7 @@
     --transcript_alignment="$aligned_output"
   #end if  
   --output $output 
-  </command>
+  ]]></command>
   <inputs>
     <param name="defuse_results" type="data" format="defuse.results.tsv" label="Defuse Results file"/> 
     <param name="trinity_transcripts" type="data" format="fasta" label="TrinityRNAseq: Assembled Transcripts"/> 

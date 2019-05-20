@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<tool id="defuse_bamfastq" name="Defuse BamFastq" version="@DEFUSE_VERSION@.2">
+<tool id="defuse_bamfastq" name="Defuse BamFastq" version="@DEFUSE_VERSION@.1">
   <description>converts a bam file to fastq files.</description>
     <macros>
         <import>macros.xml</import>
@@ -7,7 +7,7 @@
     <requirements>
         <expand macro="defuse_requirement" />
     </requirements>
-  <command>bamfastq
+  <command detect_errors="default">bamfastq
     #if $pair == True :
       $pair
     #end if
@@ -27,9 +27,6 @@
     <param name="multiple" type="boolean" truevalue="-m" falsevalue="" checked="true" label="Bam contains multiple mappings per read."/>
     <param name="rename" type="boolean" truevalue="-r" falsevalue="" checked="true" label="Rename with integer IDs."/>
   </inputs>
-  <stdio>
-    <exit_code range="1:" level="fatal" description="Error" />
-  </stdio>
   <outputs>
     <data format="fastqsanger" name="fastq1" label="fastq1"  />
     <data format="fastqsanger" name="fastq2" label="fastq2"  />

@@ -1,121 +1,41 @@
-<tool id="defuse" name="DeFuse" version="@DEFUSE_VERSION@.2">
+<tool id="defuse" name="DeFuse" version="@DEFUSE_VERSION@.1">
     <description>identify fusion transcripts</description>
     <macros>
         <import>macros.xml</import>
     </macros>
     <requirements>
         <expand macro="defuse_requirement" />
-        <expand macro="mapping_requirements" />
-        <expand macro="r_requirements" />
     </requirements>
-  <command interpreter="command"> /bin/bash $shscript </command>
- <inputs>
-  <param name="left_pairendreads" type="data" format="fastq" label="left part of read pairs" help="The left and right reads pairs must be in the same order, and not have any unpaired reads.  (FASTQ interlacer will pair reads and remove the unpaired.   FASTQ de-interlacer will separate the result into left and right reads.)"/>
-  <param name="right_pairendreads" type="data" format="fastq" label="right part of read pairs" help="In the same order as the left reads"/>
-  <param name="library_name" type="text" value="unknown" label="library name" help="Value to put in the results library_name column">
-    <validator type="length" min="1"/>
-  </param>
-  <conditional name="refGenomeSource">
-    <param name="genomeSource" type="select" label="Will you select a built-in DeFuse Reference Dataset, or supply a configuration from your history" help="">
-      <option value="indexed">Use a built-in DeFuse Reference Dataset</option>
-      <option value="history">Use a configuration from your history that specifies the DeFuse Reference Dataset</option>
-    </param>
-    <when value="indexed">
-      <param name="index" type="select" label="Select a Reference Dataset" help="if your genome of interest is not listed - contact Galaxy team">
-        <options from_file="defuse_reference.loc">
-          <column name="name" index="1"/>
-          <column name="value" index="3"/>
-          <filter type="sort_by" column="0" />
-          <validator type="no_options" message="No indexes are available" />
-        </options>
-      </param>
-    </when>
-    <when value="history">
-      <param name="config" type="data" format="defuse.conf" label="Defuse Config file" help=""/>
-    </when>  <!-- history -->
-  </conditional>  <!-- refGenomeSource -->
-  <conditional name="defuse_param">
-    <param name="settings" type="select" label="Defuse parameter settings" help="">
-      <option value="preSet">Default settings</option>
-      <option value="full">Full parameter list</option>
-    </param>
-    <when value="preSet" />
-    <when value="full">
-      <param name="max_insert_size" type="integer" value="500" optional="true" label="Bowtie max_insert_size" />
-      <param name="dna_concordant_length" type="integer" value="2000" optional="true" label="Minimum gene fusion range dna_concordant_length" />
-      <param name="discord_read_trim" type="integer" value="50" optional="true" label="Trim length for discordant reads discord_read_trim" help="(split reads are not trimmed)" />
-      <param name="calculate_extra_annotations" type="select" label="Calculate extra annotations, fusion splice index and interrupted index" help="">
-        <option value="">Use Default</option>
-        <option value="no">no</option>
-        <option value="yes">yes</option>
-      </param>
-      <param name="clustering_precision" type="float" value=".95" optional="true" label="Filter clustering_precision">
-        <validator type="in_range" message="Choose a value between .1 and 1.0" min=".1" max="1"/>
-      </param>
-      <param name="span_count_threshold" type="integer" value="5" optional="true" label="Filter span_count_threshold" />
-      <param name="percent_identity_threshold" type="float" value=".90" optional="true" label="Filter percent_identity_threshold">
-        <validator type="in_range" message="Choose a value between .1 and 1.0" min=".1" max="1"/>
-      </param>
-      <param name="split_min_anchor" type="integer" value="4" optional="true" label="Filter split_min_anchor" />
-      <param name="splice_bias" type="integer" value="10" optional="true" label="Filter splice_bias" />
-      <param name="probability_threshold" type="float" value="0.50" optional="true" label="Filter probability_threshold">
-        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
-      </param>
-      <param name="multi_exon_transcripts_stats" type="select" label="Use multiple exon transcripts for stats calculations" help="should be enabled for very small libraries">
-        <option value="no" selected="true">no</option>
-        <option value="yes">yes</option>
-      </param>
-      <param name="covariance_sampling_density" type="float" value="0.01" optional="true" label="covariance_sampling_density">
-        <help>Position density when calculating covariance</help>
-        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
-      </param>
-      <param name="max_paired_alignments" type="integer" value="10" optional="true" label="max_paired_alignments">
-        <help>Maximum number of alignments for a read pair, Pairs with more alignments are filtered, default is 10</help>
-        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="1" max="100"/>
-      </param>
-      <param name="denovo_assembly" type="select" label="denovo_assembly" help="">
-        <option value="">Use Default</option>
-        <option value="no">no</option>
-        <option value="yes">yes</option>
-      </param>
-      <!--
-        <param name="positive_controls" type="data" format="txt" optional=true label="Defuse positive_controls" help=""/>
-      -->
-      <param name="reads_per_job" type="integer" value="1000000" optional="true" label="Number of reads for each job in split" />
-    </when> <!-- full -->
-  </conditional>  <!-- defuse_param -->
-  <param name="keep_output" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Save DeFuse working directory files" 
-         help="The defuse output working directory can be helpful for determining errors that may have occurred during the run, 
-               but they require considerable diskspace, and should be deleted and purged when no longer needed."/>
-  <param name="breakpoints_bam" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Generate a Bam file for the fusions"/>
-  <param name="do_get_reads" type="boolean" checked="false" truevalue="yes" falsevalue="no" label="Run get_reads on each cluster"/>
- </inputs>
- <stdio>
-   <exit_code range="1:"  level="fatal" description="Error Running Defuse" />
- </stdio>
- <outputs>
-  <data format="txt" name="config_txt" label="${tool.name} on ${on_string}: config.txt"/>
-  <data format="txt" name="defuse_log" label="${tool.name} on ${on_string}: defuse.log" />
-  <data format="html" name="defuse_out" label="${tool.name} on ${on_string}: defuse_output (purge when no longer needed)">
-    <filter>keep_output == True</filter>
-  </data>
-  <data format="defuse.results.tsv" name="results_classify_tsv" label="${tool.name} on ${on_string}: results.classify.tsv" />
-  <data format="defuse.results.tsv" name="results_filtered_tsv" label="${tool.name} on ${on_string}: results.filtered.tsv" />
-  <data format="html" name="fusion_reads" label="${tool.name} on ${on_string}: fusion_reads">
-    <filter>do_get_reads == True</filter>
-  </data>
-  <data format="bam" name="fusions_bam" label="${tool.name} on ${on_string}: fusions.bam">
-    <filter>breakpoints_bam == True</filter>
-  </data>
-  <!--
-   expression_plot
-   circos plot
-  -->
- </outputs>
+  <command detect_errors="default"><![CDATA[
+    #if $defuse_out.__str__ != 'None':
+        ## ln to output_dir in from_work_dir
+        mkdir -p $defuse_out.files_path &&
+        ln -s $defuse_out.files_path  output_dir &&
+    #else
+      mkdir -p output_dir &&
+    #end if
+    ## Put executable paths in config file
+    $__tool_directory__/config_sub.sh $defuse_config output_dir/defuse.cfg &&
+    ## copy config to output
+    cp output_dir/defuse.cfg $config_txt &&
+    ## make a data_dir  and ln -s the input fastq
+    mkdir -p data_dir &&
+    ln -s "$left_pairendreads" data_dir/reads_1.fastq &&
+    ln -s "$right_pairendreads" data_dir/reads_2.fastq &&
+    ## run 
+    DATASET_DIRECTORY=`grep '^dataset_directory' output_dir/defuse.cfg | awk '{print \$NF}'` &&
+    defuse_run.pl --name "$library_name" --config output_dir/defuse.cfg --dataset \$DATASET_DIRECTORY -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p \$GALAXY_SLOTS &&
+    grep -v cluster_id  output_dir/results.filtered.tsv | awk '{print $1}' > cluster_id_list && 
+    get_fusion_fastq.pl --list cluster_id_list --output output_dir --fastq1 results.fusions_1.fq --fastq2 results.fusions_2.fq && 
+    cp output_dir/results.* .  &&
+    cp `find -L output_dir -name defuse.log` $defuse_log 
+    #if $defuse_out.__str__ != 'None':
+        && $__tool_directory__/make_html.sh $defuse_out $defuse_out.files_path
+    #end if
+  ]]></command>
  <configfiles>
   <configfile name="defuse_config">
 #import re
-#set $ds = chr(36)
 #if $refGenomeSource.genomeSource == "history":
 #set config_file = $refGenomeSource.config.__str__
 #else 
@@ -557,119 +477,102 @@ qsub_params                                 = ""
 
 #end raw
 
-
-  </configfile>
-  <configfile name="shscript">
-#!/bin/bash
-## define some things for cheetah proccessing
-#set $ds = chr(36)
-#set $amp = chr(38)
-#set $gt = chr(62)
-#set $lt = chr(60)
-#set $echo_cmd = 'echo'
-## Find the defuse.pl in the galaxy tool path
-#import Cheetah.FileUtils
-## declare a bash function for converting a results tsv into html with links to the get_reads output files
-results2html() {
-  rlts=${ds}1
-  rslt_name=`basename ${ds}rlts`
-  html=${ds}2
-  echo '${lt}html${gt}${lt}head${gt}${lt}title${gt}Defuse '${ds}rslt_name'${lt}/title${gt}${lt}/head${gt}${lt}body${gt}' ${gt}  ${ds}html
-  echo '${lt}h2${gt}Defuse '${ds}rslt_name'${lt}/h2${gt}${lt}table${gt}' ${gt}${gt}  ${ds}html
-  if [ -z "${ds}3" ]  
-  then
-    awk '${ds}1 ~ /cluster_id/{printf("${lt}tr${gt}");for (i = 1; i ${lt}= NF; i++) {printf("${lt}th${gt}%s${lt}/th${gt}", ${ds}i);}; printf("${lt}/tr${gt}\n");}\
-         ${ds}1 ~ /[1-9][0-9]*/{printf("${lt}tr${gt}");for (i = 1; i ${lt}= NF; i++) {printf("${lt}td${gt}%s${lt}/td${gt}", ${ds}i);}; printf("${lt}/tr${gt}\n");}' ${ds}rlts ${gt}${gt} ${ds}html
-    echo '${lt}/table${gt}' ${gt}${gt} ${ds}html
-    echo '${lt}/body${gt}${lt}/html${gt}' ${gt}${gt}  ${ds}html
-  else
-    export _EFP=${ds}3
-    mkdir -p ${ds}_EFP
-    awk '${ds}1 ~ /cluster_id/{printf("${lt}tr${gt}");for (i = 1; i ${lt}= NF; i++) {printf("${lt}th${gt}%s${lt}/th${gt}", ${ds}i);}; printf("${lt}/tr${gt}\n");}\
-         ${ds}1 ~ /[1-9][0-9]*/{fn="cluster_"${ds}1"_reads.txt"; \
-          printf("${lt}tr${gt}${lt}td${gt}${lt}a href=\"%s\"${gt}%s${lt}/a${gt}${lt}/td${gt}",fn, ${ds}1);for (i = 2; i ${lt}= NF; i++) {printf("${lt}td${gt}%s${lt}/td${gt}", ${ds}i);}; printf("${lt}/tr${gt}\n");}' ${ds}rlts ${gt}${gt} ${ds}html
-    echo '${lt}/table${gt}' ${gt}${gt} ${ds}html
-    echo '${lt}/body${gt}${lt}/html${gt}' ${gt}${gt}  ${ds}html
-    for i in `awk '${ds}1 ~ /[1-9][0-9]*/{print ${ds}1}' ${ds}rlts`;
-      do fn=cluster_${ds}{i}_reads.txt;
-      pn=${ds}_EFP/${ds}fn;
-      perl \${DEFUSE_PATH}/scripts/get_reads.pl -c $defuse_config -o output_dir -i ${ds}i ${gt} ${ds}pn;
-    done
-  fi
-}
-## substitute pathnames into config file
-if `grep __DEFUSE_PATH__ $defuse_config ${gt} /dev/null`;then sed -i'.tmp' "s#__DEFUSE_PATH__#\${DEFUSE_PATH}#" $defuse_config; fi
-if `grep __SAMTOOLS_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} SAMTOOLS_BIN=`which samtools`;then sed -i'.tmp' "s#__SAMTOOLS_BIN__#\${SAMTOOLS_BIN}#" $defuse_config; fi
-if `grep __BOWTIE_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BIN=`which bowtie`;then sed -i'.tmp' "s#__BOWTIE_BIN__#\${BOWTIE_BIN}#" $defuse_config; fi
-if `grep __BOWTIE_BUILD_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BUILD_BIN=`which bowtie-build`;then sed -i'.tmp' "s#__BOWTIE_BUILD_BIN__#\${BOWTIE_BUILD_BIN}#" $defuse_config; fi
-if `grep __BLAT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BLAT_BIN=`which blat`;then sed -i'.tmp' "s#__BLAT_BIN__#\${BLAT_BIN}#" $defuse_config; fi
-if `grep __FATOTWOBIT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} FATOTWOBIT_BIN=`which faToTwoBit`;then sed -i'.tmp' "s#__FATOTWOBIT_BIN__#\${FATOTWOBIT_BIN}#" $defuse_config; fi
-if `grep __GMAP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BIN=`which gmap`;then sed -i'.tmp' "s#__GMAP_BIN__#\${GMAP_BIN}#" $defuse_config; fi
-if `grep __GMAP_SETUP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_SETUP_BIN=`which gmap_setup`;then sed -i'.tmp' "s#__GMAP_SETUP_BIN__#\${GMAP_SETUP_BIN}#" $defuse_config; fi
-if `grep __R_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} R_BIN=`which R`;then sed -i'.tmp' "s#__R_BIN__#\${R_BIN}#" $defuse_config; fi
-if `grep __RSCRIPT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} RSCRIPT_BIN=`which Rscript`;then sed -i'.tmp' "s#__RSCRIPT_BIN__#\${RSCRIPT_BIN}#" $defuse_config; fi
-
-
-## copy config to output
-cp $defuse_config $config_txt
-## make a data_dir  and ln -s the input fastq
-mkdir -p data_dir
-## ln -s "$left_pairendreads" data_dir/reads_1.fastq
-## ln -s "$right_pairendreads" data_dir/reads_2.fastq
-cp "$left_pairendreads" data_dir/reads_1.fastq
-cp "$right_pairendreads" data_dir/reads_2.fastq
-## ln to output_dir in from_work_dir
-#if $defuse_out.__str__ != 'None':
-mkdir -p $defuse_out.dataset.extra_files_path
-ln -s $defuse_out.dataset.extra_files_path  output_dir
-#else
-mkdir -p output_dir
-#end if
-## run defuse.pl
-perl \${DEFUSE_PATH}/scripts/defuse.pl -name "$library_name" -c $defuse_config -1 data_dir/reads_1.fastq -2 data_dir/reads_2.fastq -o output_dir  -p \$GALAXY_SLOTS;
-exit_code_for_galaxy=\$?;
-## copy primary results to output datasets
-if [ -e output_dir/log/defuse.log ]; then cp output_dir/log/defuse.log $defuse_log; fi
-## if [ -e output_dir/results.tsv ]; then cp output_dir/results.tsv $results_tsv; fi
-if [ -e output_dir/results.filtered.tsv ]; then cp output_dir/results.filtered.tsv $results_filtered_tsv; fi
-if [ -e output_dir/results.classify.tsv ]; then cp output_dir/results.classify.tsv $results_classify_tsv; fi
-#if $breakpoints_bam:
-if [ -e output_dir/results.filtered.tsv ] ${amp}${amp}  [ -e output_dir/breakpoints.genome.psl ]
-then
-  awk "\\$10 ~ /^(`awk '\\$1 ~ /[0-9]+/{print \\$1}' output_dir/results.filtered.tsv | tr '\n' '|'`)\\$/{print \\$0}" output_dir/breakpoints.genome.psl > breakpoints.genome.filtered.psl ${amp}${amp}
-  psl2sam.pl breakpoints.genome.filtered.psl > breakpoints.genome.filtered.sam ${amp}${amp}
-  samtools view -b -T /panfs/roc/rissdb/galaxy/genomes/NCBIM37/defuse/defuse.reference.fa -o breakpoints.genome.filtered.bam breakpoints.genome.filtered.sam ${amp}${amp}
-  samtools sort breakpoints.genome.filtered.bam breakpoints ${amp}${amp}
-  ## samtools index breakpoints.bam
-  cp breakpoints.bam $fusions_bam
-fi
-#end if
-## create html with links for output_dir
-#if $defuse_out.__str__ != 'None':
-if [ -e $defuse_out ]
-then
-  echo '${lt}html${gt}${lt}head${gt}${lt}title${gt}Defuse Output${lt}/title${gt}${lt}/head${gt}${lt}body${gt}' ${gt} $defuse_out
-  echo '${lt}h2${gt}Defuse Output Files${lt}/h2${gt}${lt}ul${gt}' ${gt}${gt}  $defuse_out
-  pushd $defuse_out.dataset.extra_files_path
-  for f in `find -L . -maxdepth 1 -type f`; 
-   do fn=`basename ${ds}f`; echo '${lt}li${gt}${lt}a href="'${ds}fn'"${gt}'${ds}fn'${lt}/a${gt}${lt}/li${gt}' ${gt}${gt}  $defuse_out; 
-  done
-  popd
-  echo '${lt}/ul${gt}' ${gt}${gt} $defuse_out
-  echo '${lt}/body${gt}${lt}/html${gt}' ${gt}${gt}  $defuse_out
-fi
-#end if
-## run get_reads.pl on each cluster
-#if $fusion_reads.__str__ != 'None':
-if [ -e output_dir/results.filtered.tsv -a -e $fusion_reads ] 
-then
-  mkdir -p $fusion_reads.dataset.extra_files_path
-  results2html output_dir/results.filtered.tsv $fusion_reads $fusion_reads.dataset.extra_files_path
-fi
-#end if
-(exit \$exit_code_for_galaxy)
   </configfile>
  </configfiles>
+ <inputs>
+  <param name="left_pairendreads" type="data" format="fastq" label="left part of read pairs" help="The left and right reads pairs must be in the same order, and not have any unpaired reads.  (FASTQ interlacer will pair reads and remove the unpaired.   FASTQ de-interlacer will separate the result into left and right reads.)"/>
+  <param name="right_pairendreads" type="data" format="fastq" label="right part of read pairs" help="In the same order as the left reads"/>
+  <param name="library_name" type="text" value="unknown" label="library name" help="Value to put in the results library_name column">
+    <validator type="length" min="1"/>
+  </param>
+  <conditional name="refGenomeSource">
+    <param name="genomeSource" type="select" label="Will you select a built-in DeFuse Reference Dataset, or supply a configuration from your history" help="">
+      <option value="indexed">Use a built-in DeFuse Reference Dataset</option>
+      <option value="history">Use a configuration from your history that specifies the DeFuse Reference Dataset</option>
+    </param>
+    <when value="indexed">
+      <param name="index" type="select" label="Select a Reference Dataset" help="if your genome of interest is not listed - contact Galaxy team">
+        <options from_file="defuse_reference.loc">
+          <column name="name" index="1"/>
+          <column name="value" index="3"/>
+          <filter type="sort_by" column="0" />
+          <validator type="no_options" message="No indexes are available" />
+        </options>
+      </param>
+    </when>
+    <when value="history">
+      <param name="config" type="data" format="defuse.conf" label="Defuse Config file" help=""/>
+    </when>  <!-- history -->
+  </conditional>  <!-- refGenomeSource -->
+  <conditional name="defuse_param">
+    <param name="settings" type="select" label="Defuse parameter settings" help="">
+      <option value="preSet">Default settings</option>
+      <option value="full">Full parameter list</option>
+    </param>
+    <when value="preSet" />
+    <when value="full">
+      <param name="max_insert_size" type="integer" value="500" optional="true" label="Bowtie max_insert_size" />
+      <param name="dna_concordant_length" type="integer" value="2000" optional="true" label="Minimum gene fusion range dna_concordant_length" />
+      <param name="discord_read_trim" type="integer" value="50" optional="true" label="Trim length for discordant reads discord_read_trim" help="(split reads are not trimmed)" />
+      <param name="calculate_extra_annotations" type="select" label="Calculate extra annotations, fusion splice index and interrupted index" help="">
+        <option value="">Use Default</option>
+        <option value="no">no</option>
+        <option value="yes">yes</option>
+      </param>
+      <param name="clustering_precision" type="float" value=".95" optional="true" label="Filter clustering_precision">
+        <validator type="in_range" message="Choose a value between .1 and 1.0" min=".1" max="1"/>
+      </param>
+      <param name="span_count_threshold" type="integer" value="5" optional="true" label="Filter span_count_threshold" />
+      <param name="percent_identity_threshold" type="float" value=".90" optional="true" label="Filter percent_identity_threshold">
+        <validator type="in_range" message="Choose a value between .1 and 1.0" min=".1" max="1"/>
+      </param>
+      <param name="split_min_anchor" type="integer" value="4" optional="true" label="Filter split_min_anchor" />
+      <param name="splice_bias" type="integer" value="10" optional="true" label="Filter splice_bias" />
+      <param name="probability_threshold" type="float" value="0.50" optional="true" label="Filter probability_threshold">
+        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
+      </param>
+      <param name="multi_exon_transcripts_stats" type="select" label="Use multiple exon transcripts for stats calculations" help="should be enabled for very small libraries">
+        <option value="no" selected="true">no</option>
+        <option value="yes">yes</option>
+      </param>
+      <param name="covariance_sampling_density" type="float" value="0.01" optional="true" label="covariance_sampling_density">
+        <help>Position density when calculating covariance</help>
+        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="0" max="1"/>
+      </param>
+      <param name="max_paired_alignments" type="integer" value="10" optional="true" label="max_paired_alignments">
+        <help>Maximum number of alignments for a read pair, Pairs with more alignments are filtered, default is 10</help>
+        <validator type="in_range" message="Choose a value between 0.0 and 1.0" min="1" max="100"/>
+      </param>
+      <param name="denovo_assembly" type="select" label="denovo_assembly" help="">
+        <option value="">Use Default</option>
+        <option value="no">no</option>
+        <option value="yes">yes</option>
+      </param>
+      <!--
+        <param name="positive_controls" type="data" format="txt" optional=true label="Defuse positive_controls" help=""/>
+      -->
+      <param name="reads_per_job" type="integer" value="1000000" optional="true" label="Number of reads for each job in split" />
+    </when> <!-- full -->
+  </conditional>  <!-- defuse_param -->
+  <param name="keep_output" type="boolean" checked="true" truevalue="yes" falsevalue="no" label="Save DeFuse working directory files" 
+         help="The defuse output working directory can be helpful for determining errors that may have occurred during the run, 
+               but they require considerable diskspace, and should be deleted and purged when no longer needed."/>
+ </inputs>
+ <outputs>
+  <data format="txt" name="config_txt" label="${tool.name} on ${on_string}: config.txt"/>
+  <data format="txt" name="defuse_log" label="${tool.name} on ${on_string}: defuse.log" />
+  <data format="html" name="defuse_out" label="${tool.name} on ${on_string}: defuse_output (purge when no longer needed)">
+    <filter>keep_output == True</filter>
+  </data>
+  <data format="defuse.results.tsv" name="results_classify_tsv" label="${tool.name} on ${on_string}: results.classify.tsv" from_work_dir="results.classify.tsv"/>
+  <data format="defuse.results.tsv" name="results_filtered_tsv" label="${tool.name} on ${on_string}: results.filtered.tsv" from_work_dir="results.filtered.tsv"/>
+  <data format="fastqsanger" name="results_fusions1_fq" label="${tool.name} on ${on_string}: fusions_1.fq" from_work_dir="results.fusions_1.fq" />
+  <data format="fastqsanger" name="results_fusions2_fq" label="${tool.name} on ${on_string}: fusions_2.fq" from_work_dir="results.fusions_2.fq" />
+  <!--
+   expression_plot
+   circos plot
+  -->
+ </outputs>
 
  <tests>
  </tests>

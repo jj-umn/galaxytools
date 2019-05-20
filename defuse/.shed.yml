@@ -16,7 +16,7 @@ long_description: |
 
   https://bitbucket.org/dranew/defuse
 
-name: defuse
+name: defuse8
 owner: jjohnson
 remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/defuse
 type: unrestricted

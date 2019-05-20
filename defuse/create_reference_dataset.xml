@@ -1,13 +1,122 @@
-<tool id="create_defuse_reference" name="Create DeFuse Reference" version="@DEFUSE_VERSION@.2">
+<tool id="create_defuse_reference" name="Create DeFuse Reference" version="@DEFUSE_VERSION@.1">
  <description>create a defuse reference from Ensembl and UCSC sources</description>
     <macros>
         <import>macros.xml</import>
     </macros>
     <requirements>
         <expand macro="defuse_requirement" />
-        <expand macro="mapping_requirements" />
     </requirements>
-  <command interpreter="command"> /bin/bash $defuse_script </command>
+  <command detect_errors="aggressive"><![CDATA[
+    mkdir -p $config_txt.dataset.extra_files_path &&
+    ## Put executable paths in config file
+    $__tool_directory__/config_sub.sh $defuse_config $config_txt &&
+    ## defuse_create_ref.pl
+    defuse_create_ref.pl -c $config_txt
+  ]]></command>
+ <configfiles>
+   <configfile name="defuse_config">
+#
+# Configuration file for defuse
+#
+# Variables that desiganate the PATH to an application, e.g. __SAMTOOLS_BIN__ 
+#   will be set by the runtime script using the ENV PATH
+#
+
+# Directory where the defuse code was unpacked
+source_directory = __DEFUSE_PATH__
+
+# Organism IDs
+ensembl_organism = $genome.ensembl_organism
+ensembl_prefix = $genome.ensembl_prefix
+ensembl_version = $genome.ensembl_version
+ensembl_genome_version = $genome.ensembl_genome_version
+ucsc_genome_version = $genome.ucsc_genome_version
+ncbi_organism = $genome.ncbi_organism
+ncbi_prefix = $genome.ncbi_prefix
+
+# Directory where you want your dataset
+dataset_directory = $config_txt.dataset.extra_files_path
+
+#raw
+# Input genome and gene models
+gene_models                                 = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).gtf
+genome_fasta                                = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).dna.chromosomes.fa
+
+# Repeat table from ucsc genome browser
+repeats_filename                            = $(dataset_directory)/repeats.txt
+
+# EST info downloaded from ucsc genome browser
+est_fasta                                   = $(dataset_directory)/est.fa
+est_alignments                              = $(dataset_directory)/intronEst.txt
+
+# Unigene clusters downloaded from ncbi
+unigene_fasta                               = $(dataset_directory)/$(ncbi_prefix).seq.uniq
+#end raw
+
+# Paths to external tools
+samtools_bin =  __SAMTOOLS_BIN__
+bowtie_bin = __BOWTIE_BIN__
+bowtie_build_bin = __BOWTIE_BUILD_BIN__
+blat_bin = __BLAT_BIN__
+fatotwobit_bin = __FATOTWOBIT_BIN__
+gmap_bin = __GMAP_BIN__
+gmap_setup_bin = __GMAP_SETUP_BIN__
+r_bin = __R_BIN__
+rscript_bin = __RSCRIPT_BIN__
+
+#raw
+# Directory where you want your dataset
+gmap_index_directory                        = $(dataset_directory)/gmap
+#end raw
+
+#raw
+# Dataset files
+dataset_prefix       = $(dataset_directory)/defuse
+chromosome_prefix    = $(dataset_prefix).dna.chromosomes
+exons_fasta          = $(dataset_prefix).exons.fa
+cds_fasta            = $(dataset_prefix).cds.fa
+cdna_regions         = $(dataset_prefix).cdna.regions
+cdna_fasta           = $(dataset_prefix).cdna.fa
+reference_fasta      = $(dataset_prefix).reference.fa
+rrna_fasta           = $(dataset_prefix).rrna.fa
+ig_gene_list         = $(dataset_prefix).ig.gene.list
+repeats_regions      = $(dataset_directory)/repeats.regions
+est_split_fasta1     = $(dataset_directory)/est.1.fa
+est_split_fasta2     = $(dataset_directory)/est.2.fa
+est_split_fasta3     = $(dataset_directory)/est.3.fa
+est_split_fasta4     = $(dataset_directory)/est.4.fa
+est_split_fasta5     = $(dataset_directory)/est.5.fa
+est_split_fasta6     = $(dataset_directory)/est.6.fa
+est_split_fasta7     = $(dataset_directory)/est.7.fa
+est_split_fasta8     = $(dataset_directory)/est.8.fa
+est_split_fasta9     = $(dataset_directory)/est.9.fa
+
+# Fasta files with bowtie indices for prefiltering reads for concordantly mapping pairs
+prefilter1           = $(unigene_fasta)
+
+# deFuse scripts and tools
+scripts_directory    = $(source_directory)/scripts
+tools_directory      = $(source_directory)/tools
+data_directory       = $(source_directory)/data
+#end raw
+
+# Parameters for building the dataset
+chromosomes = $genome.chromosomes
+mt_chromosome = $genome.mt_chromosome
+gene_sources = $genome.gene_sources
+ig_gene_sources = $genome.ig_gene_sources
+rrna_gene_sources = $genome.rrna_gene_sources
+gene_biotypes = $genome.gene_sources
+ig_gene_biotypes = $genome.ig_gene_sources
+rrna_gene_biotypes = $genome.rrna_gene_sources
+
+#raw
+# Remove temp files
+remove_job_files                            = yes
+remove_job_temp_files                       = yes
+#end raw
+   </configfile>
+ </configfiles>
  <inputs>
   <conditional name="genome">
     <param name="choice" type="select" label="Select a Genome Build">
@@ -131,148 +240,10 @@
     </when>
   </conditional>
  </inputs>
+
  <outputs>
   <data format="defuse.conf" name="config_txt" label="${tool.name} on ${genome.ensembl_genome_version} : config.txt"/>
  </outputs>
-  <stdio>
-    <exit_code range="1:"  level="fatal"   description="Error running Create DeFuse Reference" />
-    <regex match="Error:" 
-           source="both" 
-           level="fatal" 
-           description="Error running Create DeFuse Reference" />
-
-  </stdio>
- <configfiles>
-  <configfile name="defuse_config">
-#
-# Configuration file for defuse
-#
-# Variables that desiganate the PATH to an application, e.g. __SAMTOOLS_BIN__ 
-#   will be set by the runtime script using the ENV PATH
-#
-
-# Directory where the defuse code was unpacked
-source_directory = __DEFUSE_PATH__
-
-# Organism IDs
-ensembl_organism = $genome.ensembl_organism
-ensembl_prefix = $genome.ensembl_prefix
-ensembl_version = $genome.ensembl_version
-ensembl_genome_version = $genome.ensembl_genome_version
-ucsc_genome_version = $genome.ucsc_genome_version
-ncbi_organism = $genome.ncbi_organism
-ncbi_prefix = $genome.ncbi_prefix
-
-# Directory where you want your dataset
-dataset_directory = $config_txt.extra_files_path
-
-#raw
-# Input genome and gene models
-gene_models                                 = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).gtf
-genome_fasta                                = $(dataset_directory)/$(ensembl_prefix).$(ensembl_genome_version).$(ensembl_version).dna.chromosomes.fa
-
-# Repeat table from ucsc genome browser
-repeats_filename                            = $(dataset_directory)/repeats.txt
-
-# EST info downloaded from ucsc genome browser
-est_fasta                                   = $(dataset_directory)/est.fa
-est_alignments                              = $(dataset_directory)/intronEst.txt
-
-# Unigene clusters downloaded from ncbi
-unigene_fasta                               = $(dataset_directory)/$(ncbi_prefix).seq.uniq
-#end raw
-
-# Paths to external tools
-samtools_bin =  __SAMTOOLS_BIN__
-bowtie_bin = __BOWTIE_BIN__
-bowtie_build_bin = __BOWTIE_BUILD_BIN__
-blat_bin = __BLAT_BIN__
-fatotwobit_bin = __FATOTWOBIT_BIN__
-gmap_bin = __GMAP_BIN__
-gmap_setup_bin = __GMAP_SETUP_BIN__
-gmap_build_bin = __GMAP_BUILD_BIN__
-r_bin = __R_BIN__
-rscript_bin = __RSCRIPT_BIN__
-
-#raw
-# Directory where you want your dataset
-gmap_index_directory                        = $(dataset_directory)/gmap
-#end raw
-
-#raw
-# Dataset files
-dataset_prefix       = $(dataset_directory)/defuse
-chromosome_prefix    = $(dataset_prefix).dna.chromosomes
-exons_fasta          = $(dataset_prefix).exons.fa
-cds_fasta            = $(dataset_prefix).cds.fa
-cdna_regions         = $(dataset_prefix).cdna.regions
-cdna_fasta           = $(dataset_prefix).cdna.fa
-reference_fasta      = $(dataset_prefix).reference.fa
-rrna_fasta           = $(dataset_prefix).rrna.fa
-ig_gene_list         = $(dataset_prefix).ig.gene.list
-repeats_regions      = $(dataset_directory)/repeats.regions
-est_split_fasta1     = $(dataset_directory)/est.1.fa
-est_split_fasta2     = $(dataset_directory)/est.2.fa
-est_split_fasta3     = $(dataset_directory)/est.3.fa
-est_split_fasta4     = $(dataset_directory)/est.4.fa
-est_split_fasta5     = $(dataset_directory)/est.5.fa
-est_split_fasta6     = $(dataset_directory)/est.6.fa
-est_split_fasta7     = $(dataset_directory)/est.7.fa
-est_split_fasta8     = $(dataset_directory)/est.8.fa
-est_split_fasta9     = $(dataset_directory)/est.9.fa
-
-# Fasta files with bowtie indices for prefiltering reads for concordantly mapping pairs
-prefilter1           = $(unigene_fasta)
-
-# deFuse scripts and tools
-scripts_directory    = $(source_directory)/scripts
-tools_directory      = $(source_directory)/tools
-data_directory       = $(source_directory)/data
-#end raw
-
-# Parameters for building the dataset
-chromosomes = $genome.chromosomes
-mt_chromosome = $genome.mt_chromosome
-gene_sources = $genome.gene_sources
-ig_gene_sources = $genome.ig_gene_sources
-rrna_gene_sources = $genome.rrna_gene_sources
-gene_biotypes = $genome.gene_sources
-ig_gene_biotypes = $genome.ig_gene_sources
-rrna_gene_biotypes = $genome.rrna_gene_sources
-
-#raw
-# Remove temp files
-remove_job_files                            = yes
-remove_job_temp_files                       = yes
-#end raw
-  </configfile>
-  <configfile name="defuse_script">
-#!/bin/bash
-## define some things for cheetah proccessing
-#set $amp = chr(38)
-#set $gt = chr(62)
-## substitute pathnames into config file
-if `grep __DEFUSE_PATH__ $defuse_config ${gt} /dev/null`;then sed -i'.tmp' "s#__DEFUSE_PATH__#\${DEFUSE_PATH}#" $defuse_config; fi
-if `grep __SAMTOOLS_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} SAMTOOLS_BIN=`which samtools`;then sed -i'.tmp' "s#__SAMTOOLS_BIN__#\${SAMTOOLS_BIN}#" $defuse_config; fi
-if `grep __BOWTIE_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BIN=`which bowtie`;then sed -i'.tmp' "s#__BOWTIE_BIN__#\${BOWTIE_BIN}#" $defuse_config; fi
-if `grep __BOWTIE_BUILD_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BOWTIE_BUILD_BIN=`which bowtie-build`;then sed -i'.tmp' "s#__BOWTIE_BUILD_BIN__#\${BOWTIE_BUILD_BIN}#" $defuse_config; fi
-if `grep __BLAT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} BLAT_BIN=`which blat`;then sed -i'.tmp' "s#__BLAT_BIN__#\${BLAT_BIN}#" $defuse_config; fi
-if `grep __FATOTWOBIT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} FATOTWOBIT_BIN=`which faToTwoBit`;then sed -i'.tmp' "s#__FATOTWOBIT_BIN__#\${FATOTWOBIT_BIN}#" $defuse_config; fi
-if `grep __GMAP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BIN=`which gmap`;then sed -i'.tmp' "s#__GMAP_BIN__#\${GMAP_BIN}#" $defuse_config; fi
-if `grep __GMAP_SETUP_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_SETUP_BIN=`which gmap_setup`;then sed -i'.tmp' "s#__GMAP_SETUP_BIN__#\${GMAP_SETUP_BIN}#" $defuse_config; fi
-if `grep __GMAP_BUILD_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_BUILD_BIN=`which gmap_build`;then sed -i'.tmp' "s#__GMAP_BUILD_BIN__#\${GMAP_BUILD_BIN}#" $defuse_config; fi
-if `grep __GMAP_INDEX_DIR__ $defuse_config ${gt} /dev/null` ${amp}${amp} GMAP_INDEX_DIR=`pwd`/gmap;then sed -i'.tmp' "s#__GMAP_INDEX_DIR__#\${GMAP_INDEX_DIR}#" $defuse_config; fi
-if `grep __R_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} R_BIN=`which R`;then sed -i'.tmp' "s#__R_BIN__#\${R_BIN}#" $defuse_config; fi
-if `grep __RSCRIPT_BIN__ $defuse_config ${gt} /dev/null` ${amp}${amp} RSCRIPT_BIN=`which Rscript`;then sed -i'.tmp' "s#__RSCRIPT_BIN__#\${RSCRIPT_BIN}#" $defuse_config; fi
-## copy config to output
-cp $defuse_config $config_txt
-## make a data_dir  and ln -s the input fastq
-mkdir -p $config_txt.files_path
-## create_reference_dataset.pl
-perl \${DEFUSE_PATH}/scripts/create_reference_dataset.pl -c $defuse_config 
-  </configfile>
- </configfiles>
-
  <tests>
  </tests>
  <help>

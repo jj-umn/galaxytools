@@ -4,14 +4,12 @@
     <macros>
         <import>macros.xml</import>
     </macros>
-  <command interpreter="python">defuse_results_to_vcf.py  --input $defuse_results --reference ${defuse_results.metadata.dbkey} --output $vcf
-  </command>
+  <command detect_errors="default"><![CDATA[
+      $__tool_directory__/defuse_results_to_vcf.py  --input $defuse_results --reference ${defuse_results.metadata.dbkey} --output $vcf
+  ]]></command>
   <inputs>
     <param name="defuse_results" type="data" format="defuse.results.tsv" label="Defuse Results file"/> 
   </inputs>
-  <stdio>
-    <exit_code range="1:" level="fatal" description="Error" />
-  </stdio>
   <outputs>
     <data name="vcf" metadata_source="defuse_results" format="vcf"/>
   </outputs>
