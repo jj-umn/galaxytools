@@ -1,8 +1,7 @@
-<tool id="seq2hla" name="seq2HLA" version="0.1.0">
+<tool id="seq2hla" name="seq2HLA" version="2.2.0">
     <description>HLA genotype and expression from RNA-seq</description>
     <requirements>
-        <requirement type="package" version="2.2">seq2HLA</requirement>
-        <requirement type="package" version="1.0.0">bowtie</requirement>
+        <requirement type="package" version="2.2">seq2hla</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />
