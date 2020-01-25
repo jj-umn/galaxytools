@@ -1,8 +1,8 @@
-<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.3.0">
+<tool id="ensembl_variant_report" name="Ensembl Variant Report" version="0.4.0">
     <requirements>
         <requirement type="package" version="1.40">gtf_to_genes</requirement>
-        <requirement type="package" version="3.1.4">twobitreader</requirement>
-        <requirement type="package" version="1.62">biopython</requirement>
+        <requirement type="package" version="3.1.7">twobitreader</requirement>
+        <requirement type="package" version="1.70">biopython</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />
