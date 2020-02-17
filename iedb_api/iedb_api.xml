@@ -81,8 +81,9 @@
                <option value="entry">Entered</option>
            </param>
            <when value="history">
-               <param name="allele_file" type="data" format="txt" label="Alleles file"/>
-               <help>The dataset should have on allele per line. The allele may be followed by an optional comma-separated list of pepttide lengths, e.g.: HLA-A*02:01,8,9</help>
+               <param name="allele_file" type="data" format="txt" label="Alleles file">
+                   <help>The dataset should have on allele per line. The allele may be followed by an optional comma-separated list of pepttide lengths, e.g.: HLA-A*02:01,8,9</help>
+               </param>
            </when>
            <when value="entry">
                <param name="allele_text" type="text" size="80" label="Alleles">
