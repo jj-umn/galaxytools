@@ -226,20 +226,26 @@ except Exception, e:
             #end if
           #end for
         #end if
-        #set $alist = ','.join($allelelist)
-        echo "alleles: $allelelist"  
-        && echo "unknown: $unknown_alleles"  
-        && echo "peptide lengths: $lengths"  
-        && netMHC -tdir tmp -f "$seq_fasta" -a '$alist' -l '$lengths' $sort 
-        #if $threshold_sec.rth:
-          -rth $threshold_sec.rth
+        #if len($allelelist) < 1
+            echo 'No netMHC alleles'; 
+            echo "unknown: $unknown_alleles";  
+            exit 1;
+        #else
+            echo "netMHC alleles: $allelelist"  
+            && echo "unknown alleles: $unknown_alleles"  
+            && echo "peptide lengths: $lengths"  
+            #set $alist = ','.join($allelelist)
+            && netMHC -tdir tmp -f "$seq_fasta" -a '$alist' -l '$lengths' $sort 
+            #if $threshold_sec.rth:
+              -rth $threshold_sec.rth
+            #end if
+            #if $threshold_sec.rlt:
+              -rlt $threshold_sec.rlt
+            #end if
+            -xls -xlsfile results.tsv > results.out
+            && python $format_out results.out  $output
+            && python $format_tsv results.tsv $results_tsv
         #end if
-        #if $threshold_sec.rlt:
-          -rlt $threshold_sec.rlt
-        #end if
-        -xls -xlsfile results.tsv > results.out
-        && python $format_out results.out  $output
-        && python $format_tsv results.tsv $results_tsv
     ]]></command>
     <inputs>
         <param name="seq_fasta" type="data" format="fasta" label="Peptide Sequence Fasta"/>

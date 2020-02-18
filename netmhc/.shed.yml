@@ -1,0 +1,33 @@
+categories:
+- Sequence Analysis
+description: Get epitope binding predictions from MANUALLY INSTALLED netMHC
+homepage_url: http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?netMHC
+long_description: Due to licensing restrictions, a MANUAL INSTALL of the netMHC application
+  is required.  Install instructions in the tool README file.
+
+  NetMHC 4.0 server predicts binding of peptides to a number of different HLA alleles using artificial neural networks (ANNs). 
+  SEE  http://www.cbs.dtu.dk/services/NetMHC/
+
+  NetMHC is available to academic researchers.  
+  The download webpage requires the user to accept a academic license aggrement, which prevents automatic bioconda installation.
+  http://www.cbs.dtu.dk/cgi-bin/nph-sw_request?netMHC
+
+  Download NetMHC 4.0 and install as described in  netMHC-4.0.readme
+  ( Be sure to do step 3 which installs the data from http://www.cbs.dtu.dk/services/NetMHC-4.0/data.tar.gz )
+
+  For Galaxy installation  
+
+  Add tool_depedencies/netMHC/4.0/env.sh
+
+  The env.sh must define ENVIRONMENT variables  NMHOME and TMPDIR
+
+  For example, if you installed netMHC at /usr/local/netMHC-4.0
+
+  galaxy@galaxy % cat tool_dependencies/netMHC/4.0/env.sh 
+  export NMHOME=/usr/local/netMHC-4.0
+  export TMPDIR=/tmp
+  export PATH=/usr/local/netMHC-4.0:$PATH
+
+name: netmhc
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/netmhc
