@@ -401,6 +401,68 @@ That page also describes how to retrieve the available HLA alleles for class of 
   
   A tabular file containing the results returned from the IEDB web service
 
+**Typical Workflow for Human MHC I Binding Prediction** 
+
+The RNAseq data for the subject would be used for:
+
+  - HLA prediction by seq2HLA_
+  - Novel Antigen Prediction by a variety of workflows to generate a Antigen peptide fasta 
+
+.. _seq2HLA: https://toolshed.g2.bx.psu.edu/view/iuc/seq2hla/52bba1cd3823
+
+.. image:: $PATH_TO_IMAGES/IEDB_Workflow_QueryTabular.png
+   :width: 584
+   :height: 430
+
+.. note:: The seq2HLA ClassI.HLAgenotype4digits output needs to be converted for IEDB alleles.
+
+The seq2HLA ClassI.HLAgenotype4digits output:
+
+.. image:: $PATH_TO_IMAGES/seq2HLA_ClassI.HLAgenotype4digits.png
+   :width: 285
+   :height: 77
+
+Needs to be converted into IEDB formatted alleles:
+
+.. image:: $PATH_TO_IMAGES/IEDB_formatted_alleles.png
+   :width: 74
+   :height: 81
+
+In the workflow above QueryTabular_ tool converts the alleles:
+
+  - Filter Dataset Input
+
+    * skip leading lines - *skip lines:* 1
+    * select columns - *columns:* 2,4
+    * regex replace value in column - *column:* 1  *regex pattern:* ^(\\w+[*]\\d\\d:\\d\\d\\d?).*$  *replacement expression:* HLA-\\1
+    * regex replace value in column - *column:* 2  *regex pattern:* ^(\\w+[*]\\d\\d:\\d\\d\\d?).*$  *replacement expression:* HLA-\\1
+
+  - SQL Query to generate tabular output
+
+    * SELECT c1 FROM t1 UNION SELECT c2 FROM t1
+
+.. _QueryTabular: https://toolshed.g2.bx.psu.edu/view/iuc/query_tabular/0c95a3f1654f
+
+
+The IEDB formatting can also be performed by TextProcessing_ tools:
+
+.. _TextProcessing: https://toolshed.g2.bx.psu.edu/view/bgruening/text_processing/0a8c6b61f0f4
+
+.. image:: $PATH_TO_IMAGES/TextProcessingConversion.png
+   :width: 608
+   :height: 87
+
+The TextProcessing steps to convert the alleles:
+
+  - Remove beginning -  removes the header line
+  - Replace Text - picks Allele 1 and Allele 2 from each line and reformats each on a separate line 
+
+    * *Find pattern:* ^.*\\t([a-zA-Z]+[*][0-9]{2}:[0-9]{2,3}).*\\t.*\\t([a-zA-Z]+[*][0-9]{2}:[0-9]{2,3}).*\\t.*$
+    * *Replace with:* HLA-\\1\\nHLA-\\2
+
+  - Unique - remove duplicates
+
+
     ]]></help>
     <citations>
        <citation type="doi">10.1093/nar/gku938</citation>
