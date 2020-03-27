@@ -1,0 +1,9 @@
+name: transindel
+owner: jjohnson
+categories:
+- Sequence Analysis
+description: detect indels from DNA-seq or RNA-seq
+long_description: transIndel is used to detect indels (insertions and deletions) 
+    from DNA-seq or RNA-seq data by parsing chimiric alignments from BWA-MEM
+homepage_url: https://github.com/cauyrd/transIndel
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/transindel

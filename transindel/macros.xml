@@ -1,0 +1,98 @@
+<macros>
+    <token name="@VERSION@">1.0</token>
+    <xml name="requirements">
+        <requirements>
+            <requirement type="package" version="@VERSION@">transindel</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1186/s12864-018-4671-4</citation>
+            <yield />
+        </citations>
+    </xml>
+    <xml name="version_command">
+        <version_command>transIndel_build_DNA.py -v</version_command>
+    </xml>
+    <xml name="reference_genome">
+                <conditional name="rfasta">
+                    <param name="rfasta_source" type="select" label="Reference genome FASTA used for analyzing RNAseq data">
+                        <option value="cached" selected="true">Use a built-in genome fasta</option>
+                        <option value="history">Use a FASTA from history</option>
+                    </param>
+                    <when value="cached">
+                        <param name="ref_fa_builtin" type="select" label="Select a built-in FASTA" help="If your genome of interest is not listed, contact your Galaxy administrator">
+                            <options from_data_table="all_fasta">
+                                <filter type="sort_by" column="2" />
+                                <validator type="no_options" message="No FASTA is available for the selected input dataset" />
+                            </options>
+                        </param>
+                    </when>
+                    <when value="history">
+                        <param name="ref_fa_hist" type="data" format="fasta" label="Select a history FASTA" />
+                    </when>
+                </conditional>
+    </xml>
+    <xml name="reference_gtf">
+                <conditional name="rgtf">
+                    <param name="rgtf_source" type="select" label="Reference GTF annotation file used for analyzing RNAseq data">
+                        <option value="cached" selected="true">Use a built-in transcriptome</option>
+                        <option value="history">Use a GTF from history</option>
+                    </param>
+                    <when value="cached">
+                        <param name="ref_gtf_builtin" type="select" label="Select a built-in GTF" help="If the GTF file for your transcriptome of interest is not listed, contact your Galaxy administrator">
+                            <options from_data_table="gene_sets">
+                                <filter type="sort_by" column="2" />
+                                <validator type="no_options" message="No GTF file is available." />
+                            </options>
+                        </param>
+                    </when>
+                    <when value="history">
+                        <param name="ref_gtf_hist" type="data" format="gtf" label="Select a history GTF" />
+                    </when>
+                </conditional>
+    </xml>
+
+    <xml name="build_opts" token_default_mapq_cutoff="60">
+        <param argument="--mapq_cutoff" type="integer" value="@DEFAULT_MAPQ_CUTOFF@" label="minimal MapQ in SAM for support SV event"/>
+        <param argument="--max_del_length" type="integer" value="1000000" label="maximum deletion length to be detected"/>
+    </xml>
+    <xml name="call_opts">
+        <section name="call_opts" title="transIndel_call.py options" expanded="false">
+        <param name="min_observation_count" argument="-c" type="integer" value="4" label="minimal observation count for Indel" help="(default 4)"/>
+        <param name="min_depth" argument="-d" type="integer" value="10" label="minimal depth to call Indel" help="(default 10)"/>
+        <param name="min_length" argument="-l" type="integer" value="10" label="minimal indel length to report" help="(default 10)"/>
+        <param name="min_mapq" argument="-m" type="integer" value="15" label="minimal mapq of read from BAM file to call indel" help="(default 15)"/>
+        <param name="min_allele_frequency" argument="-f" type="float" value="0.1" min="0" max="1.0" label="minimal variant allele frequency" help="(default 0.1)"/>
+        <conditional name="regions">
+            <param name="regions_source" type="select" label="limit analysis to regions">
+                <option value="none">No limit</option>
+                <option value="text">text entry</option>
+                <option value="bed">BED file</option>
+            </param>
+            <when value="none"/>
+            <when value="text">
+                <param name="target" argument="-t" type="text" value="" label="samtools region string">
+                </param>
+            </when>
+            <when value="bed">
+                <param name="target" argument="-t" type="data" format="bed" label="BED file of regions to report"/>
+            </when>
+        </conditional>
+        </section>
+    </xml>
+    <xml name="transindel_call">
+        <conditional name="transIndel_call">
+            <param name="run_transIndel_call" type="select" label="Produce a VCF file using transIndel_call.py">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </param>
+            <when value="yes">
+                <yield/>
+                <expand macro="call_opts"/>
+            </when>
+            <when value="no"/>
+        </conditional>
+    </xml>
+</macros>
