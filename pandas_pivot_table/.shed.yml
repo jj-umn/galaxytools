@@ -1,8 +1,9 @@
-categories: []
+categories: 
+  - Text Manipulation
 description: Pivot Table for tabular data
 homepage_url: https://pandas.pydata.org/pandas-docs/stable/index.html
-long_description: 'Performs a pivot table operation on tabular data using the pandas
-  python package.  '
+long_description: |
+  Performs a pivot table operation on tabular data using the pandas python package.
 name: pandas_pivot_table
 owner: jjohnson
 remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/pandas_pivot_table/
