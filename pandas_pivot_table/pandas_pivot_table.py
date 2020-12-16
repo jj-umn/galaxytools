@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import re
 import pandas as pd
 import sys
 from json.decoder import JSONDecodeError
@@ -79,8 +78,9 @@ def __main__():
             try:
                 i = int(name)
                 return dfcols[i]
-            except:
-                print('%s not a column in %s' % (name, dfcols), file=sys.stderr)
+            except Exception:
+                print('%s not a column in %s' % (name, dfcols),
+                      file=sys.stderr)
                 exit(1)
 
     def getColumns(val, dfcols):
@@ -95,10 +95,11 @@ def __main__():
         try:
             af = json.loads(funcStr)
         except JSONDecodeError as de:
-            print('"%s" is not a json string: ' % funcStr, de.msg, file=sys.stderr)
+            print('"%s" is not a json string: ' % funcStr, de.msg,
+                  file=sys.stderr)
             exit(1)
         if isinstance(af, dict):
-            aggfunc = {getColumn(k, dfcols) : v for k,v in af.items()}
+            aggfunc = {getColumn(k, dfcols): v for k, v in af.items()}
         elif isinstance(af, list):
             aggfunc = af
         else:
@@ -106,9 +107,14 @@ def __main__():
         return aggfunc
 
     if args.prefix:
-        df = pd.read_table(args.input, skiprows=args.skiprows, header=None, prefix=args.prefix)
+        df = pd.read_table(args.input,
+                           skiprows=args.skiprows,
+                           header=None,
+                           prefix=args.prefix)
     elif args.header:
-        df = pd.read_table(args.input, skiprows=args.skiprows, header=args.header)
+        df = pd.read_table(args.input,
+                           skiprows=args.skiprows,
+                           header=args.header)
     else:
         df = pd.read_table(args.input, skiprows=args.skiprows)
     df_columns = df.columns.tolist()
@@ -120,7 +126,8 @@ def __main__():
     pdf = df.pivot_table(index=index, columns=columns,
                          values=values, aggfunc=aggfunc,
                          fill_value=fill_value)
-    pdf_cols = ['_'.join(reversed(p)) if isinstance(p, tuple) else p for p in pdf.columns.tolist()]
+    pdf_cols = ['_'.join(reversed(p)) if isinstance(p, tuple) else p
+                for p in pdf.columns.tolist()]
     pdf.to_csv(args.output, sep='\t', float_format='%0.6f', header=pdf_cols)
 
 
