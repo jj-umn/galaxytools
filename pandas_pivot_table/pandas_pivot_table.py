@@ -58,6 +58,11 @@ def __main__():
         default=None,
         help='fill value for missing values'
     )
+    p.add_argument(
+        '-f', '--float_format',
+        default='%0.6f',
+        help=''
+    )
     args = p.parse_args()
 
     def getValueType(val):
@@ -128,7 +133,10 @@ def __main__():
                          fill_value=fill_value)
     pdf_cols = ['_'.join(reversed(p)) if isinstance(p, tuple) else p
                 for p in pdf.columns.tolist()]
-    pdf.to_csv(args.output, sep='\t', float_format='%0.6f', header=pdf_cols)
+    pdf.to_csv(args.output,
+               sep='\t',
+               float_format=args.float_format,
+               header=pdf_cols)
 
 
 if __name__ == "__main__":

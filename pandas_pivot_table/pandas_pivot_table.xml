@@ -20,6 +20,12 @@
         --columns '$pvt_columns'
         --values '$pvt_values'
         --aggfunc='$aggfunc'
+        #if $fill_value
+            --fill_value '$fill_value'
+        #end if
+        #if $float_format
+            --float_format '$float_format'
+        #end if
         --input '$input'
         --output '$output'
     ]]></command>
@@ -58,9 +64,10 @@
               <ul>
               <li>A single function applied to each <i>value</i> column:  <b>"min"</b></li>
               <li>An array of functions applied to each <i>value</i> column:  <b>["min", "max", "mean", "std"]</b></li>
-              <li>A dictionary of <i>value column : functions</i>: <b>{"A" : "sum", "B" : ["min", "max"]}</b></li>
+              <li>A dictionary of <i>value column : function(s)</i>: <b>{"A" : "sum", "B" : ["min", "max"]}</b></li>
               </ul>
             ]]></help>
+            <validator type="regex" message="Do not forget the double quotes">.*".+".*</validator>
             <sanitizer>
                 <valid initial="string.printable">
                    <remove value="&apos;"/>
@@ -68,6 +75,25 @@
                 <mapping initial="none">
                     <add source="&apos;" target="__sq__"/>
                 </mapping>
+            </sanitizer>
+        </param> 
+	<param name="fill_value" type="text" value="" optional="true" label="Fill value (optional)"
+            help="Value to replace missing values with (in the resulting pivot table, after aggregation) default is an empty field"/>
+	<param name="float_format" type="text" value="" optional="true" label="Output floating point format (optional)">
+            <help>Default is six decimal places: %0.6f</help>
+            <validator type="regex" message="">^%\d+.\d+[fFeEgGn]$</validator>
+            <sanitizer>
+                <valid initial="string.digits">
+                     <add value="%" />
+                     <add value="." />
+                     <add value="f" />
+                     <add value="e" />
+                     <add value="g" />
+                     <add value="F" />
+                     <add value="E" />
+                     <add value="G" />
+                     <add value="n" />
+                 </valid>
             </sanitizer>
         </param> 
     </inputs>
