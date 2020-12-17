@@ -127,7 +127,7 @@ def __main__():
     columns = getColumns(args.columns, df_columns)
     values = getColumns(args.values, df_columns)
     fill_value = getValueType(args.fill_value)
-    aggfunc = getAggFunc(args.aggfunc, values)
+    aggfunc = getAggFunc(args.aggfunc.replace('\'', '"'), values)
     pdf = df.pivot_table(index=index, columns=columns,
                          values=values, aggfunc=aggfunc,
                          fill_value=fill_value)

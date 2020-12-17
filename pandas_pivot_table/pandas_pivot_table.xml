@@ -1,7 +1,12 @@
-<tool id="pandas_pivot_table" name="Pivot Table" version="@VERSION@.0" python_template_version="3.5">
+<tool id="pandas_pivot_table" name="Pivot Table" version="@VERSION@.1" python_template_version="3.5">
     <description>transform tabular data</description>
     <macros>
         <token name="@VERSION@">1.1.4</token>
+        <token name="@AGGFUNC@">'(min|max|sum|size|count|mean|std|var|prod|all|any)'</token>
+        <token name="@AGGFUNCS@">(@AGGFUNC@|[[]\s*@AGGFUNC@(,\s*@AGGFUNC@)*])</token>
+        <token name="@AGGITEM@">'\S+'\s*:\s*@AGGFUNCS@</token>
+        <token name="@AGGDICT@">{@AGGITEM@(,\s*@AGGITEM@)*}</token>
+        <token name="@AGGF@">(@AGGFUNCS@|@AGGDICT@)</token>
     </macros>
     <requirements>
         <requirement type="package" version="@VERSION@">pandas</requirement>
@@ -19,7 +24,7 @@
         --index '$pvt_index'
         --columns '$pvt_columns'
         --values '$pvt_values'
-        --aggfunc='$aggfunc'
+        --aggfunc="$aggfunc"
         #if $fill_value
             --fill_value '$fill_value'
         #end if
@@ -60,28 +65,28 @@
             <validator type="regex" message="Column names separated by commas">^\S+(,\S+)*$</validator>
         </param> 
 	<param name="aggfunc" type="text" value="" label="Pivot table aggregate function">
-            <help><![CDATA[A valid JSON string, e.g.:  
-              <ul>
-              <li>A single function applied to each <i>value</i> column:  <b>"min"</b></li>
-              <li>An array of functions applied to each <i>value</i> column:  <b>["min", "max", "mean", "std"]</b></li>
-              <li>A dictionary of <i>value column : function(s)</i>: <b>{"A" : "sum", "B" : ["min", "max"]}</b></li>
-              </ul>
+            <help><![CDATA[
+                <ul>
+                <li>Available Number Functions: @AGGFUNC@</li>
+                <li>Specify functions as (remember the single quotes):</li>
+                    <ul>
+                      <li>  - A single function applied to each <i>value</i> column:  <b>'min'</b></li>
+                      <li>  - An array of functions applied to each <i>value</i> column:  <b>['min', 'max', 'mean', 'std']</b></li>
+                      <li>  - A dictionary of <i>value column : function(s)</i>: <b>{'A' : 'sum', 'B' : ['min', 'max']}</b></li>
+                    </ul>
+                </ul>
             ]]></help>
-            <validator type="regex" message="Do not forget the double quotes">.*".+".*</validator>
+            <validator type="regex" message="Do not forget the single quotes">@AGGF@</validator>
             <sanitizer>
                 <valid initial="string.printable">
-                   <remove value="&apos;"/>
                 </valid>
-                <mapping initial="none">
-                    <add source="&apos;" target="__sq__"/>
-                </mapping>
             </sanitizer>
         </param> 
 	<param name="fill_value" type="text" value="" optional="true" label="Fill value (optional)"
             help="Value to replace missing values with (in the resulting pivot table, after aggregation) default is an empty field"/>
 	<param name="float_format" type="text" value="" optional="true" label="Output floating point format (optional)">
-            <help>Default is six decimal places: %0.6f</help>
-            <validator type="regex" message="">^%\d+.\d+[fFeEgGn]$</validator>
+            <help><![CDATA[Default is six decimal places: <i>%0.<b>6</b>f</i> For scientific: <i>%0.6<b>e</b></i>]]></help>
+            <validator type="regex" message="%0.6f">^%\d+.\d+[fFeEgGn]$</validator>
             <sanitizer>
                 <valid initial="string.digits">
                      <add value="%" />
@@ -109,7 +114,7 @@
 	    <param name="pvt_index" value="A" />
 	    <param name="pvt_columns" value="C"/>
 	    <param name="pvt_values" value="D"/>
-	    <param name="aggfunc" value="&quot;max&quot;"/>
+	    <param name="aggfunc" value="'max'"/>
             <output name="output">
                 <assert_contents>
                     <has_text_matching expression="bar\t7\t6" />
@@ -124,7 +129,7 @@
 	    <param name="pvt_index" value="A" />
 	    <param name="pvt_columns" value="C"/>
 	    <param name="pvt_values" value="D"/>
-	    <param name="aggfunc" value="[&quot;min&quot;,&quot;max&quot;]"/>
+	    <param name="aggfunc" value="['min','max']"/>
             <output name="output">
                 <assert_contents>
                     <has_text_matching expression="bar\t4\t5\t7\t6" />
@@ -139,7 +144,7 @@
 	    <param name="pvt_index" value="C,B" />
 	    <param name="pvt_columns" value="A"/>
 	    <param name="pvt_values" value="D,E"/>
-	    <param name="aggfunc" value="{&quot;D&quot; : [&quot;min&quot;,&quot;sum&quot;], &quot;E&quot; : &quot;mean&quot;}"/>
+	    <param name="aggfunc" value="{'D' : ['min','sum'], 'E' : 'mean'}"/>
             <output name="output">
                 <assert_contents>
                     <has_text_matching expression="C\tB\tbar_min_D\tfoo_min_D\tbar_sum_D\tfoo_sum_D\tbar_mean_E\tfoo_mean_E"/>
