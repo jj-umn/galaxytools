@@ -76,17 +76,21 @@ def __main__():
                     return val
         return None
 
-    def getColumn(name, dfcols):
+    def getColumn(name, dfcols, value_cols=None):
+        dfname = None
         if name in dfcols:
-            return name
+            dfname = name
         else:
             try:
-                i = int(name)
-                return dfcols[i]
-            except Exception:
-                print('%s not a column in %s' % (name, dfcols),
-                      file=sys.stderr)
-                exit(1)
+                i = int(name) - 1
+                dfname = dfcols[i]
+            except IndexError:
+                sys.exit('%s not an index into %s' % (name, dfcols))
+            except ValueError:
+                sys.exit('%s not a column in %s' % (name, dfcols))
+        if value_cols and dfname not in value_cols:
+            sys.exit('%s not a value column in %s' % (name, value_cols))
+        return dfname
 
     def getColumns(val, dfcols):
         fields = [v.strip() for v in val.split(',')]
@@ -95,16 +99,15 @@ def __main__():
             cols.append(getColumn(name, dfcols))
         return cols
 
-    def getAggFunc(funcStr, dfcols):
+    def getAggFunc(funcStr, dfcols, value_cols):
         af = funcStr
         try:
             af = json.loads(funcStr)
         except JSONDecodeError as de:
-            print('"%s" is not a json string: ' % funcStr, de.msg,
-                  file=sys.stderr)
-            exit(1)
+            sys.exit('"%s" is not a json string: %s' % (funcStr, de.msg))
         if isinstance(af, dict):
-            aggfunc = {getColumn(k, dfcols): v for k, v in af.items()}
+            aggfunc = {getColumn(k, dfcols, value_cols): v
+                       for k, v in af.items()}
         elif isinstance(af, list):
             aggfunc = af
         else:
@@ -127,11 +130,12 @@ def __main__():
     columns = getColumns(args.columns, df_columns)
     values = getColumns(args.values, df_columns)
     fill_value = getValueType(args.fill_value)
-    aggfunc = getAggFunc(args.aggfunc.replace('\'', '"'), values)
+    aggfunc = getAggFunc(args.aggfunc.replace('\'', '"'), df_columns, values)
     pdf = df.pivot_table(index=index, columns=columns,
                          values=values, aggfunc=aggfunc,
                          fill_value=fill_value)
-    pdf_cols = ['_'.join(reversed(p)) if isinstance(p, tuple) else p
+    pdf_cols = ['_'.join([str(x) for x in reversed(p)])
+                if isinstance(p, tuple) else str(p)
                 for p in pdf.columns.tolist()]
     pdf.to_csv(args.output,
                sep='\t',

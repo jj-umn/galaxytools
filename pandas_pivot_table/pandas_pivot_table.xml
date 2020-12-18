@@ -7,6 +7,7 @@
         <token name="@AGGITEM@">'\S+'\s*:\s*@AGGFUNCS@</token>
         <token name="@AGGDICT@">{@AGGITEM@(,\s*@AGGITEM@)*}</token>
         <token name="@AGGF@">(@AGGFUNCS@|@AGGDICT@)</token>
+        <token name="@COL_HELP@">Name of column or 1-based oridinal position of column</token>
     </macros>
     <requirements>
         <requirement type="package" version="@VERSION@">pandas</requirement>
@@ -56,24 +57,28 @@
         </conditional>         
 	<param name="skiprows" type="integer" value="0" min="0" label="Skip table rows"/>
 	<param name="pvt_index" type="text" value="" label="Pivot table index columns">
+            <help>@COL_HELP@</help>
             <validator type="regex" message="Column names separated by commas">^\S+(,\S+)*$</validator>
         </param> 
 	<param name="pvt_columns" type="text" value="" label="Pivot table columns to split into output columns">
+            <help>@COL_HELP@</help>
             <validator type="regex" message="Column names separated by commas">^\S+(,\S+)*$</validator>
         </param> 
 	<param name="pvt_values" type="text" value="" label="Pivot table value  columns">
+            <help>@COL_HELP@</help>
             <validator type="regex" message="Column names separated by commas">^\S+(,\S+)*$</validator>
         </param> 
 	<param name="aggfunc" type="text" value="" label="Pivot table aggregate function">
             <help><![CDATA[
                 <ul>
                 <li>Available Number Functions: @AGGFUNC@</li>
-                <li>Specify functions as (remember the single quotes):</li>
+                <li>Specify functions as:</li>
                     <ul>
                       <li>  - A single function applied to each <i>value</i> column:  <b>'min'</b></li>
                       <li>  - An array of functions applied to each <i>value</i> column:  <b>['min', 'max', 'mean', 'std']</b></li>
                       <li>  - A dictionary of <i>value column : function(s)</i>: <b>{'A' : 'sum', 'B' : ['min', 'max']}</b></li>
                     </ul>
+                <li><i>(remember the single quotes)</i></li>
                 </ul>
             ]]></help>
             <validator type="regex" message="Do not forget the single quotes">@AGGF@</validator>
