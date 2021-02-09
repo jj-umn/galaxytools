@@ -1,28 +1,28 @@
-<tool id="optitype" name="OptiType" version="1.3.2">
+<tool id="optitype" name="OptiType" version="1.3.5">
     <description>HLA genotyping predictions from NGS data</description>
     <requirements>
-        <requirement type="package" version="1.3.2">optitype</requirement>
+        <requirement type="package" version="1.3.5">optitype</requirement>
     </requirements>
     <command detect_errors="aggressive">
 <![CDATA[
 #set $fastqs = []
 #if str( $fastq_input.fastq_input_selector ) == "paired":
-    ln -s "${fastq_input.fastq_input1}" reads_1.fastq
-    && ln -s "${fastq_input.fastq_input2}" reads_2.fastq
+    ln -s '${fastq_input.fastq_input1}' reads_1.fastq
+    && ln -s '${fastq_input.fastq_input2}' reads_2.fastq
     #set $fastqs = ['reads_1.fastq','reads_2.fastq']
 #elif str( $fastq_input.fastq_input_selector ) == "paired_collection":
-    ln -s "${fastq_input.fastq_input1.forward}" reads_1.fastq
-    && ln -s "${fastq_input.fastq_input1.reverse}" reads_2.fastq
+    ln -s '${fastq_input.fastq_input1.forward}' reads_1.fastq
+    && ln -s '${fastq_input.fastq_input1.reverse}' reads_2.fastq
     #set $fastqs = ['reads_1.fastq','reads_2.fastq']
 #elif str( $fastq_input.fastq_input_selector ) == "single":
-    ln -s "${fastq_input.fastq_input1}" reads.fastq
+    ln -s '${fastq_input.fastq_input1}' reads.fastq
     #set $fastqs = ['reads.fastq']
 #end if
 && RAZERS3=`which razers3`
-&& sed "s#path_to_razers3#\$RAZERS3#" '$optitype_config' | sed "s/threads=16/threads=\$GALAXY_SLOTS/" > config.ini
+&& sed "s#path_to_razers3#\$RAZERS3#" '$optitype_config' | sed "s/threads=16/threads=\${GALAXY_SLOTS}/" > config.ini
 #set $input_fq = ' '.join($fastqs)
 && OptiTypePipeline.py 
-$read_type --input    ${' '.join($fastqs)}
+$read_type --input ${' '.join($fastqs)}
 #if str($beta) != '': 
  --beta $beta
 #end if
@@ -146,9 +146,24 @@ plots as unpaired reads, regardless of this setting. ]]>
                 <param name="fastq_input1" ftype="fastqsanger" value="rna/CRC_81_N_1_fished.fastq"/>
                 <param name="fastq_input2" ftype="fastqsanger" value="rna/CRC_81_N_2_fished.fastq"/>
             </conditional>
+            <param name="read_type" value="--rna"/>
             <output name="result">
                 <assert_contents>
                     <has_text text="A*31:01" />
+                </assert_contents>
+            </output>
+        </test>
+        <test>
+            <conditional name="fastq_input">
+                <param name="fastq_input_selector" value="paired"/>
+                <param name="fastq_input1" ftype="fastqsanger" value="exome/NA11995_SRR766010_1_fished.fastq"/>
+                <param name="fastq_input2" ftype="fastqsanger" value="exome/NA11995_SRR766010_2_fished.fastq"/>
+            </conditional>
+            <param name="read_type" value="--dna"/>
+            <param name="unpaired_weight" value="0.2"/>
+            <output name="result">
+                <assert_contents>
+                    <has_text text="A*01:01" />
                 </assert_contents>
             </output>
         </test>
