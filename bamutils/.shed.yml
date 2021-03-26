@@ -1,0 +1,18 @@
+name: bamutil
+owner: jjohnson
+categories:
+- Sequence Analysis
+description: bamUtil
+long_description: |
+  bamUtil is a repository that contains several programs that perform operations on SAM/BAM files.
+
+  https://genome.sph.umich.edu/wiki/BamUtil
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/bamutil/
+homepage_url: https://genome.sph.umich.edu/wiki/BamUtil
+type: unrestricted
+auto_tool_repositories:
+  name_template: "{{ tool_id }}"
+  description_template: "{{ tool_name }} (using the bamUtil package)"
+##suite:
+##  name: "suite_bamutil"
+##  description: bamutil programs that perform operations on SAM/BAM files

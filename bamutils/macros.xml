@@ -1,0 +1,22 @@
+<macros>
+    <token name="@TOOL_VERSION@">1.0.15</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="requirements">
+        <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">bamutil</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+    <xml name="citations">
+        <citations>
+            <citation type="bibtex">@online{bamUtil,
+              author = {iStatistical Genetics},
+              title = {bamUtil},
+              year = 2015,
+              url = {https://github.com/statgen/bamUtil},
+              urldate = {2021-03-01}
+            }</citation>
+            <yield />
+        </citations>
+    </xml>
+</macros>
