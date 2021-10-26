@@ -1,0 +1,13 @@
+owner: jjohnson
+name: fastq_seq_count
+categories:
+- Sequence Analysis
+description: Count the occurence of query sequences in fastq reads 
+long_description: |
+  This tool searches fastq reads for given nucleic acid query sequences.
+  A typical use would be to compare the relative occurrence of two sequences.
+  NOTE: This only reports query sequences that are completely contained in a fastq read;
+  queries that may partially match at the ends of a read will not be counted.
+
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/fastq_seq_count
+type: unrestricted

@@ -1,0 +1,104 @@
+<tool id="fastq_seq_count" name="Count sequences in fastq files" version="0.1.1" python_template_version="3.5">
+    <description></description>
+    <requirements>
+        <requirement type="package" version="3.8">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $title_col_list = ','.join([str(int(x)-1) for x in str($title_col).split(',')])
+        #set $qcol = int(str($query_col))-1
+        python $__tool_directory__/fastq_seq_count.py
+        -p $fastqs_file
+        -i $query_file
+        -t '$title_col_list'
+        -q $qcol
+        #if $query_label
+          -Q $query_label
+        #end if
+        #if $compare_col
+           #set $ccol = int(str($compare_col))-1
+          -c $ccol
+        #end if
+        #if $compare_label
+          -C $compare_label
+        #end if
+        $reverse_complements
+        -T "\${GALAXY_SLOTS:-4}"
+        $report_fastq_counts
+        -s $report
+    ]]></command>
+    <configfiles>
+        <configfile name="fastqs_file"><![CDATA[#slurp
+#for $f in $fastqs:
+#set $line = str($f) + '\t' + $f.element_identifier
+$line
+#end for
+]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="fastqs" type="data" format="fastq" multiple="true" label="fastq files to search"/>
+        <param name="query_file" type="data" format="tabular" label="query sequences"/>
+        <param name="title_col" type="data_column" data_ref="query_file" multiple="true" numerical="false" label="Title column(s)" help="Columns to keep as identifiers for the summary report"/>
+        <param name="query_col" type="data_column" data_ref="query_file" label="query sequence column"/>
+        <param name="query_label" type="text" value="mutant" label="query sequence label"/>
+        <param name="compare_col" type="data_column" data_ref="query_file" optional="true" label="comparison sequence column"/>
+        <param name="compare_label" type="text" value="normal" label="comparison sequence label"/>
+        <param name="reverse_complements" type="boolean" truevalue="-r" falsevalue="" checked="true" label="Also search for reverse complements"/>
+        <param name="report_fastq_counts" type="boolean" truevalue="-n counts" falsevalue="" checked="false" label="report of per fastq counts"/>
+    </inputs>
+    <outputs>
+        <data name="report" format="tabular" label="${tool.name} on ${on_string} summary report"/> 
+        <data name="hits" format="tabular" label="${tool.name} on ${on_string} count details" from_work_dir="counts"> 
+            <filter>report_fastq_counts</filter>
+        </data>
+    </outputs>
+    <tests>
+        <test>
+            <param name="fastqs" ftype="fastq" value="reads1.fastq,reads2.fastq"/>
+            <param name="query_file" ftype="tabular" value="query_seqs.tabular"/>
+            <param name="title_col" value="1,2,3,4,5"/>
+            <param name="query_col" value="4"/>
+            <param name="query_label" value="mutant"/>
+            <param name="compare_col" value="5"/>
+            <param name="compare_label" value="normal"/>
+            <param name="reverse_complements" value="True"/>
+            <param name="report_fastq_counts" value="True"/>
+            <output name="report" ftype="tabular" file="summary_report.out" />
+            <output name="hits" ftype="tabular" file="count_details.out" />
+        </test>
+    </tests>
+    <help><![CDATA[
+**Report fastq reads that contain sequences**
+
+This tool searches fastq reads for given nucleic acid query sequences. 
+A typical use would be to compare the relative occurrence of two sequences. 
+
+**NOTE:** This only reports complete matches to the sequences, and reads that may partially match at the ends will not be counted. 
+
+**INPUTS**
+
+  fastq files 
+         - the sequence files to search
+
+  query file - a tabular file
+         - that contains a column of "query" sequences to match in fastq reads
+         - it may contain a second "comparison" sequence column to match
+
+**OUTPUTS**
+
+  summary report - a tabular file
+         - the first column is the line number from the query file
+         - columns from the query file selected as identifiers
+         - the count of fastq entries for the query sequence
+         - the count of fastq entries for the comparison sequence (if selected)
+         - the fraction of query sequence matches compared to the total of query and comparison matches
+
+  count details - an optional tabular file of match count
+         - the fastq name
+         - the first column is the line number from the query file
+         - the sequence that matched 
+         - the label of the sequence that matched
+         - the strand that matched 
+         - the number reads that matched 
+
+    ]]></help>
+</tool>
