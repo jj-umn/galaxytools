@@ -56,8 +56,8 @@ def main():
                         help='summary report file')
     parser.add_argument('-n', '--counts', required=False,
                         help='counts')
-    parser.add_argument('-t', '--title_col', required=True,
-                        help='column indices')
+    parser.add_argument('-I', '--id_col', required=False, default=None,
+                        help='identifier column indices')
     parser.add_argument('-q', '--q_col', type=int, required=True,
                         help='column in queries for search sequence')
     parser.add_argument('-Q', '--q_label', required=False, default='mutant',
@@ -76,12 +76,14 @@ def main():
                         help='threads')
     args = parser.parse_args()
 
-    title_col_list = [int(x) for x in str(args.title_col).split(',')]
+    id_col_list = []
+    if args.id_col:
+        id_col_list = [int(x) for x in str(args.id_col).split(',')]
     strands = ['+', '-'] if args.reverse_complement else ['+']
     labels = [args.q_label]
     if args.c_col is not None:
         labels.append(args.c_label)
-    titles = dict()
+    ids = dict()
     qseqs = dict()
     cseqs = dict()
     files = dict()
@@ -89,9 +91,9 @@ def main():
         for ln, line in enumerate(fh):
             qnum = ln + 1
             fields = str(line).rstrip().split('\t')
-            title = '\t'.join([str(qnum)] +
-                              [fields[i] for i in title_col_list])
-            titles[ln] = title
+            id = '\t'.join([str(qnum)] +
+                           [fields[i] for i in id_col_list])
+            ids[ln] = id
             qseqs[ln] = fields[args.q_col]
             if args.c_col is not None:
                 cseqs[ln] = fields[args.c_col]
@@ -137,7 +139,7 @@ def main():
 
     # count ln name label
     counts = dict()
-    for i in range(len(titles)):
+    for i in range(len(ids)):
         counts[i] = dict()
         for name, path in files.items():
             counts[i][name] = dict()
@@ -155,9 +157,9 @@ def main():
         labels = [args.q_label]
         if args.c_col is not None:
             labels.append(args.c_label)
-        for i in range(len(titles)):
+        for i in range(len(ids)):
             tcnts = [0, 0]
-            print(titles[i], end='\t', file=ofh)
+            print(ids[i], end='\t', file=ofh)
             for name, path in files.items():
                 frac = 1.
                 cnts = [0, 0]
