@@ -1,0 +1,15 @@
+categories:
+- Text Manipulation
+- Sequence Analysis
+description: Find and filter sequences by subsequences
+long_description: |
+
+  Filters lines of a tabular input file by checking if the selected input column
+  is a substring of the selected column of any line in the reference file.  
+  This can be used to check if peptides sequences are present in a set of reference proteins,
+  as a means of filtering out uninteresting peptide sequences.
+
+name: find_in_reference
+owner: jjohnson
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/find_in_reference
+type: unrestricted

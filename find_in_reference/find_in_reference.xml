@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<tool id="find_in_reference" name="find in reference" version="0.1.0">
+  <description>filter peptides that are present in proteins</description>
+  <command interpreter="python">find_in_reference.py  --input "$input" 
+  --reference "$reference" 
+  #if $column.set == 'yes':
+    --input_column $column.input_column
+    --reference_column $column.reference_column
+  #end if
+  $case_insensitive $reverse_find $test_reverse $test_dna_reverse_complement
+  #if 'novel' in $outputs.__str__ or not 'found' in $outputs.__str__:
+    --output "$novel"
+  #end if
+  #if 'found' in $outputs.__str__:
+    --filtered "$found"
+    #if $annotate.from_ref == 'yes' and str($annotate.annotation_columns) != 'None':
+      --annotation_columns $annotate.annotation_columns
+      #if $annotate.annotation_separator != '':
+        --annotation_separator '$annotate.annotation_separator'
+      #end if
+      #if $annotate.annotation_col_sep != '':
+        --annotation_col_sep '$annotate.annotation_col_sep'
+      #end if
+    #end if
+  #end if
+  </command>
+  <inputs>
+    <param name="input" type="data" format="tabular" label="Input file to be filtered" 
+           help="e.g. a peptide fasta converted to tabular"/> 
+    <param name="reference" type="data" format="tabular" label="reference file to search" 
+           help="e.g. a protein fasta converted to tabular"/> 
+    <conditional name="column">
+      <param name="set" type="select" label="select columns to compare">
+        <option value="no" selected="true">Use last column of input and reference</option>
+        <option value="yes">Choose the column of input and reference to compare</option>
+      </param>
+      <when value="no"/>
+      <when value="yes">
+        <param name="input_column" type="data_column" data_ref="input" label="column in input (defaults to last column)" 
+           help=""/>
+        <param name="reference_column" type="data_column" data_ref="reference" label="column in reference (defaults to last column)" 
+           help=""/>
+      </when>
+    </conditional>
+    <param name="case_insensitive" type="boolean" truevalue="--case_insensitive" falsevalue="" checked="false" label="Ignore case when comparing"/>
+    <param name="reverse_find" type="boolean" truevalue="--reverse_find" falsevalue="" checked="false" label="reverse search: find the reference in the input" />
+    <param name="test_reverse" type="boolean" truevalue="--test_reverse" falsevalue="" checked="false" label="Also search for reversed input string in the reference" />
+    <param name="test_dna_reverse_complement" type="boolean" truevalue="--test_dna_reverse_complement" falsevalue="" checked="false" label="Also search for the DNA reverse complementof of the input in the reference" />
+    <param name="outputs" type="select" multiple="true" display="checkboxes" label="Choose outputs">
+      <option value="novel" selected="true">lines with no match in reference</option>
+      <option value="found">lines with match in reference</option>
+    </param>
+    <conditional name="annotate">
+      <param name="from_ref" type="select" label="Annotate found input entries with columns from reference">
+        <option value="no" selected="true">No</option>
+        <option value="yes">Yes</option>
+      </param>
+      <when value="no"/>
+      <when value="yes">
+        <param name="annotation_columns" type="data_column" data_ref="reference" multiple="true" label="columns from reference to append to found input lines" 
+           help=""/>
+        <param name="annotation_separator" type="text" value=";" optional="true" label="separator to place between annotations from different reference lines"
+           help="defaults to ;">
+          <validator type="regex" message="Single quote character is not allowed">^[^']*$</validator>
+          <sanitizer>
+            <valid initial="string.printable">
+              <remove value="&apos;"/>
+            </valid>
+            <mapping initial="none">
+              <add source="&apos;" target=""/>
+            </mapping>
+          </sanitizer>
+        </param>
+        <param name="annotation_col_sep" type="text" value="," optional="true" label="separator to place between annotation columns from the same reference line"
+           help="defaults to ,">
+          <validator type="regex" message="Single quote character is not allowed">^[^']*$</validator>
+          <sanitizer>
+            <valid initial="string.printable">
+              <remove value="&apos;"/>
+            </valid>
+            <mapping initial="none">
+              <add source="&apos;" target=""/>
+            </mapping>
+          </sanitizer>
+        </param>
+      </when>
+    </conditional>
+  </inputs>
+  <stdio>
+    <exit_code range="1:" level="fatal" description="Error" />
+  </stdio>
+  <outputs>
+    <data name="found" metadata_source="input" format_source="input" label="${tool.name} on ${on_string}: found">
+      <filter>'found' in str(outputs)</filter>
+    </data>
+    <data name="novel" metadata_source="input" format_source="input" label="${tool.name} on ${on_string}: novel">
+      <filter>'novel' in str(outputs) or not 'found' in str(outputs)</filter>
+    </data>
+  </outputs>
+  <tests>
+    <test>
+      <param name="input" value="human_peptides.tabular" ftype="tabular" dbkey="hg19"/>
+      <param name="reference" value="human_proteins.tabular" ftype="tabular" dbkey="hg19"/>
+      <output name="novel" file="novel_peptides.tabular"/>
+    </test>
+    <test>
+      <param name="input" value="human_proteins.tabular" ftype="tabular" dbkey="hg19"/>
+      <param name="reference" value="human_peptides.tabular" ftype="tabular" dbkey="hg19"/>
+      <conditional name="column">
+          <param name="set" value="yes"/>
+          <param name="input_column" value="2"/>
+          <param name="reference_column" value="2"/>
+      </conditional>
+      <param name="reverse_find" value="True"/>
+      <param name="outputs" value="found"/>
+      <output name="found" file="found_proteins.tabular"/>
+    </test>
+  </tests>
+  <help>
+**Find in Reference**
+
+Filters lines of a tabular input file by checking if the selected input column value
+is a substring of the selected column of any line in the reference file.  
+
+This can be used to check if peptides sequences are present in a set of reference proteins,  
+as a means of filtering out uninteresting peptide sequences.
+
+For Example with::
+
+  Input
+    >pep1	LIL
+    >pep2	WTF
+    >pep3	ISK
+
+  Reference
+    >prot1	RLET
+    >prot2	LLIL
+    >prot3	LAPSE
+    >prot3	RISKY
+
+  The outputs
+
+  Not found in reference
+    >pep2	WTF
+
+  Found in reference
+    >pep1	LIL
+    >pep3	ISK
+
+
+  </help>
+</tool>
