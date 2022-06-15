@@ -1,0 +1,269 @@
+<tool id="rmats" name="rMats turbo" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" python_template_version="3.5">
+    <description>detect differential alternative splicing events from RNA-Seq</description>
+    <macros>
+        <import>macros.xml</import>
+    </macros>
+    <expand macro="requirements" />
+    <expand macro="version_command" />
+    <command detect_errors="exit_code"><![CDATA[
+        echo $b1 > b1.txt &&
+        #if $b2
+          echo $b2 > b2.txt &&
+        #end if
+        rmats.py 
+        --b1 b1.txt
+        #if $b2
+          --b1 b1.txt
+        #end if
+        --gtf '$gtf'
+        #if $novel.novelSS == 'yes'
+            --novelSS
+            #if $novel.mil
+              --mil $novel.mil
+            #end if
+            #if $novel.mel
+              --mel $novel.mel
+            #end if
+        #end if
+        #if $readLength
+          --readLength $readLength
+        #end if
+        $variable_read_length
+        #if $libType
+          --libType "$libType"
+        #end if
+        #if $anchorLength
+          --anchorLength $anchorLength
+        #end if
+        #if $cstat
+          --cstat $cstat
+        #end if
+        $paired_stats
+        --nthread \${GALAXY_SLOTS:-1}
+        --tmp tmp
+        --od outputs
+    ]]></command>
+    <inputs>
+        <param name="b1" type="data" format="bam" multiple="true" label="BAM files for sample_1"/>
+        <param name="b2" type="data" format="bam" multiple="true" optional="true" label="BAM files for sample_2"/>
+        <param name="gtf" type="data" format="gtf" label="GTF - annotation of genes and transcripts"/>
+
+        <conditional name="novel">
+            <param name="novelSS" argument="--novelSS" type="select" label="Enable detection of novel splice sites">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </param>
+            <when value="no"/>
+            <when value="yes">
+                <param argument="--mil" type="integer" value="" optional="true" label="Minimum Intron Length" help=" Default is 50"/>
+                <param argument="--mel" type="integer" value="" optional="true" label="Maximum Exon Length" help=" Default is 500"/>
+            </when> 
+        </conditional>
+        <param argument="--readLength" type="integer" value="150" label="The length of each read"/>
+        <param name="variable_read_length" argument="--variable-read-length" type="boolean" truevalue="--variable-read-length" falsevalue="" checked="true" label="Allow reads with lengths that differ from --readLength to be processed"/>
+
+        <param argument="--libType" type="select" optional="true" label="Library type" 
+            help="Use fr-firststrand or fr-secondstrand for strand-specific data. Default: fr-unstranded">
+            <option value="fr-unstranded">fr-unstranded</option>
+            <option value="fr-firststrand">fr-firststrand</option>
+            <option value="fr-secondstrand">fr-secondstrand</option>
+        </param>
+
+        <param argument="--anchorLength" type="integer" value="" optional="true" label="The anchor length" help=" Default is 1"/>
+
+        <param argument="--cstat" type="float" value="" min="0." max="1." optional="true" label="The cutoff splicing difference." help="The cutoff used in the null hypothesis test for differential splicing. The default is 0.0001 for 0.01% difference. Does not apply to the paired stats model"/>
+        <param name="paired_stats" argument="--paired-stats" type="boolean" truevalue="--paired-stats" falsevalue="" checked="true" label="Enable detection of novel splice sites"/>
+        
+        <param name="history_outputs" type="select" multiple="true" label="Select outputs">
+            <option value="SE.MATS.JC.txt">SE.MATS.JC.txt</option>
+            <option value="SE.MATS.JCEC.txt">SE.MATS.JCEC.txt</option>
+            <option value="MXE.MATS.JC.txt">MXE.MATS.JC.txt</option>
+            <option value="MXE.MATS.JCEC.txt">MXE.MATS.JCEC.txt</option>
+            <option value="A3SS.MATS.JC.txt">A3SS.MATS.JC.txt</option>
+            <option value="A3SS.MATS.JCEC.txt">A3SS.MATS.JCEC.txt</option>
+            <option value="A5SS.MATS.JC.txt">A5SS.MATS.JC.txt</option>
+            <option value="A5SS.MATS.JCEC.txt">A5SS.MATS.JCEC.txt</option>
+            <option value="RI.MATS.JC.txt">RI.MATS.JC.txt</option>
+            <option value="RI.MATS.JCEC.txt">RI.MATS.JCEC.txt</option>
+            <option value="fromGTF.SE.txt">fromGTF.SE.txt</option>
+            <option value="fromGTF.novelJunction.SE.txt">fromGTF.novelJunction.SE.txt</option>
+            <option value="fromGTF.novelSpliceSite.SE.txt">fromGTF.novelSpliceSite.SE.txt</option>
+            <option value="fromGTF.MXE.txt">fromGTF.MXE.txt</option>
+            <option value="fromGTF.novelJunction.MXE.txt">fromGTF.novelJunction.MXE.txt</option>
+            <option value="fromGTF.novelSpliceSite.MXE.txt">fromGTF.novelSpliceSite.MXE.txt</option>
+            <option value="fromGTF.A3SS.txt">fromGTF.A3SS.txt</option>
+            <option value="fromGTF.novelJunction.A3SS.txt">fromGTF.novelJunction.A3SS.txt</option>
+            <option value="fromGTF.novelSpliceSite.A3SS.txt">fromGTF.novelSpliceSite.A3SS.txt</option>
+            <option value="fromGTF.A5SS.txt">fromGTF.A5SS.txt</option>
+            <option value="fromGTF.novelJunction.A5SS.txt">fromGTF.novelJunction.A5SS.txt</option>
+            <option value="fromGTF.novelSpliceSite.A5SS.txt">fromGTF.novelSpliceSite.A5SS.txt</option>
+            <option value="fromGTF.RI.txt">fromGTF.RI.txt</option>
+            <option value="fromGTF.novelJunction.RI.txt">fromGTF.novelJunction.RI.txt</option>
+            <option value="fromGTF.novelSpliceSite.RI.txt">fromGTF.novelSpliceSite.RI.txt</option>
+        </param> 
+        
+    </inputs>
+    <outputs>
+        <data name="summary" format="tabular" label="${tool.name} on ${on_string}: summary.txt" from_work_dir="outputs/summary.txt">
+            <expand macro="output_actions" column_names="@COLNAME_SUMMARY@"/>
+        </data>
+
+        <data name="fromGTF_SE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.SE.txt" from_work_dir="outputs/fromGTF.SE.txt">
+            <filter>history_outputs and 'fromGTF.SE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_SE_GTF@"/>
+        </data>
+        <data name="fromGTF_A3SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.A3SS.txt" from_work_dir="outputs/fromGTF.A3SS.txt">
+            <filter>history_outputs and 'fromGTF.A3SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_A5SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.A5SS.txt" from_work_dir="outputs/fromGTF.A5SS.txt">
+            <filter>history_outputs and 'fromGTF.A5SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_MXE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.MXE.txt" from_work_dir="outputs/fromGTF.MXE.txt">
+            <filter>history_outputs and 'fromGTF.MXE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_MXE_GTF@"/>
+        </data>
+        <data name="fromGTF_RI" format="tabular" label="${tool.name} on ${on_string}: fromGTF.RI.txt" from_work_dir="outputs/fromGTF.RI.txt">
+            <filter>history_outputs and 'fromGTF.RI.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_RI_GTF@"/>
+        </data>
+
+        <data name="fromGTF_novelSpliceSite_SE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelSpliceSite.SE.txt" from_work_dir="outputs/fromGTF.novelSpliceSite.SE.txt">
+            <filter>history_outputs and 'fromGTF.novelSpliceSite.SE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_SE_GTF@"/>
+        </data>
+        <data name="fromGTF_novelSpliceSite_A3SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelSpliceSite.A3SS.txt" from_work_dir="outputs/fromGTF.novelSpliceSite.A3SS.txt">
+            <filter>history_outputs and 'fromGTF.novelSpliceSite.A3SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_novelSpliceSite_A5SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelSpliceSite.A5SS.txt" from_work_dir="outputs/fromGTF.novelSpliceSite.A5SS.txt">
+            <filter>history_outputs and 'fromGTF.novelSpliceSite.A5SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_novelSpliceSite_MXE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelSpliceSite.MXE.txt" from_work_dir="outputs/fromGTF.novelSpliceSite.MXE.txt">
+            <filter>history_outputs and 'fromGTF.novelSpliceSite.MXE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_MXE_GTF@"/>
+        </data>
+        <data name="fromGTF_novelSpliceSite_RI" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelSpliceSite.RI.txt" from_work_dir="outputs/fromGTF.novelSpliceSite.RI.txt">
+            <filter>history_outputs and 'fromGTF.novelSpliceSite.RI.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_RI_GTF@"/>
+        </data>
+
+        <data name="fromGTF_novelJunction_SE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelJunction.SE.txt" from_work_dir="outputs/fromGTF.novelJunction.SE.txt">
+            <filter>history_outputs and 'fromGTF.novelJunction.SE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_SE_GTF@"/>
+        </data>
+        <data name="fromGTF_novelJunction_A3SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelJunction.A3SS.txt" from_work_dir="outputs/fromGTF.novelJunction.A3SS.txt">
+            <filter>history_outputs and 'fromGTF.novelJunction.A3SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_novelJunction_A5SS" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelJunction.A5SS.txt" from_work_dir="outputs/fromGTF.novelJunction.A5SS.txt">
+            <filter>history_outputs and 'fromGTF.novelJunction.A5SS.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS_GTF@"/>
+        </data>
+        <data name="fromGTF_novelJunction_MXE" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelJunction.MXE.txt" from_work_dir="outputs/fromGTF.novelJunction.MXE.txt">
+            <filter>history_outputs and 'fromGTF.novelJunction.MXE.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_MXE_GTF@"/>
+        </data>
+        <data name="fromGTF_novelJunction_RI" format="tabular" label="${tool.name} on ${on_string}: fromGTF.novelJunction.RI.txt" from_work_dir="outputs/fromGTF.novelJunction.RI.txt">
+            <filter>history_outputs and 'fromGTF.novelJunction.RI.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_RI_GTF@"/>
+        </data>
+
+        <data name="SE_MATS_JCEC" format="tabular" label="${tool.name} on ${on_string}: SE.MATS.JCEC.txt" from_work_dir="outputs/SE.MATS.JCEC.txt">
+            <filter>history_outputs and 'SE.MATS.JCEC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_SE@"/>
+        </data>
+        <data name="SE_MATS_JC" format="tabular" label="${tool.name} on ${on_string}: SE.MATS.JC.txt" from_work_dir="outputs/SE.MATS.JC.txt">
+            <filter>history_outputs and 'SE.MATS.JC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_SE@"/>
+        </data>
+        <data name="A3SS_MATS_JCEC" format="tabular" label="${tool.name} on ${on_string}: A3SS.MATS.JCEC.txt" from_work_dir="outputs/A3SS.MATS.JCEC.txt">
+            <filter>history_outputs and 'A3SS.MATS.JCEC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS@"/>
+        </data>
+        <data name="A3SS_MATS_JC" format="tabular" label="${tool.name} on ${on_string}: A3SS.MATS.JC.txt" from_work_dir="outputs/A3SS.MATS.JC.txt">
+            <filter>history_outputs and 'A3SS.MATS.JC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS@"/>
+        </data>
+        <data name="A5SS_MATS_JCEC" format="tabular" label="${tool.name} on ${on_string}: A5SS.MATS.JCEC.txt" from_work_dir="outputs/A5SS.MATS.JCEC.txt">
+            <filter>history_outputs and 'A5SS.MATS.JCEC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS@"/>
+        </data>
+        <data name="A5SS_MATS_JC" format="tabular" label="${tool.name} on ${on_string}: A5SS.MATS.JC.txt" from_work_dir="outputs/A5SS.MATS.JC.txt">
+            <filter>history_outputs and 'A5SS.MATS.JC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_A_SS@"/>
+        </data>
+        <data name="MXE_MATS_JCEC" format="tabular" label="${tool.name} on ${on_string}: MXE.MATS.JCEC.txt" from_work_dir="outputs/MXE.MATS.JCEC.txt">
+            <filter>history_outputs and 'MXE.MATS.JCEC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_MXE@"/>
+        </data>
+        <data name="MXE_MATS_JC" format="tabular" label="${tool.name} on ${on_string}: MXE.MATS.JC.txt" from_work_dir="outputs/MXE.MATS.JC.txt">
+            <filter>history_outputs and 'MXE.MATS.JC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_MXE@"/>
+        </data>
+        <data name="RI_MATS_JCEC" format="tabular" label="${tool.name} on ${on_string}: RI.MATS.JCEC.txt" from_work_dir="outputs/RI.MATS.JCEC.txt">
+            <filter>history_outputs and 'RI.MATS.JCEC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_RI@"/>
+        </data>
+        <data name="RI_MATS_JC" format="tabular" label="${tool.name} on ${on_string}: RI.MATS.JC.txt" from_work_dir="outputs/RI.MATS.JC.txt">
+            <filter>history_outputs and 'RI.MATS.JC.txt' in history_outputs</filter>
+            <expand macro="output_actions" column_names="@COLNAMES_RI@"/>
+        </data>
+    </outputs>
+    <tests>
+        <test>
+            <param name="b1" ftype="bam" value="normal_small.bam"/>
+            <param name="b2" ftype="bam" value="cancer_small.bam"/>
+            <param name="gtf" ftype="gtf" value="GRCh38.gtf"/>
+            <param name="readLength" value="150"/>
+            <param name="variable_read_length" value="True"/>
+            <output name="summary" file="out/summary.txt" ftype="tabular"/>
+        </test>
+
+        <test>
+            <param name="b1" ftype="bam" value="normal_small.bam"/>
+            <param name="b2" ftype="bam" value="cancer_small.bam"/>
+            <param name="gtf" ftype="gtf" value="GRCh38.gtf"/>
+            <param name="readLength" value="150"/>
+            <param name="variable_read_length" value="True"/>
+            <conditional name="novel">
+                <param name="novelSS" value="yes"/>
+                <param name="mil" value="40"/>
+            </conditional> 
+            <output name="summary" file="novel/summary.txt" ftype="tabular"/>
+        </test>
+
+        <test>
+            <param name="b1" ftype="bam" value="normal_small.bam"/>
+            <param name="b2" ftype="bam" value="cancer_small.bam"/>
+            <param name="gtf" ftype="gtf" value="GRCh38.gtf"/>
+            <param name="readLength" value="150"/>
+            <param name="variable_read_length" value="True"/>
+            <conditional name="novel">
+                <param name="novelSS" value="yes"/>
+            </conditional> 
+            <param name="paired_stats" value="True"/>
+            <param name="" value="SE.MATS.JC.txt,MXE.MATS.JC.txt"/>
+            <output name="summary">
+                <assert_contents>
+                    <has_text_matching expression="EventType"/>
+                </assert_contents>
+            </output>
+            <output name="summary" file="novel/summary.txt" ftype="tabular"/>
+        </test>
+
+    </tests>
+    <help><![CDATA[
+** rMATS **
+
+RMATS is a computational tool to detect differential alternative splicing events from RNA-Seq data. The statistical model of MATS calculates the P-value and false discovery rate that the difference in the isoform ratio of a gene between two conditions exceeds a given user-defined threshold. From the RNA-Seq data, MATS can automatically detect and analyze alternative splicing events corresponding to all major types of alternative splicing patterns. MATS handles replicate RNA-Seq data from both paired and unpaired study design.
+
+https://github.com/Xinglab/rmats-turbo#starting-with-bam-files
+
+https://github.com/Xinglab/rmats-turbo#output
+
+    ]]></help>
+    <expand macro="citations" />
+</tool>

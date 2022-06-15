@@ -1,0 +1,48 @@
+<macros>
+    <token name="@TOOL_VERSION@">4.1.2</token>
+    <token name="@VERSION_SUFFIX@">0</token>
+    <xml name="requirements">
+        <requirements>
+        <requirement type="package" version="@TOOL_VERSION@">rmats</requirement>
+        <requirement type="package" version="4.0">r-base</requirement>
+            <yield/>
+        </requirements>
+    </xml>
+    <xml name="citations">
+        <citations>
+            <citation type="doi">10.1073/pnas.1419161111</citation>
+            <citation type="doi">10.1007/978-1-62703-514-9_10</citation>
+            <citation type="doi">10.1093/nar/gkr1291</citation>
+            <yield />
+        </citations>
+    </xml>
+    <xml name="version_command">
+        <version_command>rmats.py --version</version_command>
+    </xml>
+    
+    <token name="COLNAMES_SUMMARY">EventType,TotalEventsJC,TotalEventsJCEC,SignificantEventsJC,SigEventsJCSample1HigherInclusion,SigEventsJCSample2HigherInclusion,SignificantEventsJCEC,SigEventsJCECSample1HigherInclusion,SigEventsJCECSample2HigherInclusion</token>
+    <token name="SHAREDCOLS">ID,GeneID,geneSymbol,chr,strand</token>
+    <token name="MXECOLS">1stExonStart_0base,1stExonEnd,2ndExonStart_0base,2ndExonEnd,upstreamES,upstreamEE,downstreamES,downstreamEE</token>
+    <token name="SECOLS">exonStart_0base,exonEnd,upstreamES,upstreamEE,downstreamES,downstreamEE</token>
+    <token name="ACOLS">longExonStart_0base,longExonEnd,shortES,shortEE,flankingES,flankingEE</token>
+    <token name="RICOLS">riExonStart_0base,riExonEnd,upstreamES,upstreamEE,downstreamES,downstreamEE</token>
+    <token name="CNTCOLS">ID,IJC_SAMPLE_1,SJC_SAMPLE_1,IJC_SAMPLE_2,SJC_SAMPLE_2,IncFormLen,SkipFormLen</token>
+    <token name="STATCOLS">PValue,FDR,IncLevel1,IncLevel2,IncLevelDifference</token>
+    <token name="SAMPLECOLS">@CNTCOLS@,@STATCOLS@</token>
+    <token name="COLNAMES_MXE_GTF">@SHAREDCOLS@,@MXECOLS@</token>
+    <token name="COLNAMES_MXE">@SHAREDCOLS@,@MXECOLS@,@SAMPLECOLS@</token>
+    <token name="COLNAMES_SE_GTF">@SHAREDCOLS@,@SECOLS@</token>
+    <token name="COLNAMES_SE">@SHAREDCOLS@,@SECOLS@,@SAMPLECOLS@</token>
+    <token name="COLNAMES_A_SS_GTF">@SHAREDCOLS@,@ACOLS@</token>
+    <token name="COLNAMES_A_SS">@SHAREDCOLS@,@ACOLS@,@SAMPLECOLS@</token>
+    <token name="COLNAMES_RI_GTF">@SHAREDCOLS@,@RICOLS@</token>
+    <token name="COLNAMES_RI">@SHAREDCOLS@,@RICOLS@,@SAMPLECOLS@</token>
+
+    <xml name="output_actions" token_column_names="@COLNAME_SUMMARY@">
+        <actions>
+            <action name="comment_lines" type="metadata" default="1" />
+            <action name="column_names" type="metadata" default="@COLUMN_NAMES@" />
+        </actions>
+    </xml>
+
+</macros>
