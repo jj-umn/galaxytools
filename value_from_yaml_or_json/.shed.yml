@@ -1,0 +1,11 @@
+owner: jjohnson
+name: value_from_yaml_or_json
+categories:
+  - Text Manipulation
+description: Extract a value from a YAML or JSON dataset
+long_description: |
+  Extract a value from a YAML or JSON dataset and save to the output dataset.
+  It is expected that this might be most useful in workflows for extracting values that can be linked to parameters.
+
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/value_from_yaml_or_json
+type: unrestricted

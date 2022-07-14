@@ -1,0 +1,141 @@
+<tool id="value_from_yaml_or_json" name="Value from YAML or JSON" version="0.1.0" python_template_version="3.5">
+    <requirements>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+#def getValue(contents, path)
+  #set $rslt = $contents
+  #set $keys = path.split(':')
+  #for k in $keys:
+      #if isinstance($rslt,dict)
+          #if k in $rslt.keys()
+              #set $rslt = $rslt[k]
+          #else
+              #for dk in $rslt.keys():
+                  #if str(dk) == k
+                      #set $rslt = $rslt[dk]
+                  #end if
+              #end for
+          #end if
+      #elif isinstance($rslt,list)
+          #set $rslt = $rslt[int(k)]
+      #end if
+  #end for
+  #return $rslt
+#end def
+#set $fh = open(str($input),'r')
+#if $input.is_of_type('yaml')
+#import yaml
+#set $data = $yaml.safe_load(fh.read())
+#else
+#import json
+#set $data =  $json.load($fh)
+#end if
+#silent $fh.close()
+#set $value = $getValue($data,  $path)
+echo "$value" > '$output'
+    ]]></command>
+    <inputs>
+        <param name="input" type="data" format="yaml,json" label="YAML or JSON from which to extract value"/>
+        <param name="path" type="text" value="" label="path to value via dict keys or list indices" 
+               help="separate keys/indexes with the colon char : ">
+            <sanitizer>
+                <valid initial="string.printable">
+                </valid>
+            </sanitizer>
+        </param>
+    </inputs>
+    <outputs>
+        <data name="output" format="txt" />
+    </outputs>
+    <tests>
+        <!-- Test-1 json dict -->
+        <test>
+            <param name="input" ftype="json" value="input.json"/> 
+            <param name="path" value="beam:energy"/> 
+            <output name="output">
+                <assert_contents>
+                    <has_line line="41.9906" />
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test-2 json list -->
+        <test>
+            <param name="input" ftype="json" value="input.json"/> 
+            <param name="path" value="calibration_crystal:0:orientation:1"/> 
+            <output name="output">
+                <assert_contents>
+                    <has_line line="0.6945507909200794" />
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test-3 yaml dict -->
+        <test>
+            <param name="input" ftype="yaml" value="input.yaml"/> 
+            <param name="path" value="beam:energy"/> 
+            <output name="output">
+                <assert_contents>
+                    <has_line line="41.9906" />
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Test-4 yaml list -->
+        <test>
+            <param name="input" ftype="yaml" value="input.yaml"/> 
+            <param name="path" value="calibration_crystal:0:orientation:1"/> 
+            <output name="output">
+                <assert_contents>
+                    <has_line line="0.6945507909200794" />
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+Extract a value from a YAML or JSON dataset and save to the output dataset.  
+It is expected that this will be most useful in workflows for extracting values that can be linked to parameters.
+
+*If more elaborate filtering of JSON datasets is required, the* `JQ tool`_ *is available.*
+
+.. _JQ tool: https://toolshed.g2.bx.psu.edu/view/iuc/jq/5ff75eb1a893 
+
+-----
+
+With a JSON or YAML input dataset, specify the path for the value you wish to output by listing the key/index of the elements separated by the colon character.
+
+**Example Input YAML File** ::
+
+    beam:
+      energy: 41.9906
+      vector:
+        azimuth: 90.0
+        polar_angle: 90.0
+    calibration_crystal:
+      0:
+        orientation:
+        - 1.2148784044413221
+        - 0.6945507909200794
+        - 0.765702046701113
+        position:
+        - 0.06060121926310595
+        - 0.1312120981443553
+        - -0.06694059935413639
+      1:
+        orientation:
+        - 1.4105172207115466
+        - -0.14336674130145605
+        - -0.37238882282338215
+        position:
+        - 0.016940740257706914
+        - -0.1183857552099456
+        - 0.34767784259162654
+
+*Specifying path:*  **beam:energy** 
+    *outputs:* **41.9906**
+
+*Specifying path:*  **calibration_crystal:1:position:2**
+    *outputs:* **0.34767784259162654**
+
+*Specifying path:*  **calibration_crystal:1:position**
+    *outputs:* **[0.016940740257706914, -0.1183857552099456, 0.34767784259162654]**
+
+    ]]></help>
+</tool>
