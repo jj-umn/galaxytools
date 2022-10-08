@@ -1,0 +1,12 @@
+owner: jjohnson
+name: check_strandedness
+categories:
+  - Transcriptomics
+description: how_are_we_stranded_here: quick determination of RNA-Seq strandedness
+long_description: |
+  The how_are_we_stranded_here check_strandedness helps to quickly
+   infer strandedness of paired-end RNA-Sequencing data.
+
+homepage_url:  https://github.com/signalbash/how_are_we_stranded_here
+remote_repository_url: https://github.com/jj-umn/galaxytools/tree/master/check_strandedness
+type: unrestricted

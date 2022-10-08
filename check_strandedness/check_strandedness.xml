@@ -1,0 +1,110 @@
+<tool id="check_strandedness" name="Check Strandedness" version="@TOOL_VERSION@+galaxy@VERSION_SUFFIX@" python_template_version="3.5" profile="21.05">
+    <description>using how_are_we_stranded_here</description>
+    <macros>
+        <token name="@TOOL_VERSION@">1.0.1</token>
+        <token name="@VERSION_SUFFIX@">0</token>
+    </macros>
+    <requirements>
+        <!-- pandas in how_are_we_stranded_here 1.0.1  does work with python 3.8 + -->
+        <requirement type="package" version="3.7">python</requirement>
+        <requirement type="package" version="@TOOL_VERSION@">how_are_we_stranded_here</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #if $reads.type == 'paired':
+            ln -s '$reads.input_read1' reads1.fq &&
+            ln -s '$reads.input_read2' reads2.fq &&
+        #elif $reads.type == 'paired_collection':
+            ln -s '$reads.input_readpair.forward' reads1.fq &&
+            ln -s '$reads.input_readpair.reverse' reads1.fq &&
+        #end if
+        #if $kallisto_index
+            ln -s '$kallisto_index' kallisto_index &&
+        #end if
+        check_strandedness
+        --gtf '$gtf'
+        --transcripts '$transcripts'
+        --kallisto_index kallisto_index
+        --reads_1 reads1.fq
+        --reads_2 reads1.fq
+        #if $nreads
+            --nreads $nreads
+        #end if
+        $print_commands
+        > $log
+    ]]></command>
+    <inputs>
+        <conditional name="reads">
+            <param name="type" type="select" label="Library type of FASTQ">
+                <option value="paired">Paired-end</option>
+                <option value="paired_collection">Paired-end Dataset Collection</option>
+            </param>
+            <when value="paired">
+                <param name="input_read1" argument="--reads_1" type="data" format="fastq,fastq.gz" label="Reads #1 in FASTQ format" />
+                <param name="input_read2" argument="--reads_2" type="data" format="fastq,fastq.gz" label="Reads #2 in FASTQ format" />
+            </when>
+            <when value="paired_collection">
+                <param name="input_readpair" type="data_collection" collection_type="paired" format="fastq,fastq.gz" label="Paired Reads in FASTQ format" />
+            </when>
+        </conditional>
+        <param argument="--gtf" type="data" format="gtf" label="Reference Genome GTF file" />
+        <param argument="--transcripts" type="data" format="fasta" label="Reference Genome Transcripts cdna FASTA" />
+        <param argument="--kallisto_index" type="data" format="binary" optional="true" label="kallisto_index from previous check_strandedness job" help="must be from the same Transcripts cdna fasta"/>
+        <param argument="--nreads" type="integer" value="" min="1" optional="true" label="Number of reads to sample" help="Default: 200000"/>
+        <param argument="--print_commands" type="boolean" truevalue="--print_commands" falsevalue="" checked="false" label="print commands"/>
+    </inputs>
+    <outputs>
+        <data name="log" format="txt" label="${tool.name} on ${on_string}: log" />
+        <data name="index" format="binary" label="${tool.name} $transcripts.name kallisto_index" from_work_dir="kallisto_index">
+            <filter>kallisto_index is None</filter>
+        </data>
+        <data name="output" format="txt" label="${tool.name} on ${on_string}: strandedness_check" from_work_dir="stranded_test_reads1/strandedness_check.txt"/>
+    </outputs>
+    <tests>
+        <test>
+            <conditional name="reads">
+                <param name="type" value="paired"/>
+                <param name="input_read1" ftype="fastq.gz" value="hg38_F.fq.gz"/>
+                <param name="input_read2" ftype="fastq.gz" value="hg38_R.fq.gz"/>
+            </conditional>
+            <param name="gtf" ftype="gtf" value="hg38.gtf"/>
+            <param name="transcripts" ftype="fasta" value="hg38_transcripts.fa"/>
+            <param name="nreads" value="700"/>
+            <output name="log">
+                <assert_contents>
+                    <has_text_matching expression="This is PairEnd Data"/>
+                    <has_text_matching expression="Fraction of reads .* of explainable reads"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+**check_strandedness**
+
+The **how_are_we_stranded_here** check_strandedness_ provide a quick determination of RNA-Seq strandedness.
+
+https://github.com/signalbash/how_are_we_stranded_here
+
+check_strandedness runs a series of commands to check which direction reads align once mapped in transcripts.
+It first creates a kallisto index of your organisms transcriptome.
+It then maps a small subset of reads (default 200000) to the transcriptome, and uses kallisto's --genomebam argument to project pseudoalignments to genome sorted BAM file.
+It finally runs RSeQC's infer_experiment.py to check which direction reads from the first and second pairs are aligned in relation to the transcript strand, and provides output with the likely strandedness of your data.
+
+
+** SAMPLE OUTPUT **
+
+::
+
+    This is PairEnd Data
+    Fraction of reads failed to determine: 0.0595
+    Fraction of reads explained by "1++,1--,2+-,2-+": 0.0073 (0.8% of explainable reads)
+    Fraction of reads explained by "1+-,1-+,2++,2--": 0.9332 (99.2% of explainable reads)
+    Over 90% of reads explained by "1+-,1-+,2++,2--"
+    Data is likely RF/fr-firststrand
+
+.. _how_are_we_stranded_here: https://github.com/signalbash/how_are_we_stranded_here
+.. _check_strandedness: https://github.com/signalbash/how_are_we_stranded_here
+    ]]></help>
+    <citations>
+        <citation type="doi">10.1186/s12859-022-04572-7</citation>
+    </citations>
+</tool>
