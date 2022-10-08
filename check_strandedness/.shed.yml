@@ -2,7 +2,7 @@ owner: jjohnson
 name: check_strandedness
 categories:
   - Transcriptomics
-description: how_are_we_stranded_here: quick determination of RNA-Seq strandedness
+description: how_are_we_stranded_here check_strandedness
 long_description: |
   The how_are_we_stranded_here check_strandedness helps to quickly
   infer strandedness of paired-end RNA-Sequencing data.
